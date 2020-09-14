@@ -1,6 +1,7 @@
 ﻿using Google.Cloud.Firestore;
 using MVCFirebase.Models;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,62 +10,66 @@ using System.Web.Mvc;
 
 namespace MVCFirebase.Controllers
 {[Authorize]
-    public class PatientController : Controller
+    public class UserController : Controller
     {
-        // GET: Patient
+        // GET: User
         public async Task<ActionResult> Index()
         {
             string ClinicMobileNumber = GlobalSessionVariables.ClinicMobileNumber;
             string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
             Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
             FirestoreDb db = FirestoreDb.Create("greenpaperdev");
+            List<User> UserList = new List<User>();
 
 
-            List<Patient> PatientList = new List<Patient>();
-
-            
             //Query Qref = db.Collection("Students").WhereEqualTo("StudentName","Suvidhi");
             Query Qref = db.Collection("clinics").WhereEqualTo("clinicmobilenumber", ClinicMobileNumber);
-            QuerySnapshot snap = await Qref.GetSnapshotAsync();
+            QuerySnapshot snapClinics = await Qref.GetSnapshotAsync();
 
-            foreach (DocumentSnapshot docsnap in snap)
+            foreach (DocumentSnapshot docsnapClinics in snapClinics)
             {
-                Clinic clinic = docsnap.ConvertTo<Clinic>();
-                QuerySnapshot snap2 = await docsnap.Reference.Collection("patientList").Limit(100).GetSnapshotAsync();
+                Clinic clinic = docsnapClinics.ConvertTo<Clinic>();
+                QuerySnapshot snapUsers = await docsnapClinics.Reference.Collection("user").OrderByDescending("name").GetSnapshotAsync();
 
-                foreach (DocumentSnapshot docsnap2 in snap2)
+                foreach (DocumentSnapshot docsnapUsers in snapUsers)
                 {
-                    Patient patient = docsnap2.ConvertTo<Patient>();
-                    if (docsnap2.Exists)
+
+
+                    User user = docsnapUsers.ConvertTo<User>();
+                    user.clinicmobilenumber = clinic.clinicmobilenumber;
+
+                    //QuerySnapshot snapPatient = await docsnapClinics.Reference.Collection("patientList").WhereEqualTo("patient_id", appointment.patient_id).Limit(1).GetSnapshotAsync();
+                    //DocumentSnapshot docsnapPatient = snapPatient.Documents[0];
+
+                    //Patient patient = docsnapPatient.ConvertTo<Patient>();
+                    if (docsnapUsers.Exists)
                     {
-                        patient.clinic_name = clinic.clinicname;
-                        PatientList.Add(patient);
+                        UserList.Add(user);
                     }
                 }
-                    
+
             }
 
-            return View(PatientList);
-            
+            return View(UserList);
+            //return View();
         }
 
-        // GET: Patient/Details/5
+        // GET: User/Details/5
         public ActionResult Details(int id)
         {
             return View();
         }
 
-        // GET: Patient/Create
+        // GET: User/Create
         public ActionResult Create()
         {
             return View();
         }
 
-        // POST: Patient/Create
+        // POST: User/Create
         [HttpPost]
-        public ActionResult Create(Patient patient)
-        {
-            try
+        public ActionResult Create(User user)
+        {try
             {
                 if (ModelState.IsValid)
                 {
@@ -72,9 +77,9 @@ namespace MVCFirebase.Controllers
                     Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
                     FirestoreDb db = FirestoreDb.Create("greenpaperdev");
 
-                    
+
                     //CollectionReference col1 = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("patientList").Document("test");
-                    CollectionReference col1 = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("patientList");
+                    CollectionReference col1 = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("user");
                     //Dictionary<string, object> data1 = new Dictionary<string, object>
                     //{
                     //    {"patient_name" ,collection["patient_name"]},
@@ -90,71 +95,51 @@ namespace MVCFirebase.Controllers
                     //    {"refer_to_doctor" ,collection["refer_to_doctor"]},
                     //    {"search_text" ,collection["patient_name"]+collection["patient_mobile_number"]+"Test"}
                     //};
-
+                    string[] roles = user.user_roles[0].Remove(user.user_roles[0].Length - 1,1).Split(',');
+                    
                     Dictionary<string, object> data1 = new Dictionary<string, object>
                     {
-                        {"patient_name" ,patient.patient_name},
-                        {"age" ,patient.age},
-                        {"care_of" ,patient.care_of},
-                        {"city" ,patient.city},
+                        {"name" ,user.name},
+                        {"email" ,""},
+                        {"idproof" ,""},
                         {"creation_date" ,DateTime.UtcNow},
-                        {"disease" ,patient.disease},
-                        {"gender" ,patient.gender},
-                        {"patient_id" ,"Test"},
-                        {"patient_mobile_number",patient.patient_mobile_number},
-                        {"refer_by" ,patient.refer_by},
-                        {"refer_to_doctor" ,patient.refer_to_doctor},
-                        {"search_text" ,patient.patient_name+patient.patient_mobile_number+"Test"}
+                        {"mobile_number" ,user.mobile_number},
+                        {"password" ,user.password},
+                        {"signature" ,""},
+                        {"status_enable",false},
+                        {"user_qualification" ,user.quaification},
+                        
                     };
+                    data1.Add("user_roles", roles);
 
-                    //col1.AddAsync(data1);
                     
+
                     col1.Document().SetAsync(data1);
 
-                    // TODO: Add insert logic here
-                    //var result = await fireBaseClient.Child("Students").PostAsync(std);
+                    
 
                     return RedirectToAction("Index");
                 }
                 else
                 {
-                    return View(patient);
+                    return View(user);
                 }
 
-                
+
             }
             catch (Exception ex)
             {
-                return View();
+                return View(user);
             }
-
-            //try
-            //{
-            //    if(!ModelState.IsValid)
-            //    {
-            //        return View();
-            //    }
-            //    else
-            //    {
-            //        return RedirectToAction("Index");
-            //    }
-            //    // TODO: Add insert logic here
-
-                
-            //}
-            //catch
-            //{
-            //    return View();
-            //}
         }
 
-        // GET: Patient/Edit/5
+        // GET: User/Edit/5
         public ActionResult Edit(int id)
         {
             return View();
         }
 
-        // POST: Patient/Edit/5
+        // POST: User/Edit/5
         [HttpPost]
         public ActionResult Edit(int id, FormCollection collection)
         {
@@ -170,13 +155,13 @@ namespace MVCFirebase.Controllers
             }
         }
 
-        // GET: Patient/Delete/5
+        // GET: User/Delete/5
         public ActionResult Delete(int id)
         {
             return View();
         }
 
-        // POST: Patient/Delete/5
+        // POST: User/Delete/5
         [HttpPost]
         public ActionResult Delete(int id, FormCollection collection)
         {

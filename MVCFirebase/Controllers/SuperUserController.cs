@@ -8,7 +8,7 @@ using System.Web;
 using System.Web.Mvc;
 
 namespace MVCFirebase.Controllers
-{
+{[Authorize]
     public class SuperUserController : Controller
     {
         // GET: SuperUser

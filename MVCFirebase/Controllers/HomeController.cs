@@ -12,9 +12,10 @@ using MVCFirebase.Models;
 using System.Web.Security;
 using Google.Cloud.Firestore;
 using WebGrease.Css.Ast.Selectors;
+using System.Net;
 
 namespace MVCFirebase.Controllers
-{
+{[Authorize]
     public class HomeController : Controller
     {
         [Authorize]
@@ -38,7 +39,7 @@ namespace MVCFirebase.Controllers
             FirestoreDb db = FirestoreDb.Create("greenpaperdev");
             string message = string.Empty;
             string clinicPlan = "";
-            string clinicAutoId = "";
+            
 
             if (user.clinicmobilenumber == "" || user.clinicmobilenumber == null)
             {
@@ -59,6 +60,9 @@ namespace MVCFirebase.Controllers
                         {
                             message = "Username and/or password is incorrect.";
                         }
+
+
+
                     }
                 }
                 else if (user.mobile_number == "administrator" && user.password == "jAy@4231")
@@ -156,6 +160,7 @@ namespace MVCFirebase.Controllers
         public ActionResult Logout()
         {
             FormsAuthentication.SignOut();
+            Session.Abandon();
             return RedirectToAction("Login");
         }
         [Authorize]

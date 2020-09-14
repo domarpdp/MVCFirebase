@@ -218,6 +218,7 @@
     <Compile Include="Controllers\PatientController.cs" />
     <Compile Include="Controllers\StudentController.cs" />
     <Compile Include="Controllers\SuperUserController.cs" />
+    <Compile Include="Controllers\UserController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -284,6 +285,8 @@
     <Content Include="Views\Patient\Index.cshtml" />
     <Content Include="Views\Appointment\Index.cshtml" />
     <Content Include="Views\Patient\Create.cshtml" />
+    <Content Include="Views\User\Index.cshtml" />
+    <Content Include="Views\User\Create.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -9,6 +9,7 @@ using System.Web.Mvc;
 
 namespace MVCFirebase.Controllers
 {
+    [Authorize]
     public class ClinicController : Controller
     {
         // GET: Clinic
