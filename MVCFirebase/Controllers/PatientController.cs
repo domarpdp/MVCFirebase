@@ -72,24 +72,8 @@ namespace MVCFirebase.Controllers
                     Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
                     FirestoreDb db = FirestoreDb.Create("greenpaperdev");
 
-                    
-                    //CollectionReference col1 = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("patientList").Document("test");
+                   
                     CollectionReference col1 = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("patientList");
-                    //Dictionary<string, object> data1 = new Dictionary<string, object>
-                    //{
-                    //    {"patient_name" ,collection["patient_name"]},
-                    //    {"age" ,collection["age"]},
-                    //    {"care_of" ,collection["care_of"]},
-                    //    {"city" ,collection["city"]},
-                    //    {"creation_date" ,DateTime.UtcNow},
-                    //    {"disease" ,collection["disease"]},
-                    //    {"gender" ,collection["gender"]},
-                    //    {"patient_id" ,"Test"},
-                    //    {"patient_mobile_number",collection["patient_mobile_number"]},
-                    //    {"refer_by" ,collection["refer_by"]},
-                    //    {"refer_to_doctor" ,collection["refer_to_doctor"]},
-                    //    {"search_text" ,collection["patient_name"]+collection["patient_mobile_number"]+"Test"}
-                    //};
 
                     Dictionary<string, object> data1 = new Dictionary<string, object>
                     {

@@ -40,7 +40,22 @@ namespace MVCFirebase.Models
         [Display(Name = "Qualification:")]
         [Required(ErrorMessage = "Required.")]
         [MaxLength(200)]
-        public string quaification { get; set; }
+        public string user_qualification { get; set; }
+
+        [FirestoreProperty]
+        public DateTime creation_date { get; set; }
+
+        [FirestoreProperty]
+        public string email { get; set; }
+        [FirestoreProperty]
+        public string idproof { get; set; }
+        [FirestoreProperty]
+        public string signature { get; set; }
+        [FirestoreProperty]
+        public bool? status_enable { get; set; }
+
+        [FirestoreProperty]
+        public string Id { get; set; }
 
         [FirestoreProperty]
         public string[] user_roles { get; set; }

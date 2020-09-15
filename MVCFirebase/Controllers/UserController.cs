@@ -37,7 +37,8 @@ namespace MVCFirebase.Controllers
 
                     User user = docsnapUsers.ConvertTo<User>();
                     user.clinicmobilenumber = clinic.clinicmobilenumber;
-
+                    user.Id = docsnapUsers.Id;
+                    
                     //QuerySnapshot snapPatient = await docsnapClinics.Reference.Collection("patientList").WhereEqualTo("patient_id", appointment.patient_id).Limit(1).GetSnapshotAsync();
                     //DocumentSnapshot docsnapPatient = snapPatient.Documents[0];
 
@@ -80,34 +81,20 @@ namespace MVCFirebase.Controllers
 
                     //CollectionReference col1 = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("patientList").Document("test");
                     CollectionReference col1 = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("user");
-                    //Dictionary<string, object> data1 = new Dictionary<string, object>
-                    //{
-                    //    {"patient_name" ,collection["patient_name"]},
-                    //    {"age" ,collection["age"]},
-                    //    {"care_of" ,collection["care_of"]},
-                    //    {"city" ,collection["city"]},
-                    //    {"creation_date" ,DateTime.UtcNow},
-                    //    {"disease" ,collection["disease"]},
-                    //    {"gender" ,collection["gender"]},
-                    //    {"patient_id" ,"Test"},
-                    //    {"patient_mobile_number",collection["patient_mobile_number"]},
-                    //    {"refer_by" ,collection["refer_by"]},
-                    //    {"refer_to_doctor" ,collection["refer_to_doctor"]},
-                    //    {"search_text" ,collection["patient_name"]+collection["patient_mobile_number"]+"Test"}
-                    //};
+                    
                     string[] roles = user.user_roles[0].Remove(user.user_roles[0].Length - 1,1).Split(',');
                     
                     Dictionary<string, object> data1 = new Dictionary<string, object>
                     {
                         {"name" ,user.name},
-                        {"email" ,""},
-                        {"idproof" ,""},
+                        {"email" ,user.email},
+                        {"idproof" ,user.idproof},
                         {"creation_date" ,DateTime.UtcNow},
                         {"mobile_number" ,user.mobile_number},
                         {"password" ,user.password},
-                        {"signature" ,""},
-                        {"status_enable",false},
-                        {"user_qualification" ,user.quaification},
+                        {"signature" ,user.signature},
+                        {"status_enable",user.status_enable},
+                        {"user_qualification" ,user.user_qualification}
                         
                     };
                     data1.Add("user_roles", roles);
@@ -134,24 +121,148 @@ namespace MVCFirebase.Controllers
         }
 
         // GET: User/Edit/5
-        public ActionResult Edit(int id)
+        public async Task<ActionResult> Edit(string id)
         {
-            return View();
+            string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
+            Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
+            FirestoreDb db = FirestoreDb.Create("greenpaperdev");
+
+
+            //CollectionReference col1 = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("patientList").Document("test");
+            DocumentReference docRef = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("user").Document(id);
+            DocumentSnapshot docSnap = await docRef.GetSnapshotAsync();
+            User user = docSnap.ConvertTo<User>();
+            user.Id = id;
+            string[] roles = user.user_roles;
+
+            for (int i = 0; i < roles.Length; i++)
+            {
+                if (roles[i] == "Admin")
+                {
+                    ViewData["Admin"] = true;
+                }
+                if (roles[i] == "Doctor")
+                {
+                    ViewData["Doctor"] = true;
+                }
+                if (roles[i] == "Receptionist")
+                {
+                    ViewData["Receptionist"] = true;
+                }
+                if (roles[i] == "Chemist")
+                {
+                    ViewData["Chemist"] = true;
+                }
+                if (roles[i] == "Cashier")
+                {
+                    ViewData["Cashier"] = true;
+                }
+
+            }
+            return View(user);
+
         }
 
         // POST: User/Edit/5
         [HttpPost]
-        public ActionResult Edit(int id, FormCollection collection)
+        public async Task<ActionResult> Edit(string id, User user)
         {
             try
             {
                 // TODO: Add update logic here
+                if (ModelState.IsValid)
+                {
+                    string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
+                    Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
+                    FirestoreDb db = FirestoreDb.Create("greenpaperdev");
 
-                return RedirectToAction("Index");
+                    DocumentReference docRef = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("user").Document(id);
+                    DocumentSnapshot docSnap = await docRef.GetSnapshotAsync();
+                    
+                    string[] roles = user.user_roles[0].Remove(user.user_roles[0].Length - 1, 1).Split(',');
+
+                    Dictionary<string, object> data1 = new Dictionary<string, object>
+                    {
+                        {"name" ,user.name},
+                        {"email" ,user.email},
+                        {"idproof" ,user.idproof},
+                        {"creation_date" ,DateTime.SpecifyKind(user.creation_date, DateTimeKind.Utc)},
+                        {"mobile_number" ,user.mobile_number},
+                        {"password" ,user.password},
+                        {"signature" ,user.signature},
+                        {"status_enable",user.status_enable},
+                        {"user_qualification" ,user.user_qualification}
+
+                    };
+                    data1.Add("user_roles", roles);
+
+                    if(docSnap.Exists)
+                    {
+                        await docRef.UpdateAsync(data1);
+                    }
+
+                    return RedirectToAction("Index");
+                }
+                else
+                {
+                    string[] roles = user.user_roles[0].Remove(user.user_roles[0].Length - 1, 1).Split(',');
+                    for (int i = 0; i < roles.Length; i++)
+                    {
+                        if (roles[i] == "Admin")
+                        {
+                            ViewData["Admin"] = true;
+                        }
+                        if (roles[i] == "Doctor")
+                        {
+                            ViewData["Doctor"] = true;
+                        }
+                        if (roles[i] == "Receptionist")
+                        {
+                            ViewData["Receptionist"] = true;
+                        }
+                        if (roles[i] == "Chemist")
+                        {
+                            ViewData["Chemist"] = true;
+                        }
+                        if (roles[i] == "Cashier")
+                        {
+                            ViewData["Cashier"] = true;
+                        }
+
+                    }
+                    return View(user);
+                }
+
+                
             }
-            catch
+            catch (Exception ex)
             {
-                return View();
+                string[] roles = user.user_roles[0].Remove(user.user_roles[0].Length - 1, 1).Split(',');
+                for (int i = 0; i < roles.Length; i++)
+                {
+                    if (roles[i] == "Admin")
+                    {
+                        ViewData["Admin"] = true;
+                    }
+                    if (roles[i] == "Doctor")
+                    {
+                        ViewData["Doctor"] = true;
+                    }
+                    if (roles[i] == "Receptionist")
+                    {
+                        ViewData["Receptionist"] = true;
+                    }
+                    if (roles[i] == "Chemist")
+                    {
+                        ViewData["Chemist"] = true;
+                    }
+                    if (roles[i] == "Cashier")
+                    {
+                        ViewData["Cashier"] = true;
+                    }
+
+                }
+                return View(user);
             }
         }
 

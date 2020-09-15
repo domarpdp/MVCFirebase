@@ -24,7 +24,7 @@
             @Html.DisplayNameFor(model => model.password)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.quaification)
+            @Html.DisplayNameFor(model => model.user_qualification)
         </th>
         <th>
             @Html.DisplayNameFor(model => model.user_roles)
@@ -47,7 +47,7 @@
         @Html.DisplayFor(modelItem => item.password)
     </td>
     <td>
-        @Html.DisplayFor(modelItem => item.quaification)
+        @Html.DisplayFor(modelItem => item.user_qualification)
     </td>
     <td>
         @for (var i = 0; i < item.user_roles.Length; i++)
@@ -59,7 +59,7 @@
     </td>
 
     <td>
-        @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
+        @Html.ActionLink("Edit", "Edit", new {  id=item.Id  }) |
         @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
         @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
     </td>
