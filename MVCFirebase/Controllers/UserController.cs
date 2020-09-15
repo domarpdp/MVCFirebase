@@ -56,9 +56,45 @@ namespace MVCFirebase.Controllers
         }
 
         // GET: User/Details/5
-        public ActionResult Details(int id)
+        public async Task<ActionResult> Details(string id)
         {
-            return View();
+            string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
+            Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
+            FirestoreDb db = FirestoreDb.Create("greenpaperdev");
+
+
+            //CollectionReference col1 = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("patientList").Document("test");
+            DocumentReference docRef = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("user").Document(id);
+            DocumentSnapshot docSnap = await docRef.GetSnapshotAsync();
+            User user = docSnap.ConvertTo<User>();
+            user.Id = id;
+            string[] roles = user.user_roles;
+
+            for (int i = 0; i < roles.Length; i++)
+            {
+                if (roles[i] == "Admin")
+                {
+                    ViewData["Admin"] = true;
+                }
+                if (roles[i] == "Doctor")
+                {
+                    ViewData["Doctor"] = true;
+                }
+                if (roles[i] == "Receptionist")
+                {
+                    ViewData["Receptionist"] = true;
+                }
+                if (roles[i] == "Chemist")
+                {
+                    ViewData["Chemist"] = true;
+                }
+                if (roles[i] == "Cashier")
+                {
+                    ViewData["Cashier"] = true;
+                }
+
+            }
+            return View(user);
         }
 
         // GET: User/Create
@@ -267,24 +303,68 @@ namespace MVCFirebase.Controllers
         }
 
         // GET: User/Delete/5
-        public ActionResult Delete(int id)
+        public async Task<ActionResult> Delete(string id)
         {
-            return View();
+            string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
+            Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
+            FirestoreDb db = FirestoreDb.Create("greenpaperdev");
+
+
+            //CollectionReference col1 = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("patientList").Document("test");
+            DocumentReference docRef = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("user").Document(id);
+            DocumentSnapshot docSnap = await docRef.GetSnapshotAsync();
+            User user = docSnap.ConvertTo<User>();
+            user.Id = id;
+            string[] roles = user.user_roles;
+
+            for (int i = 0; i < roles.Length; i++)
+            {
+                if (roles[i] == "Admin")
+                {
+                    ViewData["Admin"] = true;
+                }
+                if (roles[i] == "Doctor")
+                {
+                    ViewData["Doctor"] = true;
+                }
+                if (roles[i] == "Receptionist")
+                {
+                    ViewData["Receptionist"] = true;
+                }
+                if (roles[i] == "Chemist")
+                {
+                    ViewData["Chemist"] = true;
+                }
+                if (roles[i] == "Cashier")
+                {
+                    ViewData["Cashier"] = true;
+                }
+
+            }
+            return View(user);
         }
 
         // POST: User/Delete/5
         [HttpPost]
-        public ActionResult Delete(int id, FormCollection collection)
+        public ActionResult Delete(string id, User user)
         {
             try
             {
-                // TODO: Add delete logic here
+                string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
+                Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
+                FirestoreDb db = FirestoreDb.Create("greenpaperdev");
+
+
+                //CollectionReference col1 = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("patientList").Document("test");
+                DocumentReference docRef = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("user").Document(id);
+                docRef.DeleteAsync();
+                
 
                 return RedirectToAction("Index");
             }
             catch
             {
-                return View();
+                return View(user);
             }
         }
     }
