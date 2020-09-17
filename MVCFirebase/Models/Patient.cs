@@ -73,5 +73,8 @@ namespace MVCFirebase.Models
         [MaxLength(200)]
         public string search_text { get; set; }
 
+
+
+
     }
 }

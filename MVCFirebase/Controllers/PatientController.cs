@@ -30,11 +30,12 @@ namespace MVCFirebase.Controllers
             foreach (DocumentSnapshot docsnap in snap)
             {
                 Clinic clinic = docsnap.ConvertTo<Clinic>();
-                QuerySnapshot snap2 = await docsnap.Reference.Collection("patientList").Limit(100).GetSnapshotAsync();
+                QuerySnapshot snap2 = await docsnap.Reference.Collection("patientList").OrderByDescending("patient_id").Limit(100).GetSnapshotAsync();
 
                 foreach (DocumentSnapshot docsnap2 in snap2)
                 {
                     Patient patient = docsnap2.ConvertTo<Patient>();
+                    patient.id = docsnap2.Id;
                     if (docsnap2.Exists)
                     {
                         patient.clinic_name = clinic.clinicname;
@@ -43,6 +44,8 @@ namespace MVCFirebase.Controllers
                 }
                     
             }
+
+
 
             return View(PatientList);
             
@@ -55,53 +58,311 @@ namespace MVCFirebase.Controllers
         }
 
         // GET: Patient/Create
-        public ActionResult Create()
+        public async Task<ActionResult> Create()
         {
-            return View();
+            List<SelectListItem> diseases = new List<SelectListItem>() {
+                new SelectListItem {
+                    Text = "General -(fever/general acute complaints)", Value = "GENERAL"
+                },
+                new SelectListItem {
+                    Text = "ENT (ear nose throat)", Value = "ENT"
+                },
+                new SelectListItem {
+                    Text = "CNS (central nervous system", Value = "CNS"
+                },
+                new SelectListItem {
+                    Text = "DERMATO (skin/hair)", Value = "DERMATO"
+                },
+                new SelectListItem {
+                    Text = "GIT (gastro intestinal track) SURGERY", Value = "GIT"
+                },
+                new SelectListItem {
+                    Text = "TUMORS/ONCOLOGY", Value = "TUMOURS"
+                },
+                new SelectListItem {
+                    Text = "HAEMATOLOGY (blood)", Value = "HAEMATOLOGY"
+                },
+                new SelectListItem {
+                    Text = "ORTHOPADICS (bones & muscles)", Value = "ORTHOPADICS"
+                },
+                new SelectListItem {
+                    Text = "PAEDIATRIC (child)", Value = "PAEDIATRIC"
+                },
+                new SelectListItem {
+                    Text = "OPTHALMOLOGISTS (EYE)", Value = "EYE"
+                },
+                new SelectListItem {
+                    Text = "CVS (cardio vascular system/heart)", Value = "CVS"
+                },
+                new SelectListItem {
+                    Text = "ENDOCRINOLOGY", Value = "ENDO"
+                },
+                new SelectListItem {
+                    Text = "GYNAECOLOGY & OBS", Value = "GYNAE"
+                },
+                new SelectListItem {
+                    Text = "GENETICS", Value = "GENETICS"
+                },
+            };
+            ViewBag.DISEASES = diseases;
+
+            List<SelectListItem> cities = new List<SelectListItem>() {
+                        new SelectListItem {
+                            Text = "Faridabad", Value = "Faridabad"
+                        },
+                        new SelectListItem {
+                            Text = "Ghaziabad", Value = "Ghaziabad"
+                        },
+                        new SelectListItem {
+                            Text = "New Delhi", Value = "New Delhi"
+                        },
+                        new SelectListItem {
+                            Text = "Bahadurgarh", Value = "Bahadurgarh"
+                        },
+                        new SelectListItem {
+                            Text = "Mathura", Value = "Mathura"
+                        },
+                        new SelectListItem {
+                            Text = "Agra", Value = "Agra"
+                        },
+                        new SelectListItem {
+                            Text = "Ballabgarh", Value = "Ballabgarh"
+                        },
+                        new SelectListItem {
+                            Text = "Gurdaspur", Value = "Gurdaspur"
+                        },
+                        new SelectListItem {
+                            Text = "Amritsar", Value = "Amritsar"
+                        },
+                        new SelectListItem {
+                            Text = "Batala", Value = "Batala"
+                        },
+                        new SelectListItem {
+                            Text = "Jallandhar", Value = "Jallandhar"
+                        },
+                        new SelectListItem {
+                            Text = "Pathankot", Value = "Pathankot"
+                        },
+                        new SelectListItem {
+                            Text = "Bathinda", Value = "Bathinda"
+                        },
+                        new SelectListItem {
+                            Text = "Ambala", Value = "Ambala"
+                        },
+                    };
+            ViewBag.CITIES = cities;
+            List<SelectListItem> gender = new List<SelectListItem>() {
+                new SelectListItem {
+                    Text = "Male", Value = "Male"
+                },
+                new SelectListItem {
+                    Text = "Female", Value = "Female"
+                },
+                new SelectListItem {
+                    Text = "Other", Value = "Other"
+                },
+                
+            };
+            ViewBag.GENDER = gender;
+            string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
+            Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
+            FirestoreDb db = FirestoreDb.Create("greenpaperdev");
+            DocumentReference docRefClinicCity = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId);
+            DocumentSnapshot docSnapClinicCity = await docRefClinicCity.GetSnapshotAsync();
+            Clinic clinic = docSnapClinicCity.ConvertTo<Clinic>();
+            Patient patient = new Patient();
+            patient.city = clinic.cliniccity;
+            return View(patient);
         }
 
         // POST: Patient/Create
         [HttpPost]
-        public ActionResult Create(Patient patient)
+        public async Task<ActionResult> Create(Patient patient)
         {
             try
             {
+                string patientLastId = "";
+                string patientLastIdDocId = "";
+                List<SelectListItem> diseases = new List<SelectListItem>() {
+                        new SelectListItem {
+                            Text = "General -(fever/general acute complaints)", Value = "GENERAL"
+                        },
+                        new SelectListItem {
+                            Text = "ENT (ear nose throat)", Value = "ENT"
+                        },
+                        new SelectListItem {
+                            Text = "CNS (central nervous system", Value = "CNS"
+                        },
+                        new SelectListItem {
+                            Text = "DERMATO (skin/hair)", Value = "DERMATO"
+                        },
+                        new SelectListItem {
+                            Text = "GIT (gastro intestinal track) SURGERY", Value = "GIT"
+                        },
+                        new SelectListItem {
+                            Text = "TUMORS/ONCOLOGY", Value = "TUMOURS"
+                        },
+                        new SelectListItem {
+                            Text = "HAEMATOLOGY (blood)", Value = "HAEMATOLOGY"
+                        },
+                        new SelectListItem {
+                            Text = "ORTHOPADICS (bones & muscles)", Value = "ORTHOPADICS"
+                        },
+                        new SelectListItem {
+                            Text = "PAEDIATRIC (child)", Value = "PAEDIATRIC"
+                        },
+                        new SelectListItem {
+                            Text = "OPTHALMOLOGISTS (EYE)", Value = "EYE"
+                        },
+                        new SelectListItem {
+                            Text = "CVS (cardio vascular system/heart)", Value = "CVS"
+                        },
+                        new SelectListItem {
+                            Text = "ENDOCRINOLOGY", Value = "ENDO"
+                        },
+                        new SelectListItem {
+                            Text = "GYNAECOLOGY & OBS", Value = "GYNAE"
+                        },
+                        new SelectListItem {
+                            Text = "GENETICS", Value = "GENETICS"
+                        },
+                    };
+                ViewBag.DISEASES = diseases;
+
+                List<SelectListItem> cities = new List<SelectListItem>() {
+                        new SelectListItem {
+                            Text = "Faridabad", Value = "Faridabad"
+                        },
+                        new SelectListItem {
+                            Text = "Ghaziabad", Value = "Ghaziabad"
+                        },
+                        new SelectListItem {
+                            Text = "New Delhi", Value = "New Delhi"
+                        },
+                        new SelectListItem {
+                            Text = "Bahadurgarh", Value = "Bahadurgarh"
+                        },
+                        new SelectListItem {
+                            Text = "Mathura", Value = "Mathura"
+                        },
+                        new SelectListItem {
+                            Text = "Agra", Value = "Agra"
+                        },
+                        new SelectListItem {
+                            Text = "Ballabgarh", Value = "Ballabgarh"
+                        },
+                        new SelectListItem {
+                            Text = "Gurdaspur", Value = "Gurdaspur"
+                        },
+                        new SelectListItem {
+                            Text = "Amritsar", Value = "Amritsar"
+                        },
+                        new SelectListItem {
+                            Text = "Batala", Value = "Batala"
+                        },
+                        new SelectListItem {
+                            Text = "Jallandhar", Value = "Jallandhar"
+                        },
+                        new SelectListItem {
+                            Text = "Pathankot", Value = "Pathankot"
+                        },
+                        new SelectListItem {
+                            Text = "Bathinda", Value = "Bathinda"
+                        },
+                        new SelectListItem {
+                            Text = "Ambala", Value = "Ambala"
+                        },
+                    };
+                ViewBag.CITIES = cities;
+
+                List<SelectListItem> gender = new List<SelectListItem>() {
+                        new SelectListItem {
+                            Text = "Male", Value = "Male"
+                        },
+                        new SelectListItem {
+                            Text = "Female", Value = "Female"
+                        },
+                        new SelectListItem {
+                            Text = "Other", Value = "Other"
+                        },
+
+                    };
+                ViewBag.GENDER = gender;
+
                 if (ModelState.IsValid)
                 {
                     string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
                     Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
                     FirestoreDb db = FirestoreDb.Create("greenpaperdev");
+                    DocumentReference docRefClinicCity = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId);
+                    DocumentSnapshot docSnapClinicCity = await docRefClinicCity.GetSnapshotAsync();
 
-                   
-                    CollectionReference col1 = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("patientList");
 
-                    Dictionary<string, object> data1 = new Dictionary<string, object>
+                    Query Qref = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("patientList").WhereEqualTo("patient_name", patient.patient_name).WhereEqualTo("patient_mobile_number", patient.patient_mobile_number);
+                    QuerySnapshot snap = await Qref.GetSnapshotAsync();
+                    if (snap.Count > 0)
                     {
-                        {"patient_name" ,patient.patient_name},
-                        {"age" ,patient.age},
-                        {"care_of" ,patient.care_of},
-                        {"city" ,patient.city},
-                        {"creation_date" ,DateTime.UtcNow},
-                        {"disease" ,patient.disease},
-                        {"gender" ,patient.gender},
-                        {"patient_id" ,"Test"},
-                        {"patient_mobile_number",patient.patient_mobile_number},
-                        {"refer_by" ,patient.refer_by},
-                        {"refer_to_doctor" ,patient.refer_to_doctor},
-                        {"search_text" ,patient.patient_name+patient.patient_mobile_number+"Test"}
-                    };
+                        ViewBag.Message = "Patient " + patient.patient_name + " having Mobile number " + patient.patient_mobile_number + " already exists. " ;
+                    }
+                    else
+                    {
+                        Query QrefPatientLastId = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("patientLastId").Limit(1);
+                        QuerySnapshot snapPatientLastId = await QrefPatientLastId.GetSnapshotAsync();
+                        if (snapPatientLastId.Count > 0)
+                        {
+                            DocumentSnapshot docsnap2 = snapPatientLastId.Documents[0];
+                            patientLastIdDocId = docsnap2.Id;
 
-                    //col1.AddAsync(data1);
+                            patientLastId = PatientLastId(docsnap2.GetValue<string>("id"));
+
+                            DocumentReference docRef = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("patientLastId").Document(patientLastIdDocId);
+                            DocumentSnapshot docSnap = await docRef.GetSnapshotAsync();
+
+                            Dictionary<string, object> dataPatientLastId = new Dictionary<string, object>
+                            {
+                                {"id" ,patientLastId}
+                            };
+
+                            if (docSnap.Exists)
+                            {
+                                await docRef.UpdateAsync(dataPatientLastId);
+                            }
+
+                        }
+
+
+                        CollectionReference col1 = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("patientList");
+
+                        Dictionary<string, object> data1 = new Dictionary<string, object>
+                        {
+                            {"patient_name" ,patient.patient_name},
+                            {"age" ,patient.age},
+                            {"care_of" ,patient.care_of},
+                            {"city" ,patient.city},
+                            {"creation_date" ,DateTime.UtcNow},
+                            {"disease" ,patient.disease},
+                            {"gender" ,patient.gender},
+                            {"patient_id" ,patientLastId},
+                            {"patient_mobile_number",patient.patient_mobile_number},
+                            {"refer_by" ,patient.refer_by},
+                            {"refer_to_doctor" ,patient.refer_to_doctor},
+                            {"search_text" ,patient.patient_name+patient.patient_mobile_number+patientLastId}
+                        };
+                        await col1.Document().SetAsync(data1);
+
+
+                        return RedirectToAction("Index");
+                    }
+
+
+
+                    return View(patient);
+
                     
-                    col1.Document().SetAsync(data1);
-
-                    // TODO: Add insert logic here
-                    //var result = await fireBaseClient.Child("Students").PostAsync(std);
-
-                    return RedirectToAction("Index");
                 }
                 else
                 {
+                    
                     return View(patient);
                 }
 
@@ -133,24 +394,279 @@ namespace MVCFirebase.Controllers
         }
 
         // GET: Patient/Edit/5
-        public ActionResult Edit(int id)
+        public async Task<ActionResult> Edit(string id)
         {
-            return View();
+            string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
+            Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
+            FirestoreDb db = FirestoreDb.Create("greenpaperdev");
+            List<SelectListItem> diseases = new List<SelectListItem>() {
+                        new SelectListItem {
+                            Text = "General -(fever/general acute complaints)", Value = "GENERAL"
+                        },
+                        new SelectListItem {
+                            Text = "ENT (ear nose throat)", Value = "ENT"
+                        },
+                        new SelectListItem {
+                            Text = "CNS (central nervous system", Value = "CNS"
+                        },
+                        new SelectListItem {
+                            Text = "DERMATO (skin/hair)", Value = "DERMATO"
+                        },
+                        new SelectListItem {
+                            Text = "GIT (gastro intestinal track) SURGERY", Value = "GIT"
+                        },
+                        new SelectListItem {
+                            Text = "TUMORS/ONCOLOGY", Value = "TUMOURS"
+                        },
+                        new SelectListItem {
+                            Text = "HAEMATOLOGY (blood)", Value = "HAEMATOLOGY"
+                        },
+                        new SelectListItem {
+                            Text = "ORTHOPADICS (bones & muscles)", Value = "ORTHOPADICS"
+                        },
+                        new SelectListItem {
+                            Text = "PAEDIATRIC (child)", Value = "PAEDIATRIC"
+                        },
+                        new SelectListItem {
+                            Text = "OPTHALMOLOGISTS (EYE)", Value = "EYE"
+                        },
+                        new SelectListItem {
+                            Text = "CVS (cardio vascular system/heart)", Value = "CVS"
+                        },
+                        new SelectListItem {
+                            Text = "ENDOCRINOLOGY", Value = "ENDO"
+                        },
+                        new SelectListItem {
+                            Text = "GYNAECOLOGY & OBS", Value = "GYNAE"
+                        },
+                        new SelectListItem {
+                            Text = "GENETICS", Value = "GENETICS"
+                        },
+                    };
+            ViewBag.DISEASES = diseases;
+            List<SelectListItem> cities = new List<SelectListItem>() {
+                        new SelectListItem {
+                            Text = "Faridabad", Value = "Faridabad"
+                        },
+                        new SelectListItem {
+                            Text = "Ghaziabad", Value = "Ghaziabad"
+                        },
+                        new SelectListItem {
+                            Text = "New Delhi", Value = "New Delhi"
+                        },
+                        new SelectListItem {
+                            Text = "Bahadurgarh", Value = "Bahadurgarh"
+                        },
+                        new SelectListItem {
+                            Text = "Mathura", Value = "Mathura"
+                        },
+                        new SelectListItem {
+                            Text = "Agra", Value = "Agra"
+                        },
+                        new SelectListItem {
+                            Text = "Ballabgarh", Value = "Ballabgarh"
+                        },
+                        new SelectListItem {
+                            Text = "Gurdaspur", Value = "Gurdaspur"
+                        },
+                        new SelectListItem {
+                            Text = "Amritsar", Value = "Amritsar"
+                        },
+                        new SelectListItem {
+                            Text = "Batala", Value = "Batala"
+                        },
+                        new SelectListItem {
+                            Text = "Jallandhar", Value = "Jallandhar"
+                        },
+                        new SelectListItem {
+                            Text = "Pathankot", Value = "Pathankot"
+                        },
+                        new SelectListItem {
+                            Text = "Bathinda", Value = "Bathinda"
+                        },
+                        new SelectListItem {
+                            Text = "Ambala", Value = "Ambala"
+                        },
+                    };
+            ViewBag.CITIES = cities;
+            List<SelectListItem> gender = new List<SelectListItem>() {
+                        new SelectListItem {
+                            Text = "Male", Value = "Male"
+                        },
+                        new SelectListItem {
+                            Text = "Female", Value = "Female"
+                        },
+                        new SelectListItem {
+                            Text = "Other", Value = "Other"
+                        },
+
+                    };
+            ViewBag.GENDER = gender;
+
+            //CollectionReference col1 = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("patientList").Document("test");
+            DocumentReference docRef = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("patientList").Document(id);
+            DocumentSnapshot docSnap = await docRef.GetSnapshotAsync();
+            Patient patient = docSnap.ConvertTo<Patient>();
+            //patient.id = id;
+            
+
+            return View(patient);
         }
 
         // POST: Patient/Edit/5
         [HttpPost]
-        public ActionResult Edit(int id, FormCollection collection)
+        public async Task<ActionResult> Edit(string id, Patient patient)
         {
             try
             {
-                // TODO: Add update logic here
+                List<SelectListItem> diseases = new List<SelectListItem>() {
+                        new SelectListItem {
+                            Text = "General -(fever/general acute complaints)", Value = "GENERAL"
+                        },
+                        new SelectListItem {
+                            Text = "ENT (ear nose throat)", Value = "ENT"
+                        },
+                        new SelectListItem {
+                            Text = "CNS (central nervous system", Value = "CNS"
+                        },
+                        new SelectListItem {
+                            Text = "DERMATO (skin/hair)", Value = "DERMATO"
+                        },
+                        new SelectListItem {
+                            Text = "GIT (gastro intestinal track) SURGERY", Value = "GIT"
+                        },
+                        new SelectListItem {
+                            Text = "TUMORS/ONCOLOGY", Value = "TUMOURS"
+                        },
+                        new SelectListItem {
+                            Text = "HAEMATOLOGY (blood)", Value = "HAEMATOLOGY"
+                        },
+                        new SelectListItem {
+                            Text = "ORTHOPADICS (bones & muscles)", Value = "ORTHOPADICS"
+                        },
+                        new SelectListItem {
+                            Text = "PAEDIATRIC (child)", Value = "PAEDIATRIC"
+                        },
+                        new SelectListItem {
+                            Text = "OPTHALMOLOGISTS (EYE)", Value = "EYE"
+                        },
+                        new SelectListItem {
+                            Text = "CVS (cardio vascular system/heart)", Value = "CVS"
+                        },
+                        new SelectListItem {
+                            Text = "ENDOCRINOLOGY", Value = "ENDO"
+                        },
+                        new SelectListItem {
+                            Text = "GYNAECOLOGY & OBS", Value = "GYNAE"
+                        },
+                        new SelectListItem {
+                            Text = "GENETICS", Value = "GENETICS"
+                        },
+                    };
+                ViewBag.DISEASES = diseases;
+                List<SelectListItem> cities = new List<SelectListItem>() {
+                        new SelectListItem {
+                            Text = "Faridabad", Value = "Faridabad"
+                        },
+                        new SelectListItem {
+                            Text = "Ghaziabad", Value = "Ghaziabad"
+                        },
+                        new SelectListItem {
+                            Text = "New Delhi", Value = "New Delhi"
+                        },
+                        new SelectListItem {
+                            Text = "Bahadurgarh", Value = "Bahadurgarh"
+                        },
+                        new SelectListItem {
+                            Text = "Mathura", Value = "Mathura"
+                        },
+                        new SelectListItem {
+                            Text = "Agra", Value = "Agra"
+                        },
+                        new SelectListItem {
+                            Text = "Ballabgarh", Value = "Ballabgarh"
+                        },
+                        new SelectListItem {
+                            Text = "Gurdaspur", Value = "Gurdaspur"
+                        },
+                        new SelectListItem {
+                            Text = "Amritsar", Value = "Amritsar"
+                        },
+                        new SelectListItem {
+                            Text = "Batala", Value = "Batala"
+                        },
+                        new SelectListItem {
+                            Text = "Jallandhar", Value = "Jallandhar"
+                        },
+                        new SelectListItem {
+                            Text = "Pathankot", Value = "Pathankot"
+                        },
+                        new SelectListItem {
+                            Text = "Bathinda", Value = "Bathinda"
+                        },
+                        new SelectListItem {
+                            Text = "Ambala", Value = "Ambala"
+                        },
+                    };
+                ViewBag.CITIES = cities;
+                List<SelectListItem> gender = new List<SelectListItem>() {
+                        new SelectListItem {
+                            Text = "Male", Value = "Male"
+                        },
+                        new SelectListItem {
+                            Text = "Female", Value = "Female"
+                        },
+                        new SelectListItem {
+                            Text = "Other", Value = "Other"
+                        },
 
-                return RedirectToAction("Index");
+                    };
+                ViewBag.GENDER = gender;
+
+                if (ModelState.IsValid)
+                {
+                    string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
+                    Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
+                    FirestoreDb db = FirestoreDb.Create("greenpaperdev");
+
+                    DocumentReference docRef = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("patientList").Document(id);
+                    DocumentSnapshot docSnap = await docRef.GetSnapshotAsync();
+
+                    Dictionary<string, object> data1 = new Dictionary<string, object>
+                        {
+                            {"patient_name" ,patient.patient_name},
+                            {"age" ,patient.age},
+                            {"care_of" ,patient.care_of},
+                            {"city" ,patient.city},
+                            {"creation_date" ,DateTime.SpecifyKind(patient.creation_date, DateTimeKind.Utc)},
+                            {"disease" ,patient.disease},
+                            {"gender" ,patient.gender},
+                            {"patient_id" ,patient.patient_id},
+                            {"patient_mobile_number",patient.patient_mobile_number},
+                            {"refer_by" ,patient.refer_by},
+                            {"refer_to_doctor" ,patient.refer_to_doctor},
+                            {"search_text" ,patient.patient_name+patient.patient_mobile_number+patient.patient_id}
+                        };
+                    
+
+                    if (docSnap.Exists)
+                    {
+                        await docRef.UpdateAsync(data1);
+                    }
+
+                    return RedirectToAction("Index");
+                }
+                else
+                {
+                    
+                    return View(patient);
+                }
+
+
             }
             catch
             {
-                return View();
+                return View(patient);
             }
         }
 
@@ -174,6 +690,49 @@ namespace MVCFirebase.Controllers
             {
                 return View();
             }
+        }
+
+        private string PatientLastId(string databaselastid)
+        {
+            int numericValue = Convert.ToInt32(databaselastid.Substring(databaselastid.Length - 4));
+            string alphaValue = databaselastid.Substring(0, databaselastid.Length - 4);
+            if (numericValue == 9999)
+            {
+                numericValue = 1;
+                switch (alphaValue)
+                {
+                    case "A":
+                        alphaValue = "B000";
+                        break;
+                    case "B":
+                        alphaValue = "C000";
+                        break;
+                    default:
+                        // code block
+                        break;
+                }
+
+            } 
+            else
+            {
+                numericValue = numericValue + 1;
+                if(numericValue.ToString().Length == 1)
+                {
+                    alphaValue = alphaValue + "000";
+                }
+                if (numericValue.ToString().Length == 2)
+                {
+                    alphaValue = alphaValue + "00";
+                }
+                if (numericValue.ToString().Length == 3)
+                {
+                    alphaValue = alphaValue + "0";
+                }
+            }
+
+            
+            databaselastid = alphaValue + numericValue.ToString();
+            return databaselastid;
         }
     }
 }

@@ -11,11 +11,9 @@
 </p>
 <table class="table">
     <tr>
+
         <th>
-            @Html.DisplayNameFor(model => model.clinic_name)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.id)
+            @Html.DisplayNameFor(model => model.patient_id)
         </th>
         <th>
             @Html.DisplayNameFor(model => model.patient_name)
@@ -23,16 +21,26 @@
         <th>
             @Html.DisplayNameFor(model => model.patient_mobile_number)
         </th>
+        <th>
+            @Html.DisplayNameFor(model => model.disease)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.gender)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.age)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.city)
+        </th>
         <th></th>
     </tr>
 
 @foreach (var item in Model) {
 <tr>
+
     <td>
-        @Html.DisplayFor(modelItem => item.clinic_name)
-    </td>
-    <td>
-        @Html.DisplayFor(modelItem => item.id)
+        @Html.DisplayFor(modelItem => item.patient_id)
     </td>
     <td>
         @Html.DisplayFor(modelItem => item.patient_name)
@@ -41,9 +49,20 @@
         @Html.DisplayFor(modelItem => item.patient_mobile_number)
     </td>
     <td>
+        @Html.DisplayFor(modelItem => item.disease)
+    </td>
+    <td>
+        @Html.DisplayFor(modelItem => item.gender)
+    </td>
+    <td>
+        @Html.DisplayFor(modelItem => item.age)
+    </td>
+    <td>
+        @Html.DisplayFor(modelItem => item.city)
+    </td>
+    <td>
         @Html.ActionLink("Edit", "Edit", new { id = item.id }) |
         @Html.ActionLink("Details", "Details", new { id = item.id }) |
-        @Html.ActionLink("Delete", "Delete", new { id = item.id })
     </td>
 </tr>
 }
