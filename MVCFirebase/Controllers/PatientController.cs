@@ -351,6 +351,9 @@ namespace MVCFirebase.Controllers
                         await col1.Document().SetAsync(data1);
 
 
+
+
+
                         return RedirectToAction("Index");
                     }
 

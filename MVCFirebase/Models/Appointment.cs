@@ -10,26 +10,21 @@ namespace MVCFirebase.Models
     [FirestoreData]
     public class Appointment
     {
-        
         [FirestoreProperty]
         [Required(ErrorMessage = "Required.")]
-        public string patient_id { get; set; }
-
+        public bool bill_sms { get; set; }
 
         [FirestoreProperty]
         [Required(ErrorMessage = "Required.")]
-        public string patient_name { get; set; }
+        public string clinic_id { get; set; }
 
         [FirestoreProperty]
         [Required(ErrorMessage = "Required.")]
-        public string clinic_name { get; set; }
-        [FirestoreProperty]
-        [Required(ErrorMessage = "Required.")]
-        public DateTime raisedDate { get; set; }
+        public DateTime complitionDate { get; set; }
 
         [FirestoreProperty]
         [Required(ErrorMessage = "Required.")]
-        public string status { get; set; }
+        public string date { get; set; }
 
         [FirestoreProperty]
         [Required(ErrorMessage = "Required.")]
@@ -38,6 +33,53 @@ namespace MVCFirebase.Models
         [FirestoreProperty]
         [Required(ErrorMessage = "Required.")]
         public string fee { get; set; }
+
+        [FirestoreProperty]
+        [Required(ErrorMessage = "Required.")]
+        public string patient { get; set; }
+
+        [FirestoreProperty]
+        [Required(ErrorMessage = "Required.")]
+        public string patient_id { get; set; }
+
+        [FirestoreProperty]
+        [Required(ErrorMessage = "Required.")]
+        public DateTime raisedDate { get; set; }
+
+        [FirestoreProperty]
+        [Required(ErrorMessage = "Required.")]
+        public bool reminder_sms { get; set; }
+
+        [FirestoreProperty]
+        [Required(ErrorMessage = "Required.")]
+        public string severity { get; set; }
+
+        [FirestoreProperty]
+        [Required(ErrorMessage = "Required.")]
+        public string status { get; set; }
+
+        [FirestoreProperty]
+        [Required(ErrorMessage = "Required.")]
+        public DateTime timeStamp { get; set; }
+
+        [FirestoreProperty]
+        [Required(ErrorMessage = "Required.")]
+        public string token { get; set; }
+
+        [FirestoreProperty]
+        [Required(ErrorMessage = "Required.")]
+        public string patient_name { get; set; }
+
+        [FirestoreProperty]
+        [Required(ErrorMessage = "Required.")]
+        public string clinic_name { get; set; }
+        
+
+        
+
+        
+
+        
 
 
     }
