@@ -45,7 +45,7 @@ namespace MVCFirebase.Controllers
                     
             }
 
-
+            
 
             return View(PatientList);
             
@@ -183,6 +183,7 @@ namespace MVCFirebase.Controllers
             {
                 string patientLastId = "";
                 string patientLastIdDocId = "";
+                
                 List<SelectListItem> diseases = new List<SelectListItem>() {
                         new SelectListItem {
                             Text = "General -(fever/general acute complaints)", Value = "GENERAL"
@@ -275,7 +276,7 @@ namespace MVCFirebase.Controllers
                     };
                 ViewBag.CITIES = cities;
 
-                List<SelectListItem> gender = new List<SelectListItem>() {
+                List<SelectListItem> genders = new List<SelectListItem>() {
                         new SelectListItem {
                             Text = "Male", Value = "Male"
                         },
@@ -287,23 +288,26 @@ namespace MVCFirebase.Controllers
                         },
 
                     };
-                ViewBag.GENDER = gender;
+                ViewBag.GENDERS = genders;
 
                 if (ModelState.IsValid)
                 {
+                    string lastTokenNumber = "0";
                     string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
                     Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
                     FirestoreDb db = FirestoreDb.Create("greenpaperdev");
                     DocumentReference docRefClinicCity = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId);
                     DocumentSnapshot docSnapClinicCity = await docRefClinicCity.GetSnapshotAsync();
 
-
+                    #region Code to checkduplicacy of patient on the basis of name and mobile number
                     Query Qref = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("patientList").WhereEqualTo("patient_name", patient.patient_name).WhereEqualTo("patient_mobile_number", patient.patient_mobile_number);
                     QuerySnapshot snap = await Qref.GetSnapshotAsync();
                     if (snap.Count > 0)
                     {
                         ViewBag.Message = "Patient " + patient.patient_name + " having Mobile number " + patient.patient_mobile_number + " already exists. " ;
                     }
+                    #endregion Code to checkduplicacy of patient on the basis of name and mobile number
+                    #region Code to generate new patient UID and update in paltientLastId collection
                     else
                     {
                         Query QrefPatientLastId = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("patientLastId").Limit(1);
@@ -329,32 +333,83 @@ namespace MVCFirebase.Controllers
                             }
 
                         }
+                        #endregion Code to generate new patient UID and update in paltientLastId collection
+                    #region Code to create new Patient
+                    CollectionReference col1 = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("patientList");
 
+                    Dictionary<string, object> data1 = new Dictionary<string, object>
+                    {
+                        {"patient_name" ,patient.patient_name},
+                        {"age" ,patient.age},
+                        {"care_of" ,patient.care_of},
+                        {"city" ,patient.city},
+                        {"creation_date" ,DateTime.UtcNow},
+                        {"disease" ,patient.disease},
+                        {"gender" ,patient.gender},
+                        {"patient_id" ,patientLastId},
+                        {"patient_mobile_number",patient.patient_mobile_number},
+                        {"refer_by" ,patient.refer_by},
+                        {"refer_to_doctor" ,patient.refer_to_doctor},
+                        {"search_text" ,patient.patient_name+patient.patient_mobile_number+patientLastId}
+                    };
+                    await col1.Document().SetAsync(data1);
+                    #endregion Code to create new Patient
+                    #region Code to get newly created patient's auto id
+                    Query QrefLatestPatient = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("patientList").WhereEqualTo("patient_id", patientLastId).Limit(1);
+                    QuerySnapshot snapLatestPatient = await QrefLatestPatient.GetSnapshotAsync();
 
-                        CollectionReference col1 = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("patientList");
+                    DocumentSnapshot docSnapLatestPatient = snapLatestPatient.Documents[0];
+                        #endregion Code to get newly created patient's auto id
+                    #region Code to get latest token number, increament it, set in new appointment and update increamented token number back in collection
+                        DocumentReference docRefTokenNumber = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("tokenNumber").Document(DateTime.Now.ToString("dd_MM_yyyy"));
+                        DocumentSnapshot docsnapTokenNumber = await docRefTokenNumber.GetSnapshotAsync();
 
-                        Dictionary<string, object> data1 = new Dictionary<string, object>
+                        if (docsnapTokenNumber.Exists)
                         {
-                            {"patient_name" ,patient.patient_name},
-                            {"age" ,patient.age},
-                            {"care_of" ,patient.care_of},
-                            {"city" ,patient.city},
-                            {"creation_date" ,DateTime.UtcNow},
-                            {"disease" ,patient.disease},
-                            {"gender" ,patient.gender},
-                            {"patient_id" ,patientLastId},
-                            {"patient_mobile_number",patient.patient_mobile_number},
-                            {"refer_by" ,patient.refer_by},
-                            {"refer_to_doctor" ,patient.refer_to_doctor},
-                            {"search_text" ,patient.patient_name+patient.patient_mobile_number+patientLastId}
+                            lastTokenNumber = docsnapTokenNumber.GetValue<string>("last_token");
+                        }
+                        else
+                        {
+                            lastTokenNumber = "0";
+                        }
+
+                        lastTokenNumber = (Convert.ToInt32(lastTokenNumber) + 1).ToString();
+
+                        CollectionReference colTokenNumber = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("tokenNumber");
+
+                        Dictionary<string, object> dataTokenNumber = new Dictionary<string, object>
+                        {
+                            {"last_token" ,lastTokenNumber}
                         };
-                        await col1.Document().SetAsync(data1);
+                        await colTokenNumber.Document(DateTime.Now.ToString("dd_MM_yyyy")).SetAsync(dataTokenNumber);
+
+                        #endregion Code to get latest token number, increament it, set in new appointment and update increamented token number back in collection
+                    #region Code to create new appointment id for today
 
 
+                        CollectionReference colAppountments = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("appointments");
 
+                        Dictionary<string, object> dataAppointment = new Dictionary<string, object>
+                        {
+                            {"bill_sms" ,false},
+                            {"clinic_id" ,GlobalSessionVariables.ClinicDocumentAutoId},
+                            {"complitiondate" ,""},
+                            {"date" ,""},
+                            {"days" ,""},
+                            {"fee" ,""},
+                            {"patient" ,docSnapLatestPatient.Id},
+                            {"patient_id" ,patientLastId},
+                            {"raisedDate",DateTime.UtcNow},
+                            {"reminder_sms" ,false},
+                            {"severity" ,"Low"},
+                            {"status" ,"Waiting"},
+                            {"timeStamp" ,DateTime.UtcNow},
+                            {"token" ,lastTokenNumber}
+                        };
+                        await colAppountments.Document().SetAsync(dataAppointment);
+                        #endregion Code to create new appointment id for today
 
-
-                        return RedirectToAction("Index");
+                        return RedirectToAction("Index","Appointment");
                     }
 
 
@@ -492,7 +547,7 @@ namespace MVCFirebase.Controllers
                         },
                     };
             ViewBag.CITIES = cities;
-            List<SelectListItem> gender = new List<SelectListItem>() {
+            List<SelectListItem> genders = new List<SelectListItem>() {
                         new SelectListItem {
                             Text = "Male", Value = "Male"
                         },
@@ -504,7 +559,7 @@ namespace MVCFirebase.Controllers
                         },
 
                     };
-            ViewBag.GENDER = gender;
+            ViewBag.GENDERS = genders;
 
             //CollectionReference col1 = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("patientList").Document("test");
             DocumentReference docRef = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("patientList").Document(id);
@@ -612,7 +667,7 @@ namespace MVCFirebase.Controllers
                         },
                     };
                 ViewBag.CITIES = cities;
-                List<SelectListItem> gender = new List<SelectListItem>() {
+                List<SelectListItem> genders = new List<SelectListItem>() {
                         new SelectListItem {
                             Text = "Male", Value = "Male"
                         },
@@ -624,7 +679,7 @@ namespace MVCFirebase.Controllers
                         },
 
                     };
-                ViewBag.GENDER = gender;
+                ViewBag.GENDERS = genders;
 
                 if (ModelState.IsValid)
                 {
@@ -736,6 +791,30 @@ namespace MVCFirebase.Controllers
             
             databaselastid = alphaValue + numericValue.ToString();
             return databaselastid;
+        }
+
+        // POST: Patient/Delete/5
+        [HttpPost]
+        public ActionResult CreateFutureAppointment(FormCollection collection)
+        {
+            try
+            {
+                // TODO: Add delete logic here
+                string patientAutoId = collection["patientAutoId"];
+                string token = collection["tokennumber"];
+                string appointmentDate = collection["datepicker"];
+
+                return RedirectToAction("Index");
+            }
+            catch
+            {
+                return View();
+            }
+        }
+
+        public string getLatestToken(string futureAppointmentDate)
+        {
+            return "4";
         }
     }
 }

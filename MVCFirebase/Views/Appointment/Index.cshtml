@@ -10,7 +10,7 @@
     @Html.ActionLink("Create New", "Create")
 </p>
 
-<table class="table" border="1">
+<table class="table" border="0">
     <tr>
         <td>
             @using (Html.BeginForm("Index", "Appointment", FormMethod.Post))
@@ -18,7 +18,7 @@
                 <fieldset>
                     <legend>Search criteria</legend>
                     @Html.Label("StartDate", "Start Date:")
-                    <input class="startdate" id="startdate" name="startdate" type="date" value="">
+                    <input class="startdate" id="startdate" name="startdate" type="date" value="@ViewData["searchDate"]">
                     <input type="submit" value="Apply" />
                 </fieldset>
             }

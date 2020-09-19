@@ -3,7 +3,45 @@
 @{
     ViewBag.Title = "Index";
 }
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-ui-timepicker-addon/1.6.3/jquery-ui-timepicker-addon.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-ui-timepicker-addon/1.6.3/jquery-ui-timepicker-addon.min.css" />
+<script>
+    jQuery(function ($) {
+        $("#datepicker").datetimepicker({
+            minDate: 0
+        }).attr('readonly', 'readonly').change(function () {
+            $('#tokennumber').html('');
+            var selection = $('#datepicker').val();
+            if (selection.length > 0) {
+                $.post("/Patient/getLatestToken", { futureAppointmentDate: selection },
+                    function (data) {
+                        $('#tokennumber').val(data);
+                    })
+            }
+        });
+    });
+</script>
+<script>
+    $(function () {
+        $('.modal-link').click(function () {
+            $('#patientAutoId').val($(this).attr('data-id'));
+        });
+        $('#tokennumber').change(function () {
+            alert('amang');
+        });
+    });
 
+
+
+</script>
+<script type="text/javascript">
+    
+    
+
+</script>
 <h2>Index</h2>
 
 <p>
@@ -36,35 +74,88 @@
         <th></th>
     </tr>
 
-@foreach (var item in Model) {
-<tr>
+    @foreach (var item in Model)
+    {
+        <tr>
 
-    <td>
-        @Html.DisplayFor(modelItem => item.patient_id)
-    </td>
-    <td>
-        @Html.DisplayFor(modelItem => item.patient_name)
-    </td>
-    <td>
-        @Html.DisplayFor(modelItem => item.patient_mobile_number)
-    </td>
-    <td>
-        @Html.DisplayFor(modelItem => item.disease)
-    </td>
-    <td>
-        @Html.DisplayFor(modelItem => item.gender)
-    </td>
-    <td>
-        @Html.DisplayFor(modelItem => item.age)
-    </td>
-    <td>
-        @Html.DisplayFor(modelItem => item.city)
-    </td>
-    <td>
-        @Html.ActionLink("Edit", "Edit", new { id = item.id }) |
-        @Html.ActionLink("Details", "Details", new { id = item.id }) |
-    </td>
-</tr>
-}
+            <td>
+                @Html.DisplayFor(modelItem => item.patient_id)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.patient_name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.patient_mobile_number)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.disease)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.gender)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.age)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.city)
+            </td>
+            <td>
+                @Html.ActionLink("Edit", "Edit", new { id = item.id }) |
+                @Html.ActionLink("Details", "Details", new { id = item.id }) |
+                <a class="modal-link" data-id="@item.id" data-toggle="modal" data-target=".bootstrapmodal">Add Appointment</a>
+            </td>
+        </tr>
+    }
 
 </table>
+@using (Html.BeginForm("CreateFutureAppointment", "Patient", FormMethod.Post))
+{
+    <div class="form-horizontal">
+        <div class="modal fade bootstrapmodal">
+            <div class="modal-dialog">
+
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button data-dismiss="modal" class="close"><span>&times;</span></button>
+                        Please Select Appointment Date
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <div class="col-md-5">
+                                @Html.Label("StartDate", "Start Date:")
+                            </div>
+                            
+                            <div class="col-md-5">
+                                <input class="form-control" name="datepicker" type="text" id="datepicker">
+                            </div>
+
+                        </div>
+                        <div class="form-group">
+                            <div class="col-md-5">
+                                @Html.Label("TokenNumber", "Token Number:")
+                            </div>
+                            
+                            <div class="col-md-5">
+                                <input class="form-control" name="tokennumber" type="text" id="tokennumber">
+                            </div>
+
+                        </div>
+                        
+                    </div>
+
+                    <input type="hidden" class="form-control" name="patientAutoId" id="patientAutoId" value="" />
+                    <div class="modal-footer">
+                        <div class="form-group">
+                            <div class="col-md-1">
+                                <button type="submit" class="btn btn-primary">Submit</button>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+}
+

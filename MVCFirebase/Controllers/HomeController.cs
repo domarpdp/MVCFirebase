@@ -106,7 +106,7 @@ namespace MVCFirebase.Controllers
                             if (snapUserPassword.Count > 0)
                             {
                                 FormsAuthentication.SetAuthCookie(userLoggedIn.name, user.RememberMe);
-                                return RedirectToAction("Index","Appointment");
+                                return RedirectToAction("Index","Patient");
                             }
                             else
                             {

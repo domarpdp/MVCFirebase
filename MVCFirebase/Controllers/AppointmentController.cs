@@ -41,7 +41,7 @@ namespace MVCFirebase.Controllers
             foreach (DocumentSnapshot docsnapClinics in snapClinics)
             {
                 Clinic clinic = docsnapClinics.ConvertTo<Clinic>();
-                QuerySnapshot snapAppointments = await docsnapClinics.Reference.Collection("appointments").WhereGreaterThanOrEqualTo("raisedDate",Timestamp.FromDateTime(SearchDate)).WhereLessThan("raisedDate",Timestamp.FromDateTime(SearchDate.AddDays(1))).OrderByDescending("raisedDate").GetSnapshotAsync();
+                QuerySnapshot snapAppointments = await docsnapClinics.Reference.Collection("appointments").WhereGreaterThanOrEqualTo("raisedDate",Timestamp.FromDateTime(SearchDate.Date)).WhereLessThan("raisedDate",Timestamp.FromDateTime(SearchDate.AddDays(1))).OrderByDescending("raisedDate").GetSnapshotAsync();
 
                 foreach (DocumentSnapshot docsnapAppointments in snapAppointments)
                 {
@@ -62,9 +62,11 @@ namespace MVCFirebase.Controllers
                 }
 
             }
-
+            ViewData["searchDate"] = startdate;
             return View(AppointmentList);
         }
+
+
 
         // GET: Appointment/Details/5
         public ActionResult Details(int id)

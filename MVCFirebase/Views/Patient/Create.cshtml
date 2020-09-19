@@ -65,7 +65,7 @@
         <div class="form-group">
             @Html.LabelFor(model => model.gender, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
-                @Html.DropDownListFor(model => model.gender, (IEnumerable<SelectListItem>)ViewBag.GENDER, new { @class = "select2_demo_4 form-control" })
+                @Html.DropDownListFor(model => model.gender, (IEnumerable<SelectListItem>)ViewBag.GENDERS, new { @class = "select2_demo_4 form-control" })
                 @Html.ValidationMessageFor(model => model.gender, "", new { @class = "text-danger" })
             </div>
         </div>
