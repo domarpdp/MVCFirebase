@@ -50,6 +50,14 @@ namespace MVCFirebase.Models
         public DateTime creation_date { get; set; }
 
         [FirestoreProperty]
+        public DateTime appointment_date { get; set; }
+
+        [FirestoreProperty]
+        [Range(0, int.MaxValue, ErrorMessage = "Please enter valid integer Number")]
+        [MaxLength(3)]
+        public int tokenNumber { get; set; }
+
+        [FirestoreProperty]
         [Required(ErrorMessage = "Required.")]
         [MaxLength(50)]
         public string disease { get; set; }

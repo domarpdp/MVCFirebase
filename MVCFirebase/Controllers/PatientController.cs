@@ -812,9 +812,39 @@ namespace MVCFirebase.Controllers
             }
         }
 
-        public string getLatestToken(string futureAppointmentDate)
+        [HttpPost]
+        public async Task<ActionResult> getLatestToken(string futureAppointmentDate)
         {
-            return "4";
+            string lastTokenNumber = "";
+            string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
+            Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
+            FirestoreDb db = FirestoreDb.Create("greenpaperdev");
+
+            DateTime futAppDate = Convert.ToDateTime(futureAppointmentDate);
+
+            #region Code to get latest token number, increament it, set in new appointment and update increamented token number back in collection
+            DocumentReference docRefTokenNumber = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("tokenNumber").Document(futAppDate.ToString("dd_MM_yyyy"));
+            DocumentSnapshot docsnapTokenNumber = await docRefTokenNumber.GetSnapshotAsync();
+
+            if (docsnapTokenNumber.Exists)
+            {
+                lastTokenNumber = docsnapTokenNumber.GetValue<string>("last_token");
+            }
+            else
+            {
+                lastTokenNumber = "0";
+            }
+
+            lastTokenNumber = (Convert.ToInt32(lastTokenNumber) + 1).ToString();
+
+
+
+            #endregion Code to get latest token number, increament it
+            ViewData["tokenNumber"] = lastTokenNumber;
+            Patient patient = new Patient();
+            patient.tokenNumber = Convert.ToInt32(lastTokenNumber);
+            return View(patient);
+            //return "4";
         }
     }
 }

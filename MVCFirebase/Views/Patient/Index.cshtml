@@ -14,9 +14,11 @@
             minDate: 0
         }).attr('readonly', 'readonly').change(function () {
             $('#tokennumber').html('');
-            var selection = $('#datepicker').val();
-            if (selection.length > 0) {
-                $.post("/Patient/getLatestToken", { futureAppointmentDate: selection },
+            var selection1 = $('#datepicker').val();
+            var selection2 = $('#patientAutoId').val();
+            if (selection1.length > 0) {
+                
+                $.post("/Patient/getLatestToken", { futureAppointmentDate: selection1, patientAutoId: selection2 },
                     function (data) {
                         $('#tokennumber').val(data);
                     })
@@ -136,7 +138,7 @@
                             </div>
                             
                             <div class="col-md-5">
-                                <input class="form-control" name="tokennumber" type="text" id="tokennumber">
+                                <input class="form-control" name="tokennumber" type="text" id="tokennumber" readonly>
                             </div>
 
                         </div>

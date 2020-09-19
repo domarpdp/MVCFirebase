@@ -3,7 +3,46 @@
 @{
     ViewBag.Title = "Create";
 }
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-ui-timepicker-addon/1.6.3/jquery-ui-timepicker-addon.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-ui-timepicker-addon/1.6.3/jquery-ui-timepicker-addon.min.css" />
+<script>
+    jQuery(function ($) {
+        $("#appointment_date").datetimepicker({
+            minDate: 0
+        }).attr('readonly', 'readonly').change(function () {
+            $('#tokenNumber').html('');
+            var selection1 = $('#appointment_date').val();
+            if (selection1.length > 0) {
 
+                $.ajax({
+                    //base address/controller/Action
+                    url: '/Patient/getLatestToken',
+                    type: 'POST',
+                    data: {
+                        //Passing Input parameter
+                        futureAppointmentDate: selection1
+                    },
+                    success: function (result) {
+                        //$('#tokenNumber').val(data);
+                        alert('amang');
+                        //write something
+                    },
+                    error: function () {
+                        //alert("error");
+                    }
+                });
+
+                //$.post("/Patient/getLatestToken", { futureAppointmentDate: selection1},
+                //    function (data) {
+                //        $('#tokenNumber').val(data);
+                //    })
+            }
+        });
+    });
+</script>
 <h2>Create</h2>
 
 @using (Html.BeginForm())
@@ -50,6 +89,22 @@
             <div class="col-md-10">
                 @Html.EditorFor(model => model.care_of, new { htmlAttributes = new { @class = "form-control" } })
                 @Html.ValidationMessageFor(model => model.care_of, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.appointment_date, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.appointment_date, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.appointment_date, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.tokenNumber, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.tokenNumber, (string)ViewData["tokenNumber"], new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.tokenNumber, "", new { @class = "text-danger" })
             </div>
         </div>
 
