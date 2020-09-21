@@ -17,7 +17,7 @@
             var selection1 = $('#datepicker').val();
             var selection2 = $('#patientAutoId').val();
             if (selection1.length > 0) {
-                
+
                 $.post("/Patient/getLatestToken", { futureAppointmentDate: selection1, patientAutoId: selection2 },
                     function (data) {
                         $('#tokennumber').val(data);
@@ -32,18 +32,14 @@
             $('#patientAutoId').val($(this).attr('data-id'));
         });
         $('#tokennumber').change(function () {
-            alert('amang');
+            //alert('amang');
         });
     });
 
 
 
 </script>
-<script type="text/javascript">
-    
-    
 
-</script>
 <h2>Index</h2>
 
 <p>
@@ -126,7 +122,7 @@
                             <div class="col-md-5">
                                 @Html.Label("StartDate", "Start Date:")
                             </div>
-                            
+
                             <div class="col-md-5">
                                 <input class="form-control" name="datepicker" type="text" id="datepicker">
                             </div>
@@ -136,13 +132,13 @@
                             <div class="col-md-5">
                                 @Html.Label("TokenNumber", "Token Number:")
                             </div>
-                            
+
                             <div class="col-md-5">
-                                <input class="form-control" name="tokennumber" type="text" id="tokennumber" readonly>
+                                <input class="form-control" name="tokennumber" type="text" id="tokennumber">
                             </div>
 
                         </div>
-                        
+
                     </div>
 
                     <input type="hidden" class="form-control" name="patientAutoId" id="patientAutoId" value="" />
@@ -151,7 +147,7 @@
                             <div class="col-md-1">
                                 <button type="submit" class="btn btn-primary">Submit</button>
                             </div>
-                            
+
                         </div>
                     </div>
                 </div>
@@ -159,5 +155,15 @@
         </div>
     </div>
 
+}
+@Scripts.Render("~/bundles/jquery")
+@Scripts.Render("~/bundles/bootstrap")
+@if (@TempData["Message"] != null)
+{
+<script type="text/javascript">
+            $(function () {
+                alert("@TempData["Message"]")
+            });
+</script>
 }
 

@@ -379,7 +379,9 @@ namespace MVCFirebase.Controllers
 
                         Dictionary<string, object> dataTokenNumber = new Dictionary<string, object>
                         {
-                            {"last_token" ,lastTokenNumber}
+                            {"last_token" ,lastTokenNumber},
+                            {"assigned_tokens" ,null}
+
                         };
                         await colTokenNumber.Document(DateTime.Now.ToString("dd_MM_yyyy")).SetAsync(dataTokenNumber);
 
@@ -795,25 +797,186 @@ namespace MVCFirebase.Controllers
 
         // POST: Patient/Delete/5
         [HttpPost]
-        public ActionResult CreateFutureAppointment(FormCollection collection)
+        public async Task<ActionResult> CreateFutureAppointment(FormCollection collection)
         {
             try
             {
-                // TODO: Add delete logic here
+                
+
+                string lastTokenNumber = "";
                 string patientAutoId = collection["patientAutoId"];
                 string token = collection["tokennumber"];
                 string appointmentDate = collection["datepicker"];
+                
 
-                return RedirectToAction("Index");
+                string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
+                Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
+                FirestoreDb db = FirestoreDb.Create("greenpaperdev");
+                DateTime futAppDate = Convert.ToDateTime(appointmentDate);
+
+                #region Code to get latest token number, increament it, set in new appointment and update increamented token number back in collection
+                DocumentReference docRefTokenNumber = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("tokenNumber").Document(futAppDate.ToString("dd_MM_yyyy"));
+                DocumentSnapshot docsnapTokenNumber = await docRefTokenNumber.GetSnapshotAsync();
+
+
+                if (docsnapTokenNumber.Exists)
+                {
+                    lastTokenNumber = docsnapTokenNumber.GetValue<string>("last_token");
+                }
+                else
+                {
+                    lastTokenNumber = "0";
+                }
+
+                if (lastTokenNumber != "0")
+                {
+                    string[] assignedtokens = docsnapTokenNumber.GetValue<string[]>("assigned_tokens");
+
+                    int[] assignedtokensInt = Array.ConvertAll(assignedtokens, int.Parse);
+
+                    Array.Sort(assignedtokensInt);
+                    if (assignedtokens != null)
+                    {
+                        int i = 1;
+                        int j = 1;
+                        while (i <= assignedtokens.Length)
+                        {
+                            if (Convert.ToInt32(lastTokenNumber) + 1 <= assignedtokensInt[i - 1])
+                            {
+                                if (Convert.ToInt32(lastTokenNumber) + j != assignedtokensInt[i - 1])
+                                {
+                                    lastTokenNumber = (Convert.ToInt32(lastTokenNumber) + j).ToString();
+                                    break;
+                                }
+                                j++;
+                            }
+
+                            i++;
+                        }
+                    }
+                    else
+                    {
+                        lastTokenNumber = (Convert.ToInt32(lastTokenNumber) + 1).ToString();
+                    }
+
+                }
+                else
+                {
+                    lastTokenNumber = (Convert.ToInt32(lastTokenNumber) + 1).ToString();
+                }
+
+                if (Convert.ToInt32(token) < Convert.ToInt32(lastTokenNumber))
+                {
+                    ViewBag.Message = "Token Number " + token + " is already assigned.";
+                    return RedirectToAction("Index", "Patient");
+                }
+                if (Convert.ToInt32(token) < 1)
+                {
+                    ViewBag.Message = "Token Number can not be negative.";
+                    return RedirectToAction("Index", "Patient");
+                }
+                if (Convert.ToInt32(token) >= Convert.ToInt32(lastTokenNumber))
+                {
+                    if(Convert.ToInt32(token) == 1)
+                    {
+                        CollectionReference colTokenNumber = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("tokenNumber");
+
+                        Dictionary<string, object> dataTokenNumber = new Dictionary<string, object>
+                        {
+                            {"last_token" ,token},
+                            {"assigned_tokens" ,null}
+                        };
+                        await colTokenNumber.Document(futAppDate.ToString("dd_MM_yyyy")).SetAsync(dataTokenNumber);
+                    }
+                    else if (Convert.ToInt32(token) == Convert.ToInt32(lastTokenNumber))
+                    {
+                        
+                        string[] assignedtokens = docsnapTokenNumber.GetValue<string[]>("assigned_tokens");
+                        List<string> assignedtokenList = new List<string>();
+                        if (assignedtokens != null)
+                        {
+                            for (int i = 0; i < assignedtokens.Length; i++)
+                            {
+                                if (token == assignedtokens[i].ToString())
+                                {
+                                    ViewBag.Message = "Token Number " + token + " is already assigned.";
+                                    return RedirectToAction("Index", "Patient");
+                                }
+                                
+                            }
+                            assignedtokenList = assignedtokens.ToList();
+
+                            CollectionReference colTokenNumber = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("tokenNumber");
+
+                            Dictionary<string, object> dataTokenNumber = new Dictionary<string, object>
+                            {
+                                {"last_token" ,token},
+                                {"assigned_tokens" ,assignedtokenList.ToArray()}
+                            };
+                            await colTokenNumber.Document(futAppDate.ToString("dd_MM_yyyy")).SetAsync(dataTokenNumber);
+                        }
+                        else
+                        {
+                            CollectionReference colTokenNumber = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("tokenNumber");
+
+                            Dictionary<string, object> dataTokenNumber = new Dictionary<string, object>
+                            {
+                                {"last_token" ,token},
+                                {"assigned_tokens" ,null}
+                            };
+                            await colTokenNumber.Document(futAppDate.ToString("dd_MM_yyyy")).SetAsync(dataTokenNumber);
+                        }
+                    }
+                    else
+                    {
+                        string[] assignedtokens = docsnapTokenNumber.GetValue<string[]>("assigned_tokens");
+                        List<string> assignedtokenList = new List<string>();
+                        for (int i = 0; i < assignedtokens.Length; i++)
+                        {
+                            if (token == assignedtokens[i].ToString())
+                            {
+                                TempData["Message"] = "Token Number " + token + " is already assigned.";
+                                return RedirectToAction("Index", "Patient");
+                            }
+
+                        }
+
+                        if (assignedtokens != null)
+                        {
+                            assignedtokenList = assignedtokens.ToList();
+                        }
+                        
+
+                        assignedtokenList.Add(token);
+
+
+                        CollectionReference colTokenNumber = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("tokenNumber");
+
+                        Dictionary<string, object> dataTokenNumber = new Dictionary<string, object>
+                        {
+                            {"last_token" ,token},
+                            {"assigned_tokens" ,assignedtokenList.ToArray()}
+                        };
+                        await colTokenNumber.Document(futAppDate.ToString("dd_MM_yyyy")).SetAsync(dataTokenNumber);
+                    }
+                }
+
+
+
+
+
+                #endregion Code to get latest token number, increament it
+
+                return RedirectToAction("Index", "Patient");
             }
-            catch
+            catch (Exception ex)
             {
-                return View();
+                return RedirectToAction("Index", "Patient");
             }
         }
 
         [HttpPost]
-        public async Task<ActionResult> getLatestToken(string futureAppointmentDate)
+        public async Task<string> getLatestToken(string futureAppointmentDate)
         {
             string lastTokenNumber = "";
             string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
@@ -835,16 +998,54 @@ namespace MVCFirebase.Controllers
                 lastTokenNumber = "0";
             }
 
-            lastTokenNumber = (Convert.ToInt32(lastTokenNumber) + 1).ToString();
+            
+
+            if (lastTokenNumber != "0")
+            {
+                string[] assignedtokens = docsnapTokenNumber.GetValue<string[]>("assigned_tokens");
+
+                int[] assignedtokensInt = Array.ConvertAll(assignedtokens, int.Parse);
+
+                Array.Sort(assignedtokensInt);
+                if (assignedtokens != null)
+                {
+                    int i = 1;
+                    int j = 1;
+                    while (i <= assignedtokens.Length)
+                    {
+                        if(Convert.ToInt32(lastTokenNumber) + 1 <= assignedtokensInt[i - 1])
+                        {
+                            if (Convert.ToInt32(lastTokenNumber) + j != assignedtokensInt[i - 1])
+                            {
+                                lastTokenNumber = (Convert.ToInt32(lastTokenNumber) + j).ToString();
+                                break;
+                            }
+                            j++;
+                        }
+                        
+                        i++;
+                    }
+                }
+                else
+                {
+                    lastTokenNumber = (Convert.ToInt32(lastTokenNumber) + 1).ToString();
+                }
+                
+            }
+            else
+            {
+                lastTokenNumber = (Convert.ToInt32(lastTokenNumber) + 1).ToString();
+            }
+
+            
 
 
 
             #endregion Code to get latest token number, increament it
             ViewData["tokenNumber"] = lastTokenNumber;
-            Patient patient = new Patient();
-            patient.tokenNumber = Convert.ToInt32(lastTokenNumber);
-            return View(patient);
-            //return "4";
+            
+            
+            return lastTokenNumber;
         }
     }
 }
