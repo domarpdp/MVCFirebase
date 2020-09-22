@@ -69,6 +69,11 @@ namespace MVCFirebase.Models
 
         [FirestoreProperty]
         [Required(ErrorMessage = "Required.")]
+        [MaxLength(6)]
+        public string severity { get; set; }
+
+        [FirestoreProperty]
+        [Required(ErrorMessage = "Required.")]
         [MaxLength(50)]
         public string refer_by { get; set; }
 

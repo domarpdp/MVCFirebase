@@ -30,7 +30,7 @@ namespace MVCFirebase.Controllers
             foreach (DocumentSnapshot docsnap in snap)
             {
                 Clinic clinic = docsnap.ConvertTo<Clinic>();
-                QuerySnapshot snap2 = await docsnap.Reference.Collection("patientList").OrderByDescending("patient_id").Limit(100).GetSnapshotAsync();
+                QuerySnapshot snap2 = await docsnap.Reference.Collection("patientList").OrderByDescending("patient_id").Limit(5).GetSnapshotAsync();
 
                 foreach (DocumentSnapshot docsnap2 in snap2)
                 {
@@ -164,6 +164,20 @@ namespace MVCFirebase.Controllers
                 
             };
             ViewBag.GENDER = gender;
+
+            List<SelectListItem> severity = new List<SelectListItem>() {
+                new SelectListItem {
+                    Text = "High", Value = "High"
+                },
+                new SelectListItem {
+                    Text = "Medium", Value = "Medium"
+                },
+                new SelectListItem {
+                    Text = "Low", Value = "Low"
+                },
+
+            };
+            ViewBag.SEVERITIES = severity;
             string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
             Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
             FirestoreDb db = FirestoreDb.Create("greenpaperdev");
@@ -289,6 +303,19 @@ namespace MVCFirebase.Controllers
 
                     };
                 ViewBag.GENDERS = genders;
+                List<SelectListItem> severity = new List<SelectListItem>() {
+                new SelectListItem {
+                    Text = "High", Value = "High"
+                },
+                new SelectListItem {
+                    Text = "Medium", Value = "Medium"
+                },
+                new SelectListItem {
+                    Text = "Low", Value = "Low"
+                },
+
+            };
+                ViewBag.SEVERITIES = severity;
 
                 if (ModelState.IsValid)
                 {
@@ -346,6 +373,7 @@ namespace MVCFirebase.Controllers
                         {"creation_date" ,DateTime.UtcNow},
                         {"disease" ,patient.disease},
                         {"gender" ,patient.gender},
+                        {"severity" ,patient.severity},
                         {"patient_id" ,patientLastId},
                         {"patient_mobile_number",patient.patient_mobile_number},
                         {"refer_by" ,patient.refer_by},
@@ -563,6 +591,20 @@ namespace MVCFirebase.Controllers
                     };
             ViewBag.GENDERS = genders;
 
+            List<SelectListItem> severity = new List<SelectListItem>() {
+                new SelectListItem {
+                    Text = "High", Value = "High"
+                },
+                new SelectListItem {
+                    Text = "Medium", Value = "Medium"
+                },
+                new SelectListItem {
+                    Text = "Low", Value = "Low"
+                },
+
+            };
+            ViewBag.SEVERITIES = severity;
+
             //CollectionReference col1 = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("patientList").Document("test");
             DocumentReference docRef = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("patientList").Document(id);
             DocumentSnapshot docSnap = await docRef.GetSnapshotAsync();
@@ -683,6 +725,20 @@ namespace MVCFirebase.Controllers
                     };
                 ViewBag.GENDERS = genders;
 
+                List<SelectListItem> severity = new List<SelectListItem>() {
+                new SelectListItem {
+                    Text = "High", Value = "High"
+                },
+                new SelectListItem {
+                    Text = "Medium", Value = "Medium"
+                },
+                new SelectListItem {
+                    Text = "Low", Value = "Low"
+                },
+
+            };
+                ViewBag.SEVERITIES = severity;
+
                 if (ModelState.IsValid)
                 {
                     string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
@@ -701,6 +757,7 @@ namespace MVCFirebase.Controllers
                             {"creation_date" ,DateTime.SpecifyKind(patient.creation_date, DateTimeKind.Utc)},
                             {"disease" ,patient.disease},
                             {"gender" ,patient.gender},
+                            {"severity" ,patient.severity},
                             {"patient_id" ,patient.patient_id},
                             {"patient_mobile_number",patient.patient_mobile_number},
                             {"refer_by" ,patient.refer_by},
@@ -826,46 +883,63 @@ namespace MVCFirebase.Controllers
                 else
                 {
                     lastTokenNumber = "0";
+                    CollectionReference colTokenNumber = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("tokenNumber");
+
+                    Dictionary<string, object> dataTokenNumber = new Dictionary<string, object>
+                            {
+                                {"last_token" ,"0"},
+                                {"assigned_tokens" ,null}
+                            };
+                    await colTokenNumber.Document(futAppDate.ToString("dd_MM_yyyy")).SetAsync(dataTokenNumber);
                 }
+
+                string lastTokenNumberReturned = "";
 
                 if (lastTokenNumber != "0")
                 {
                     string[] assignedtokens = docsnapTokenNumber.GetValue<string[]>("assigned_tokens");
 
-                    int[] assignedtokensInt = Array.ConvertAll(assignedtokens, int.Parse);
-
-                    Array.Sort(assignedtokensInt);
+                    
                     if (assignedtokens != null)
                     {
-                        int i = 1;
-                        int j = 1;
-                        while (i <= assignedtokens.Length)
+                        int[] assignedtokensInt = Array.ConvertAll(assignedtokens, int.Parse);
+
+                        Array.Sort(assignedtokensInt);
+                        int j = 0;
+                        for (int i = 0; i < assignedtokens.Length; i++)
                         {
-                            if (Convert.ToInt32(lastTokenNumber) + 1 <= assignedtokensInt[i - 1])
+                            if (Convert.ToInt32(lastTokenNumber) + 1 > assignedtokensInt[i])
                             {
-                                if (Convert.ToInt32(lastTokenNumber) + j != assignedtokensInt[i - 1])
-                                {
-                                    lastTokenNumber = (Convert.ToInt32(lastTokenNumber) + j).ToString();
-                                    break;
-                                }
+                                lastTokenNumberReturned = (Convert.ToInt32(lastTokenNumber) + 1).ToString();
+                                continue;
+                            }
+                            else if (Convert.ToInt32(lastTokenNumber) + 1 + j == assignedtokensInt[i])
+                            {
                                 j++;
+                                lastTokenNumberReturned = (Convert.ToInt32(lastTokenNumber) + 1 + j).ToString();
+                            }
+                            else
+                            {
+                                lastTokenNumberReturned = (Convert.ToInt32(lastTokenNumber) + 1 + j).ToString();
+                                break;
                             }
 
-                            i++;
                         }
                     }
                     else
                     {
-                        lastTokenNumber = (Convert.ToInt32(lastTokenNumber) + 1).ToString();
+                        lastTokenNumberReturned = (Convert.ToInt32(lastTokenNumber) + 1).ToString();
                     }
 
                 }
                 else
                 {
-                    lastTokenNumber = (Convert.ToInt32(lastTokenNumber) + 1).ToString();
+                    lastTokenNumberReturned = (Convert.ToInt32(lastTokenNumber) + 1).ToString();
                 }
 
-                if (Convert.ToInt32(token) < Convert.ToInt32(lastTokenNumber))
+
+
+                if (Convert.ToInt32(token) < Convert.ToInt32(lastTokenNumberReturned))
                 {
                     ViewBag.Message = "Token Number " + token + " is already assigned.";
                     return RedirectToAction("Index", "Patient");
@@ -875,20 +949,57 @@ namespace MVCFirebase.Controllers
                     ViewBag.Message = "Token Number can not be negative.";
                     return RedirectToAction("Index", "Patient");
                 }
-                if (Convert.ToInt32(token) >= Convert.ToInt32(lastTokenNumber))
+                if (Convert.ToInt32(token) >= Convert.ToInt32(lastTokenNumberReturned))
                 {
                     if(Convert.ToInt32(token) == 1)
                     {
-                        CollectionReference colTokenNumber = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("tokenNumber");
 
-                        Dictionary<string, object> dataTokenNumber = new Dictionary<string, object>
+                        DocumentReference docRefTokenNumber2 = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("tokenNumber").Document(futAppDate.ToString("dd_MM_yyyy"));
+                        DocumentSnapshot docsnapTokenNumber2 = await docRefTokenNumber2.GetSnapshotAsync();
+                        string[] assignedtokens = docsnapTokenNumber2.GetValue<string[]>("assigned_tokens");
+
+                        List<string> assignedtokenList = new List<string>();
+
+                        if (assignedtokens != null)
                         {
-                            {"last_token" ,token},
-                            {"assigned_tokens" ,null}
-                        };
-                        await colTokenNumber.Document(futAppDate.ToString("dd_MM_yyyy")).SetAsync(dataTokenNumber);
+                            for (int i = 0; i < assignedtokens.Length; i++)
+                            {
+                                if (token == assignedtokens[i].ToString())
+                                {
+                                    TempData["Message"] = "Token Number " + token + " is already assigned.";
+                                    return RedirectToAction("Index", "Patient");
+                                }
+
+                            }
+                            assignedtokenList = assignedtokens.ToList();
+                        }
+
+
+
+                        CollectionReference colTokenNumber = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("tokenNumber");
+                        if(assignedtokens != null)
+                        {
+                            Dictionary<string, object> dataTokenNumber = new Dictionary<string, object>
+                            {
+                                {"last_token" ,token},
+                                {"assigned_tokens" ,assignedtokenList.ToArray()}
+                            };
+                            await colTokenNumber.Document(futAppDate.ToString("dd_MM_yyyy")).SetAsync(dataTokenNumber);
+                        }
+                        else
+                        {
+                            Dictionary<string, object> dataTokenNumber = new Dictionary<string, object>
+                            {
+                                {"last_token" ,token},
+                                {"assigned_tokens" ,null}
+                            };
+                            await colTokenNumber.Document(futAppDate.ToString("dd_MM_yyyy")).SetAsync(dataTokenNumber);
+                        }
+                        
+                        
+
                     }
-                    else if (Convert.ToInt32(token) == Convert.ToInt32(lastTokenNumber))
+                    else if (Convert.ToInt32(token) == Convert.ToInt32(lastTokenNumberReturned))
                     {
                         
                         string[] assignedtokens = docsnapTokenNumber.GetValue<string[]>("assigned_tokens");
@@ -929,26 +1040,34 @@ namespace MVCFirebase.Controllers
                     }
                     else
                     {
-                        string[] assignedtokens = docsnapTokenNumber.GetValue<string[]>("assigned_tokens");
-                        List<string> assignedtokenList = new List<string>();
-                        for (int i = 0; i < assignedtokens.Length; i++)
-                        {
-                            if (token == assignedtokens[i].ToString())
-                            {
-                                TempData["Message"] = "Token Number " + token + " is already assigned.";
-                                return RedirectToAction("Index", "Patient");
-                            }
+                        DocumentReference docRefTokenNumber1 = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("tokenNumber").Document(futAppDate.ToString("dd_MM_yyyy"));
+                        DocumentSnapshot docsnapTokenNumber1 = await docRefTokenNumber1.GetSnapshotAsync();
+                        string[] assignedtokens = docsnapTokenNumber1.GetValue<string[]>("assigned_tokens");
 
-                        }
+                        List<string> assignedtokenList = new List<string>();
 
                         if (assignedtokens != null)
                         {
+                            for (int i = 0; i < assignedtokens.Length; i++)
+                            {
+                                if (token == assignedtokens[i].ToString())
+                                {
+                                    TempData["Message"] = "Token Number " + token + " is already assigned.";
+                                    return RedirectToAction("Index", "Patient");
+                                }
+
+                            }
                             assignedtokenList = assignedtokens.ToList();
                         }
+                        
                         
 
                         assignedtokenList.Add(token);
 
+                        if (Convert.ToInt32(token) != Convert.ToInt32(lastTokenNumberReturned))
+                        {
+                            token = lastTokenNumber;
+                        }
 
                         CollectionReference colTokenNumber = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("tokenNumber");
 
@@ -962,10 +1081,44 @@ namespace MVCFirebase.Controllers
                 }
 
 
-
-
-
                 #endregion Code to get latest token number, increament it
+                #region Code to create new appointment id for today
+
+                DocumentReference docRefPatientUID = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("patientList").Document(patientAutoId);
+                DocumentSnapshot docsnapPatientUID = await docRefPatientUID.GetSnapshotAsync();
+
+                string PatientUID = docsnapPatientUID.GetValue<string>("patient_id");
+                string severity = docsnapPatientUID.GetValue<string>("severity");
+                if (severity == null)
+                {
+                    severity = "Low";
+                }
+                
+
+
+                CollectionReference colAppountments = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("appointments");
+
+                Dictionary<string, object> dataAppointment = new Dictionary<string, object>
+                        {
+                            {"bill_sms" ,false},
+                            {"clinic_id" ,GlobalSessionVariables.ClinicDocumentAutoId},
+                            {"complitiondate" ,""},
+                            {"date" ,""},
+                            {"days" ,""},
+                            {"fee" ,""},
+                            {"patient" ,patientAutoId},
+                            {"patient_id" ,PatientUID},
+                            {"raisedDate",DateTime.SpecifyKind(Convert.ToDateTime(appointmentDate), DateTimeKind.Utc)},
+                            {"reminder_sms" ,false},
+                            {"severity" ,severity},
+                            {"status" ,"Waiting"},
+                            {"timeStamp" ,DateTime.UtcNow},
+                            {"token" ,token}
+                        };
+                await colAppountments.Document().SetAsync(dataAppointment);
+                #endregion Code to create new appointment id for today
+
+
 
                 return RedirectToAction("Index", "Patient");
             }
@@ -998,43 +1151,51 @@ namespace MVCFirebase.Controllers
                 lastTokenNumber = "0";
             }
 
-            
+            string lastTokenNumberReturned = "";
 
             if (lastTokenNumber != "0")
             {
                 string[] assignedtokens = docsnapTokenNumber.GetValue<string[]>("assigned_tokens");
 
-                int[] assignedtokensInt = Array.ConvertAll(assignedtokens, int.Parse);
-
-                Array.Sort(assignedtokensInt);
+                
                 if (assignedtokens != null)
                 {
-                    int i = 1;
-                    int j = 1;
-                    while (i <= assignedtokens.Length)
+                    int[] assignedtokensInt = Array.ConvertAll(assignedtokens, int.Parse);
+
+                    Array.Sort(assignedtokensInt);
+
+                    int j = 0;
+                    for (int i = 0; i < assignedtokens.Length; i++)
                     {
-                        if(Convert.ToInt32(lastTokenNumber) + 1 <= assignedtokensInt[i - 1])
+                        if(Convert.ToInt32(lastTokenNumber) + 1 > assignedtokensInt[i])
                         {
-                            if (Convert.ToInt32(lastTokenNumber) + j != assignedtokensInt[i - 1])
-                            {
-                                lastTokenNumber = (Convert.ToInt32(lastTokenNumber) + j).ToString();
-                                break;
-                            }
-                            j++;
+                            lastTokenNumberReturned = (Convert.ToInt32(lastTokenNumber) + 1).ToString();
+                            continue;
                         }
-                        
-                        i++;
+                        else if(Convert.ToInt32(lastTokenNumber) + 1 + j == assignedtokensInt[i])
+                        {
+                            j++;
+                            lastTokenNumberReturned = (Convert.ToInt32(lastTokenNumber) + 1 + j).ToString();
+                        }
+                        else
+                        {
+                            lastTokenNumberReturned = (Convert.ToInt32(lastTokenNumber) + 1 + j).ToString();
+                            break;
+                        }
+
                     }
+
+                        
                 }
                 else
                 {
-                    lastTokenNumber = (Convert.ToInt32(lastTokenNumber) + 1).ToString();
+                    lastTokenNumberReturned = (Convert.ToInt32(lastTokenNumber) + 1).ToString();
                 }
                 
             }
             else
             {
-                lastTokenNumber = (Convert.ToInt32(lastTokenNumber) + 1).ToString();
+                lastTokenNumberReturned = (Convert.ToInt32(lastTokenNumber) + 1).ToString();
             }
 
             
@@ -1042,10 +1203,10 @@ namespace MVCFirebase.Controllers
 
 
             #endregion Code to get latest token number, increament it
-            ViewData["tokenNumber"] = lastTokenNumber;
+            ViewData["tokenNumber"] = lastTokenNumberReturned;
             
             
-            return lastTokenNumber;
+            return lastTokenNumberReturned;
         }
     }
 }

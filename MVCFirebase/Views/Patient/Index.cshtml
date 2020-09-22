@@ -30,6 +30,14 @@
     $(function () {
         $('.modal-link').click(function () {
             $('#patientAutoId').val($(this).attr('data-id'));
+            var d = new Date($.now());
+            var formattedDate = (d.getMonth() + 1) + "/" + d.getDate() + "/" +  d.getFullYear() + " " + d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds();
+            $("#datepicker").val(formattedDate);
+            $.post("/Patient/getLatestToken", { futureAppointmentDate: formattedDate },
+                function (data) {
+                    $('#tokennumber').val(data);
+                })
+
         });
         $('#tokennumber').change(function () {
             //alert('amang');
@@ -142,6 +150,7 @@
                     </div>
 
                     <input type="hidden" class="form-control" name="patientAutoId" id="patientAutoId" value="" />
+                    
                     <div class="modal-footer">
                         <div class="form-group">
                             <div class="col-md-1">
