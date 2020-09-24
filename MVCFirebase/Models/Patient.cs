@@ -55,7 +55,7 @@ namespace MVCFirebase.Models
         [FirestoreProperty]
         [Range(0, int.MaxValue, ErrorMessage = "Please enter valid integer Number")]
         [MaxLength(3)]
-        public int tokenNumber { get; set; }
+        public string tokenNumber { get; set; }
 
         [FirestoreProperty]
         [Required(ErrorMessage = "Required.")]

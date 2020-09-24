@@ -9,7 +9,7 @@ using System.Web.Mvc;
 
 namespace MVCFirebase.Controllers
 {
-    [Authorize]
+    [AccessDeniedAuthorize(Roles = "SuperAdmin,Admin")]
     public class ClinicController : Controller
     {
         // GET: Clinic

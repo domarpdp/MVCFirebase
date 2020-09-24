@@ -74,7 +74,13 @@
             @Html.ValidationMessageFor(model => model.gender, "", new { @class = "text-danger" })
         </div>
     </div>
-
+    <div class="form-group">
+        @Html.LabelFor(model => model.severity, htmlAttributes: new { @class = "control-label col-md-2" })
+        <div class="col-md-10">
+            @Html.DropDownListFor(model => model.severity, (IEnumerable<SelectListItem>)ViewBag.SEVERITIES, new { @class = "select2_demo_4 form-control" })
+            @Html.ValidationMessageFor(model => model.severity, "", new { @class = "text-danger" })
+        </div>
+    </div>
     <div class="form-group">
         @Html.LabelFor(model => model.refer_by, htmlAttributes: new { @class = "control-label col-md-2" })
         <div class="col-md-10">
@@ -93,7 +99,8 @@
 
     @Html.HiddenFor(model => model.creation_date)
     @Html.HiddenFor(model => model.patient_id)
-    
+    @Html.HiddenFor(model => model.appointment_date)
+    @Html.HiddenFor(model => model.tokenNumber)
     <br />
 
 

@@ -222,7 +222,9 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\AccessDeniedAuthorizeAttribute.cs" />
     <Compile Include="Models\Appointment.cs" />
+    <Compile Include="Models\CheckSessionTimeOutAttribute.cs" />
     <Compile Include="Models\Clinic.cs" />
     <Compile Include="Models\GlobalSessionVariables.cs" />
     <Compile Include="Models\LoginData.cs" />
@@ -230,6 +232,7 @@
     <Compile Include="Models\Student.cs" />
     <Compile Include="Models\SuperUser.cs" />
     <Compile Include="Models\User.cs" />
+    <Compile Include="Models\UserRoleProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -291,6 +294,7 @@
     <Content Include="Views\User\Details.cshtml" />
     <Content Include="Views\User\Delete.cshtml" />
     <Content Include="Views\Patient\Edit.cshtml" />
+    <Content Include="Views\Home\Denied.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

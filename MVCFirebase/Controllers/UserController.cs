@@ -9,7 +9,8 @@ using System.Web;
 using System.Web.Mvc;
 
 namespace MVCFirebase.Controllers
-{[Authorize]
+{
+    [AccessDeniedAuthorize(Roles = "SuperAdmin,Admin")]
     public class UserController : Controller
     {
         // GET: User

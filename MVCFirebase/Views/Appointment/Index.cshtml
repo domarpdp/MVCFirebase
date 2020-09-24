@@ -3,7 +3,17 @@
 @{
     ViewBag.Title = "Index";
 }
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-ui-timepicker-addon/1.6.3/jquery-ui-timepicker-addon.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-ui-timepicker-addon/1.6.3/jquery-ui-timepicker-addon.min.css" />
+<script>
+    jQuery(function ($) {
+        $("#startdate").datetimepicker({
+        }).attr('readonly', 'readonly');
+    });
+</script>
 <h2>Index</h2>
 
 <p>
@@ -12,24 +22,23 @@
 
 <table class="table" border="0">
     <tr>
-        <td>
-            @using (Html.BeginForm("Index", "Appointment", FormMethod.Post))
-            {
-                <fieldset>
-                    <legend>Search criteria</legend>
-                    @Html.Label("StartDate", "Start Date:")
-                    <input class="startdate" id="startdate" name="startdate" type="date" value="@ViewData["searchDate"]">
-                    <input type="submit" value="Apply" />
-                </fieldset>
-            }
-        </td>
-        <td>
-            <p>
-                @Html.ActionLink("Create New Patient", "Create","Patient")
-            </p>
-        </td>
-    </tr>
- </table>
+
+        @using (Html.BeginForm("Index", "Appointment", FormMethod.Post))
+        {
+            <td width="30%">
+                   <input class="form-control" name="startdate" type="text" id="startdate" value="@ViewBag.Message">
+            </td>
+            <td align="left">
+                <input class="form-control" type="submit" value="Apply" style="width:100px"/>
+            </td>
+        }
+            <td>
+                <p>
+                    @Html.ActionLink("Create New Patient", "Create", "Patient")
+                </p>
+            </td>
+        </tr>
+</table>
 <table class="table">
     <tr>
         <th>
@@ -87,3 +96,4 @@
     }
 
 </table>
+

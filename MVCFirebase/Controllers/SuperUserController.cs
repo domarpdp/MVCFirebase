@@ -8,7 +8,8 @@ using System.Web;
 using System.Web.Mvc;
 
 namespace MVCFirebase.Controllers
-{[Authorize]
+{
+    [AccessDeniedAuthorize(Roles = "SuperAdmin")]
     public class SuperUserController : Controller
     {
         // GET: SuperUser

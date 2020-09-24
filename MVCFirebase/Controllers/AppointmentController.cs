@@ -8,10 +8,14 @@ using System.Web;
 using System.Web.Mvc;
 
 namespace MVCFirebase.Controllers
-{[Authorize]
+{
+    
     public class AppointmentController : Controller
     {
         // GET: Appointment
+
+        [CheckSessionTimeOut]
+        [AccessDeniedAuthorize(Roles = "Doctor,Receptionist,Chemist,Cashier")]
         public async Task<ActionResult> Index(string startdate)
         {
             DateTime SearchDate;
@@ -62,7 +66,7 @@ namespace MVCFirebase.Controllers
                 }
 
             }
-            ViewData["searchDate"] = startdate;
+            ViewBag.Message = SearchDate;
             return View(AppointmentList);
         }
 

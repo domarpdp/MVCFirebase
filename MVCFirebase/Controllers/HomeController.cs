@@ -13,6 +13,7 @@ using System.Web.Security;
 using Google.Cloud.Firestore;
 using WebGrease.Css.Ast.Selectors;
 using System.Net;
+using System.Data;
 
 namespace MVCFirebase.Controllers
 {[Authorize]
@@ -53,6 +54,7 @@ namespace MVCFirebase.Controllers
                         SuperUser superuser = docsnap.ConvertTo<SuperUser>();
                         if (docsnap.Exists)
                         {
+                            GlobalSessionVariables.UserRoles = "SuperAdmin";
                             FormsAuthentication.SetAuthCookie(superuser.UserName, superuser.RememberMe);
                             return RedirectToAction("Index");
                         }
@@ -101,10 +103,15 @@ namespace MVCFirebase.Controllers
                         {
 
                             User userLoggedIn = docsnapUsers.ConvertTo<User>();
-                            QuerySnapshot snapUserPassword = await docsnapClinic.Reference.Collection("user").WhereEqualTo("password", user.password).GetSnapshotAsync();
+                            QuerySnapshot snapUserPassword = await docsnapClinic.Reference.Collection("user").WhereEqualTo("mobile_number", user.mobile_number).WhereEqualTo("password", user.password).GetSnapshotAsync();
 
                             if (snapUserPassword.Count > 0)
                             {
+                                DocumentSnapshot docsnapUser = snapUserPassword.Documents[0];
+
+                                User userForRoles = docsnapUser.ConvertTo<User>();
+                                GlobalSessionVariables.UserRoles = string.Join(",", userForRoles.user_roles); 
+
                                 FormsAuthentication.SetAuthCookie(userLoggedIn.name, user.RememberMe);
                                 return RedirectToAction("Index","Patient");
                             }
@@ -201,6 +208,11 @@ namespace MVCFirebase.Controllers
         {
             ViewBag.Message = "Your contact page.";
 
+            return View();
+        }
+
+        public ActionResult Denied()
+        {
             return View();
         }
     }

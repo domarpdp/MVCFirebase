@@ -18,7 +18,7 @@
             var selection2 = $('#patientAutoId').val();
             if (selection1.length > 0) {
 
-                $.post("/Patient/getLatestToken", { futureAppointmentDate: selection1, patientAutoId: selection2 },
+                $.post("/Patient/getLatestToken", { futureAppointmentDate: selection1 },
                     function (data) {
                         $('#tokennumber').val(data);
                     })
