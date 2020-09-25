@@ -216,7 +216,6 @@
     <Compile Include="Controllers\ClinicController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\PatientController.cs" />
-    <Compile Include="Controllers\StudentController.cs" />
     <Compile Include="Controllers\SuperUserController.cs" />
     <Compile Include="Controllers\UserController.cs" />
     <Compile Include="Global.asax.cs">
@@ -227,9 +226,10 @@
     <Compile Include="Models\CheckSessionTimeOutAttribute.cs" />
     <Compile Include="Models\Clinic.cs" />
     <Compile Include="Models\GlobalSessionVariables.cs" />
+    <Compile Include="Models\ImageModel.cs" />
+    <Compile Include="Models\ImageViewModel.cs" />
     <Compile Include="Models\LoginData.cs" />
     <Compile Include="Models\Patient.cs" />
-    <Compile Include="Models\Student.cs" />
     <Compile Include="Models\SuperUser.cs" />
     <Compile Include="Models\User.cs" />
     <Compile Include="Models\UserRoleProvider.cs" />
@@ -276,11 +276,6 @@
     <Content Include="Views\Home\About.cshtml" />
     <Content Include="Views\Home\Contact.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
-    <Content Include="Views\Student\Index.cshtml" />
-    <Content Include="Views\Student\Edit.cshtml" />
-    <Content Include="Views\Student\Create.cshtml" />
-    <Content Include="Views\Student\Details.cshtml" />
-    <Content Include="Views\Student\Delete.cshtml" />
     <Content Include="Views\Clinic\Index.cshtml" />
     <Content Include="Views\Home\Login.cshtml" />
     <Content Include="Views\SuperUser\Index.cshtml" />
@@ -295,6 +290,7 @@
     <Content Include="Views\User\Delete.cshtml" />
     <Content Include="Views\Patient\Edit.cshtml" />
     <Content Include="Views\Home\Denied.cshtml" />
+    <Content Include="Views\Appointment\PrescriptionList.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

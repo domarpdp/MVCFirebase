@@ -14,6 +14,22 @@
         }).attr('readonly', 'readonly');
     });
 </script>
+
+<script>
+    $(function () {
+        $('.modal-link').click(function () {
+
+            $.post("/Appointment/Prescription", { patientAutoId: $(this).attr('data-id') },
+                function (data) {
+                    $('#my_image').attr('src', 'data: image / png; base64,'+data);
+                })
+        });
+
+    });
+
+
+
+</script>
 <h2>Index</h2>
 
 <p>
@@ -26,18 +42,18 @@
         @using (Html.BeginForm("Index", "Appointment", FormMethod.Post))
         {
             <td width="30%">
-                   <input class="form-control" name="startdate" type="text" id="startdate" value="@ViewBag.Message">
+                <input class="form-control" name="startdate" type="text" id="startdate" value="@ViewBag.Message">
             </td>
             <td align="left">
-                <input class="form-control" type="submit" value="Apply" style="width:100px"/>
+                <input class="form-control" type="submit" value="Apply" style="width:100px" />
             </td>
         }
-            <td>
-                <p>
-                    @Html.ActionLink("Create New Patient", "Create", "Patient")
-                </p>
-            </td>
-        </tr>
+        <td>
+            <p>
+                @Html.ActionLink("Create New Patient", "Create", "Patient")
+            </p>
+        </td>
+    </tr>
 </table>
 <table class="table">
     <tr>
@@ -90,10 +106,48 @@
             <td>
                 @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
                 @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
-                @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+                <a class="modal-link" data-id="@item.patient" data-toggle="modal" data-target=".bootstrapmodal">View Prescription</a>
             </td>
         </tr>
     }
 
 </table>
+@using (Html.BeginForm("CreateFutureAppointment", "Patient", FormMethod.Post))
+{
+    <div class="form-horizontal">
+        <div class="modal fade bootstrapmodal">
+            <div class="modal-dialog">
+
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button data-dismiss="modal" class="close"><span>&times;</span></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+
+                            <div class="col-md-5">
+                                <img id="my_image" height="500" width="500"  />
+                            </div>
+
+                        </div>
+                        
+
+                    </div>
+
+                    <input type="hidden" class="form-control" name="patientAutoId" id="patientAutoId" value="" />
+
+                    <div class="modal-footer">
+                        <div class="form-group">
+                            <div class="col-md-1">
+                                <button type="submit" class="btn btn-primary">Submit</button>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+}
 

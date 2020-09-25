@@ -165,14 +165,5 @@
     </div>
 
 }
-@Scripts.Render("~/bundles/jquery")
-@Scripts.Render("~/bundles/bootstrap")
-@if (@TempData["Message"] != null)
-{
-<script type="text/javascript">
-            $(function () {
-                alert("@TempData["Message"]")
-            });
-</script>
-}
+
 

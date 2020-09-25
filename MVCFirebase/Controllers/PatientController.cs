@@ -1558,7 +1558,7 @@ namespace MVCFirebase.Controllers
 
 
             #endregion Code to get latest token number, increament it
-            ViewData["tokenNumber"] = lastTokenNumberReturned;
+            //ViewData["tokenNumber"] = lastTokenNumberReturned;
             
             
             return lastTokenNumberReturned;

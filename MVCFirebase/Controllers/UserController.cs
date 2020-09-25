@@ -10,10 +10,12 @@ using System.Web.Mvc;
 
 namespace MVCFirebase.Controllers
 {
+    
     [AccessDeniedAuthorize(Roles = "SuperAdmin,Admin")]
     public class UserController : Controller
     {
         // GET: User
+        [CheckSessionTimeOut]
         public async Task<ActionResult> Index()
         {
             string ClinicMobileNumber = GlobalSessionVariables.ClinicMobileNumber;
@@ -57,6 +59,7 @@ namespace MVCFirebase.Controllers
         }
 
         // GET: User/Details/5
+        [CheckSessionTimeOut]
         public async Task<ActionResult> Details(string id)
         {
             string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
@@ -99,12 +102,14 @@ namespace MVCFirebase.Controllers
         }
 
         // GET: User/Create
+        [CheckSessionTimeOut]
         public ActionResult Create()
         {
             return View();
         }
 
         // POST: User/Create
+        [CheckSessionTimeOut]
         [HttpPost]
         public ActionResult Create(User user)
         {try
@@ -158,6 +163,7 @@ namespace MVCFirebase.Controllers
         }
 
         // GET: User/Edit/5
+        [CheckSessionTimeOut]
         public async Task<ActionResult> Edit(string id)
         {
             string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
@@ -202,6 +208,7 @@ namespace MVCFirebase.Controllers
 
         // POST: User/Edit/5
         [HttpPost]
+        [CheckSessionTimeOut]
         public async Task<ActionResult> Edit(string id, User user)
         {
             try
@@ -304,6 +311,7 @@ namespace MVCFirebase.Controllers
         }
 
         // GET: User/Delete/5
+        [CheckSessionTimeOut]
         public async Task<ActionResult> Delete(string id)
         {
             string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
@@ -347,6 +355,7 @@ namespace MVCFirebase.Controllers
 
         // POST: User/Delete/5
         [HttpPost]
+        [CheckSessionTimeOut]
         public ActionResult Delete(string id, User user)
         {
             try

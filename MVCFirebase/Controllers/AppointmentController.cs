@@ -143,5 +143,63 @@ namespace MVCFirebase.Controllers
                 return View();
             }
         }
+
+        
+        
+        public async Task<string> Prescription(string patientAutoId)
+        {
+
+            string ClinicMobileNumber = GlobalSessionVariables.ClinicMobileNumber;
+            string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
+            Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
+            FirestoreDb db = FirestoreDb.Create("greenpaperdev");
+
+            string prescriptionString = "";
+            
+
+            Query QrefPrescriptions = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("patientLastId").Document(patientAutoId).Collection("prescriptions").OrderByDescending("timeStamp").Limit(1);
+            QuerySnapshot snap = await QrefPrescriptions.GetSnapshotAsync();
+
+            foreach (DocumentSnapshot docsnap in snap)
+            {
+                if (docsnap.Exists)
+                {
+
+                    prescriptionString = docsnap.GetValue<string>("file");
+                }
+            }
+
+            return prescriptionString;
+        }
+
+        public async Task<ActionResult> PrescriptionList(string patientAutoId)
+        {
+            string ClinicMobileNumber = GlobalSessionVariables.ClinicMobileNumber;
+            string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
+            Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
+            FirestoreDb db = FirestoreDb.Create("greenpaperdev");
+
+
+            List<string> prescriptionStringList = new List<string>();
+
+            Query QrefPrescriptions = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("patientLastId").Document(patientAutoId).Collection("prescriptions").OrderByDescending("timeStamp");
+            QuerySnapshot snap = await QrefPrescriptions.GetSnapshotAsync();
+
+            foreach (DocumentSnapshot docsnap in snap)
+            {
+                if (docsnap.Exists)
+                {
+
+                    prescriptionStringList.Add(docsnap.GetValue<string>("file"));
+                }
+            }
+
+
+
+            return View(prescriptionStringList);
+
+        }
+
+
     }
 }
