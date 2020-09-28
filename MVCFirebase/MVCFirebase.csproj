@@ -215,6 +215,7 @@
     <Compile Include="Controllers\AppointmentController.cs" />
     <Compile Include="Controllers\ClinicController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\ImageController.cs" />
     <Compile Include="Controllers\PatientController.cs" />
     <Compile Include="Controllers\SuperUserController.cs" />
     <Compile Include="Controllers\UserController.cs" />
@@ -290,10 +291,12 @@
     <Content Include="Views\User\Delete.cshtml" />
     <Content Include="Views\Patient\Edit.cshtml" />
     <Content Include="Views\Home\Denied.cshtml" />
-    <Content Include="Views\Appointment\PrescriptionList.cshtml" />
+    <Content Include="Views\Image\Index.cshtml" />
+    <Content Include="Views\Image\_PartialImage.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Content\Images\" />
     <Folder Include="Images\" />
   </ItemGroup>
   <ItemGroup>

@@ -1,0 +1,8 @@
+﻿@model MVCFirebase.Models.ImageModel
+
+@if (Model != null && Model.SelectedImage != null)
+{
+
+    <img src="@Url.Content(Model.SelectedImage.ImageUrl)" alt="Image" height="500" width="500" />
+
+}

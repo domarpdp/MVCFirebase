@@ -12,6 +12,8 @@ namespace MVCFirebase.Models
         {
 
         }
+
+
         public List<ImageViewModel> GetList()
         {
             List<ImageViewModel> list = new List<ImageViewModel>();
@@ -40,11 +42,7 @@ namespace MVCFirebase.Models
                 Id = 5,
                 Path = "~/Content/Images/IMG_7847.jpg"
             });
-            list.Add(new ImageViewModel
-            {
-                Id = 6,
-                Path = "~/Content/Images/IMG_7849.jpg"
-            });
+            
             return list;
         }
 

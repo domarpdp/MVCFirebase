@@ -1,0 +1,36 @@
+﻿@model MVCFirebase.Models.ImageModel
+
+@{
+    ViewBag.Title = "Prescriptions";
+}
+
+<h2>Index</h2>
+
+<script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-ajax-unobtrusive/3.2.6/jquery.unobtrusive-ajax.min.js"></script>
+<br>
+<br>
+<fieldset>
+    <div id="dvCategoryResults">
+        @{
+            Html.RenderPartial("_PartialImage", Model);
+        }
+    </div>
+</fieldset>
+
+<fieldset>
+    @using (Ajax.BeginForm("GetNextOrPrevImage", "Image", new { SelectedId = Model.SelectedImage },
+        new AjaxOptions
+        {
+            HttpMethod = "Post",
+            UpdateTargetId = "dvCategoryResults"
+        }))
+    {
+
+        <input type="submit" value="<" id="btnPrev" name="ButtonType" />
+        <input type="submit" value=">" id="btnNext" name="ButtonType" />
+    }
+</fieldset>
+
+
+

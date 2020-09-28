@@ -157,7 +157,7 @@ namespace MVCFirebase.Controllers
             string prescriptionString = "";
             
 
-            Query QrefPrescriptions = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("patientLastId").Document(patientAutoId).Collection("prescriptions").OrderByDescending("timeStamp").Limit(1);
+            Query QrefPrescriptions = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("patientList").Document(patientAutoId).Collection("prescriptions").OrderByDescending("timeStamp").Limit(1);
             QuerySnapshot snap = await QrefPrescriptions.GetSnapshotAsync();
 
             foreach (DocumentSnapshot docsnap in snap)
@@ -182,7 +182,7 @@ namespace MVCFirebase.Controllers
 
             List<string> prescriptionStringList = new List<string>();
 
-            Query QrefPrescriptions = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("patientLastId").Document(patientAutoId).Collection("prescriptions").OrderByDescending("timeStamp");
+            Query QrefPrescriptions = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("patientList").Document(patientAutoId).Collection("prescriptions").OrderByDescending("timeStamp");
             QuerySnapshot snap = await QrefPrescriptions.GetSnapshotAsync();
 
             foreach (DocumentSnapshot docsnap in snap)
