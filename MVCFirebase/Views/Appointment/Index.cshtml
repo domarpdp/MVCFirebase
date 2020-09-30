@@ -14,22 +14,6 @@
         }).attr('readonly', 'readonly');
     });
 </script>
-
-<script>
-    $(function () {
-        $('.modal-link').click(function () {
-
-            $.post("/Appointment/Prescription", { patientAutoId: $(this).attr('data-id') },
-                function (data) {
-                    $('#my_image').attr('src', 'data: image / png; base64,'+data);
-                })
-        });
-
-    });
-
-
-
-</script>
 <h2>Index</h2>
 
 <p>
@@ -107,48 +91,10 @@
                 @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
                 @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
                 @Html.ActionLink("ViewPresc", "Index", "Image", new { @item.patient }, new { @item.patient }) |
-                <a class="modal-link" data-id="@item.patient" data-toggle="modal" data-target=".bootstrapmodal">View Prescription</a>
             </td>
         </tr>
     }
 
 </table>
-@using (Html.BeginForm("CreateFutureAppointment", "Patient", FormMethod.Post))
-{
-    <div class="form-horizontal">
-        <div class="modal fade bootstrapmodal">
-            <div class="modal-dialog">
 
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button data-dismiss="modal" class="close"><span>&times;</span></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="form-group">
-
-                            <div class="col-md-5">
-                                <img id="my_image" height="500" width="500"  />
-                            </div>
-
-                        </div>
-                        
-
-                    </div>
-
-                    <input type="hidden" class="form-control" name="patientAutoId" id="patientAutoId" value="" />
-
-                    <div class="modal-footer">
-                        <div class="form-group">
-                            <div class="col-md-1">
-                                <button type="submit" class="btn btn-primary">Submit</button>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-}
 

@@ -214,6 +214,7 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\AppointmentController.cs" />
     <Compile Include="Controllers\ClinicController.cs" />
+    <Compile Include="Controllers\ClinicSettingController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ImageController.cs" />
     <Compile Include="Controllers\PatientController.cs" />
@@ -226,6 +227,7 @@
     <Compile Include="Models\Appointment.cs" />
     <Compile Include="Models\CheckSessionTimeOutAttribute.cs" />
     <Compile Include="Models\Clinic.cs" />
+    <Compile Include="Models\ClinicSettings.cs" />
     <Compile Include="Models\GlobalSessionVariables.cs" />
     <Compile Include="Models\ImageModel.cs" />
     <Compile Include="Models\ImageViewModel.cs" />
@@ -293,6 +295,9 @@
     <Content Include="Views\Home\Denied.cshtml" />
     <Content Include="Views\Image\Index.cshtml" />
     <Content Include="Views\Image\_PartialImage.cshtml" />
+    <Content Include="Views\ClinicSetting\Create.cshtml" />
+    <Content Include="Views\ClinicSetting\Index.cshtml" />
+    <Content Include="Views\ClinicSetting\Edit.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

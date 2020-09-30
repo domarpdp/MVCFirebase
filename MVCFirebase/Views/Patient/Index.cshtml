@@ -10,6 +10,10 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-ui-timepicker-addon/1.6.3/jquery-ui-timepicker-addon.min.css" />
 <script>
     jQuery(function ($) {
+        //$("#search").change(function () {
+        //    alert('amang');
+        //});
+
         $("#datepicker").datetimepicker({
             minDate: 0
         }).attr('readonly', 'readonly').change(function () {
@@ -31,7 +35,7 @@
         $('.modal-link').click(function () {
             $('#patientAutoId').val($(this).attr('data-id'));
             var d = new Date($.now());
-            var formattedDate = (d.getMonth() + 1) + "/" + d.getDate() + "/" +  d.getFullYear() + " " + d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds();
+            var formattedDate = (d.getMonth() + 1) + "/" + d.getDate() + "/" + d.getFullYear() + " " + d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds();
             $("#datepicker").val(formattedDate);
             $.post("/Patient/getLatestToken", { futureAppointmentDate: formattedDate },
                 function (data) {
@@ -43,127 +47,154 @@
             //alert('amang');
         });
     });
+    function MyFunction() {
+        var searchData = $('#search').val();
+        $.post("/Patient/Index", { search: searchData },
+            function (data) {
+                $("#divContent").html(data);
+                $('#search').focus();
+            })
 
+    }
 
 
 </script>
+<div id="divContent">
 
-<h2>Index</h2>
+    <h2>Index</h2>
 
-<p>
-    @Html.ActionLink("Create New", "Create")
-</p>
-<table class="table">
-    <tr>
+    <p>
+        @Html.ActionLink("Create New", "Create")
+    </p>
+    <p>
+        @using (@Html.BeginForm("Index", "Patient", FormMethod.Post))
+        {
+            @*@Html.TextBox("search", "", new { onkeyup = "MyFunction();" }) <input type="submit" value="search" />*@
+            @Html.TextBox("search") <input type="submit" value="search" />
+        }
+    </p>
 
-        <th>
-            @Html.DisplayNameFor(model => model.patient_id)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.patient_name)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.patient_mobile_number)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.disease)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.gender)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.age)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.city)
-        </th>
-        <th></th>
-    </tr>
-
-    @foreach (var item in Model)
-    {
+    <table class="table">
         <tr>
 
-            <td>
-                @Html.DisplayFor(modelItem => item.patient_id)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.patient_name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.patient_mobile_number)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.disease)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.gender)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.age)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.city)
-            </td>
-            <td>
-                @Html.ActionLink("Edit", "Edit", new { id = item.id }) |
-                @Html.ActionLink("Details", "Details", new { id = item.id }) |
-                <a class="modal-link" data-id="@item.id" data-toggle="modal" data-target=".bootstrapmodal">Add Appointment</a>
-            </td>
+            <th>
+                @Html.DisplayNameFor(model => model.patient_id)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.patient_name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.patient_mobile_number)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.disease)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.gender)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.age)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.city)
+            </th>
+            <th></th>
         </tr>
-    }
 
-</table>
-@using (Html.BeginForm("CreateFutureAppointment", "Patient", FormMethod.Post))
-{
-    <div class="form-horizontal">
-        <div class="modal fade bootstrapmodal">
-            <div class="modal-dialog">
+        @foreach (var item in Model)
+        {
+            <tr>
 
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button data-dismiss="modal" class="close"><span>&times;</span></button>
-                        Please Select Appointment Date
-                    </div>
-                    <div class="modal-body">
-                        <div class="form-group">
-                            <div class="col-md-5">
-                                @Html.Label("StartDate", "Start Date:")
+                <td>
+                    @Html.DisplayFor(modelItem => item.patient_id)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.patient_name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.patient_mobile_number)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.disease)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.gender)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.age)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.city)
+                </td>
+                <td>
+                    @Html.ActionLink("Edit", "Edit", new { id = item.id }) |
+                    @Html.ActionLink("Details", "Details", new { id = item.id }) |
+                    <a class="modal-link" data-id="@item.id" data-toggle="modal" data-target=".bootstrapmodal">Add Appointment</a>
+                </td>
+            </tr>
+        }
+
+    </table>
+    @using (Html.BeginForm("CreateFutureAppointment", "Patient", FormMethod.Post))
+    {
+        <div class="form-horizontal">
+            <div class="modal fade bootstrapmodal">
+                <div class="modal-dialog">
+
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button data-dismiss="modal" class="close"><span>&times;</span></button>
+                            Please Select Appointment Date
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <div class="col-md-5">
+                                    @Html.Label("StartDate", "Start Date:")
+                                </div>
+
+                                <div class="col-md-5">
+                                    <input class="form-control" name="datepicker" type="text" id="datepicker">
+                                </div>
+
                             </div>
+                            <div class="form-group">
+                                <div class="col-md-5">
+                                    @Html.Label("TokenNumber", "Token Number:")
+                                </div>
 
-                            <div class="col-md-5">
-                                <input class="form-control" name="datepicker" type="text" id="datepicker">
+                                <div class="col-md-5">
+                                    <input class="form-control" name="tokennumber" type="text" id="tokennumber">
+                                </div>
+
                             </div>
 
                         </div>
-                        <div class="form-group">
-                            <div class="col-md-5">
-                                @Html.Label("TokenNumber", "Token Number:")
+
+                        <input type="hidden" class="form-control" name="patientAutoId" id="patientAutoId" value="" />
+
+                        <div class="modal-footer">
+                            <div class="form-group">
+                                <div class="col-md-1">
+                                    <button type="submit" class="btn btn-primary">Submit</button>
+                                </div>
+
                             </div>
-
-                            <div class="col-md-5">
-                                <input class="form-control" name="tokennumber" type="text" id="tokennumber">
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                    <input type="hidden" class="form-control" name="patientAutoId" id="patientAutoId" value="" />
-                    
-                    <div class="modal-footer">
-                        <div class="form-group">
-                            <div class="col-md-1">
-                                <button type="submit" class="btn btn-primary">Submit</button>
-                            </div>
-
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
+    }
+</div>
+@Scripts.Render("~/bundles/jquery")
+@Scripts.Render("~/bundles/bootstrap")
+@if (@TempData["Message"] != null)
+{
+<script type="text/javascript">
+            $(function () {
+                alert("@TempData["Message"]")
+            });
+</script>
 }
-
 

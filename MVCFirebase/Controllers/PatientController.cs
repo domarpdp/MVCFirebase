@@ -16,7 +16,7 @@ namespace MVCFirebase.Controllers
     {
         // GET: Patient
         
-        public async Task<ActionResult> Index()
+        public async Task<ActionResult> Index(string search)
         {
             string ClinicMobileNumber = GlobalSessionVariables.ClinicMobileNumber;
             string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
@@ -25,28 +25,97 @@ namespace MVCFirebase.Controllers
 
 
             List<Patient> PatientList = new List<Patient>();
-
             
             //Query Qref = db.Collection("Students").WhereEqualTo("StudentName","Suvidhi");
             Query Qref = db.Collection("clinics").WhereEqualTo("clinicmobilenumber", ClinicMobileNumber);
             QuerySnapshot snap = await Qref.GetSnapshotAsync();
-
-            foreach (DocumentSnapshot docsnap in snap)
+            
+           foreach (DocumentSnapshot docsnap in snap)
             {
                 Clinic clinic = docsnap.ConvertTo<Clinic>();
-                QuerySnapshot snap2 = await docsnap.Reference.Collection("patientList").OrderByDescending("patient_id").Limit(10).GetSnapshotAsync();
 
-                foreach (DocumentSnapshot docsnap2 in snap2)
+
+
+                if (search != null && search != "")
                 {
-                    Patient patient = docsnap2.ConvertTo<Patient>();
-                    patient.id = docsnap2.Id;
-                    
-                    if (docsnap2.Exists)
+                    string searchInputToLower = search;
+                    string searchInputToUpper = search;
+                    QuerySnapshot snapPatientId = await docsnap.Reference.Collection("patientList").OrderBy("patient_id").StartAt(searchInputToUpper).EndAt(searchInputToLower + "\uf8ff").GetSnapshotAsync();
+
+                    if(snapPatientId.Count == 0)
                     {
-                        patient.clinic_name = clinic.clinicname;
-                        PatientList.Add(patient);
+                        QuerySnapshot snapPatientMobileNumber = await docsnap.Reference.Collection("patientList").OrderBy("patient_mobile_number").StartAt(searchInputToUpper).EndAt(searchInputToLower + "\uf8ff").GetSnapshotAsync();
+                        if (snapPatientMobileNumber.Count == 0)
+                        {
+                            QuerySnapshot snapPatientName = await docsnap.Reference.Collection("patientList").OrderBy("patient_name").StartAt(searchInputToUpper).EndAt(searchInputToLower + "\uf8ff").GetSnapshotAsync();
+                            if (snapPatientName.Count > 0)
+                            {
+                                foreach (DocumentSnapshot docsnap2 in snapPatientName)
+                                {
+                                    Patient patient = docsnap2.ConvertTo<Patient>();
+                                    patient.id = docsnap2.Id;
+
+                                    if (docsnap2.Exists)
+                                    {
+                                        patient.clinic_name = clinic.clinicname;
+                                        PatientList.Add(patient);
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            foreach (DocumentSnapshot docsnap2 in snapPatientMobileNumber)
+                            {
+                                Patient patient = docsnap2.ConvertTo<Patient>();
+                                patient.id = docsnap2.Id;
+
+                                if (docsnap2.Exists)
+                                {
+                                    patient.clinic_name = clinic.clinicname;
+                                    PatientList.Add(patient);
+                                }
+                            }
+                        }
+
+                    }
+                    else
+                    {
+                        foreach (DocumentSnapshot docsnap2 in snapPatientId)
+                        {
+                            Patient patient = docsnap2.ConvertTo<Patient>();
+                            patient.id = docsnap2.Id;
+
+                            if (docsnap2.Exists)
+                            {
+                                patient.clinic_name = clinic.clinicname;
+                                PatientList.Add(patient);
+                            }
+                        }
                     }
                 }
+                else
+                {
+
+                    QuerySnapshot snap2 = await docsnap.Reference.Collection("patientList").OrderByDescending("patient_id").GetSnapshotAsync();
+                    if (snap2.Count > 0)
+                    {
+                        foreach (DocumentSnapshot docsnap2 in snap2)
+                        {
+                            Patient patient = docsnap2.ConvertTo<Patient>();
+                            patient.id = docsnap2.Id;
+
+                            if (docsnap2.Exists)
+                            {
+                                patient.clinic_name = clinic.clinicname;
+                                PatientList.Add(patient);
+                            }
+                        }
+                    }
+                }
+
+                
+                    
                     
             }
 
@@ -328,12 +397,7 @@ namespace MVCFirebase.Controllers
 
                 if (ModelState.IsValid)
                 {
-                    string message = await UpdateTokenNumber(patient.appointment_date.ToString(), patient.tokenNumber);
-                    if (message != null)
-                    {
-                        ViewBag.Message = message;
-                        return View(patient);
-                    }
+                    
 
                     //string lastTokenNumber = "0";
                     string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
@@ -435,7 +499,7 @@ namespace MVCFirebase.Controllers
 
                         DateTime ConvertedAppDate = DateTime.SpecifyKind(Convert.ToDateTime(patient.appointment_date), DateTimeKind.Utc);
 
-                        Query QrefduplicateApp = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("appointments").WhereEqualTo("patient_id", patientLastId).WhereGreaterThanOrEqualTo("raisedDate", Timestamp.FromDateTime(ConvertedAppDate.Date)).WhereLessThan("raisedDate", Timestamp.FromDateTime(ConvertedAppDate.AddDays(1))).WhereEqualTo("status", "Waiting");
+                        Query QrefduplicateApp = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("appointments").WhereEqualTo("patient", docSnapLatestPatient.Id).WhereGreaterThanOrEqualTo("raisedDate", Timestamp.FromDateTime(ConvertedAppDate.Date)).WhereLessThan("raisedDate", Timestamp.FromDateTime(ConvertedAppDate.AddDays(1))).WhereEqualTo("status", "Waiting");
                         QuerySnapshot duplicateApp = await QrefduplicateApp.GetSnapshotAsync();
                         if (duplicateApp.Count > 0)
                         {
@@ -444,8 +508,16 @@ namespace MVCFirebase.Controllers
                         }
                         else
                         {
-                        #endregion Code to check duplicate appointment for selected date having status waiting
-                        #region Code to create new appointment id for today
+
+                            #endregion Code to check duplicate appointment for selected date having status waiting
+
+                            string message = await UpdateTokenNumber(patient.appointment_date.ToString(), patient.tokenNumber);
+                            if (message != null)
+                            {
+                                ViewBag.Message = message;
+                                return View(patient);
+                            }
+                            #region Code to create new appointment id for today
 
 
                             CollectionReference colAppountments = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("appointments");
@@ -495,24 +567,7 @@ namespace MVCFirebase.Controllers
                 return View();
             }
 
-            //try
-            //{
-            //    if(!ModelState.IsValid)
-            //    {
-            //        return View();
-            //    }
-            //    else
-            //    {
-            //        return RedirectToAction("Index");
-            //    }
-            //    // TODO: Add insert logic here
-
-                
-            //}
-            //catch
-            //{
-            //    return View();
-            //}
+            
         }
 
         // GET: Patient/Edit/5
@@ -1179,12 +1234,8 @@ namespace MVCFirebase.Controllers
 
                 DateTime ConvertedAppDate = DateTime.SpecifyKind(Convert.ToDateTime(appointmentDate), DateTimeKind.Utc);
 
-                string message = await UpdateTokenNumber(appointmentDate, token);
-                if(message != null)
-                {
-                    TempData["Message"] = message;
-                    return RedirectToAction("Index", "Patient");
-                }
+                
+                
                 
 
                 string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
@@ -1206,13 +1257,22 @@ namespace MVCFirebase.Controllers
                 QuerySnapshot snap = await Qref.GetSnapshotAsync();
                 if (snap.Count > 0)
                 {
-                    TempData["Message"] = "Appointment of " + PatientName + "(" + PatientUID + ") for " + appointmentDate + " already exists. "; ;
+                    TempData["Message"] = "Appointment of " + PatientName + "(" + PatientUID + ") for " + appointmentDate + " already exists. ";
+
                     return RedirectToAction("Index", "Patient");
                     
                 }
                 else
                 {
+
                     #region Code to create new appointment id for today
+
+                    string message = await UpdateTokenNumber(appointmentDate, token);
+                    if (message != null)
+                    {
+                        TempData["Message"] = message;
+                        return RedirectToAction("Index", "Patient");
+                    }
 
                     CollectionReference colAppountments = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("appointments");
 
