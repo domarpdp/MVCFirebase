@@ -105,5 +105,21 @@ namespace MVCFirebase.Controllers
 
             return PartialView("_PartialImage", _objuserloginmodel);
         }
+
+        [HttpPost]
+        public ActionResult Submit()
+        {
+            try
+            {
+                string patientAutoId = TempData["patientAutoId"].ToString();
+                // TODO: Add delete logic here
+
+                return RedirectToAction("Index");
+            }
+            catch
+            {
+                return View();
+            }
+        }
     }
 }
