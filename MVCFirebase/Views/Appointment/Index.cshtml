@@ -90,7 +90,8 @@
             <td>
                 @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
                 @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
-                @Html.ActionLink("ViewPresc", "Index", "Image", new { @item.patient }, new { @item.patient }) |
+                @Html.ActionLink("ViewPresc", "Index", "Image", new { @item.id, @item.patient }, new { @item.id, @item.patient }) |
+                @Html.ActionLink("Fee", "Fee", new { @item.id, @item.patient,@item.fee }, new { @item.id, @item.patient, @item.fee })
             </td>
         </tr>
     }

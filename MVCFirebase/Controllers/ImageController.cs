@@ -12,11 +12,12 @@ namespace MVCFirebase.Controllers
     public class ImageController : Controller
     {
         // GET: Image
-        public async Task<ActionResult> Index(string patient)
+        public async Task<ActionResult> Index(string id,string patient)
         {
             ImageModel _objuserloginmodel = new ImageModel();
             ViewBag.SelectedId = 0;
             TempData["SelectedId"] = 0;
+            TempData["appointmentAutoId"] = id;
             TempData["patientAutoId"] = patient;
 
             List<ImageViewModel> ImageList = new List<ImageViewModel>();
@@ -107,19 +108,34 @@ namespace MVCFirebase.Controllers
         }
 
         [HttpPost]
-        public ActionResult Submit()
+        public async Task<ActionResult> Submit()
         {
             try
             {
                 string patientAutoId = TempData["patientAutoId"].ToString();
+                string appointmentAutoId = TempData["appointmentAutoId"].ToString();
+
+                string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
+                Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
+                FirestoreDb db = FirestoreDb.Create("greenpaperdev");
+
+                DocumentReference docRef = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("appointments").Document(appointmentAutoId);
+                DocumentSnapshot docSnap = await docRef.GetSnapshotAsync();
+
+                if (docSnap.Exists)
+                {
+                    await docRef.UpdateAsync( "completionMedicine",DateTime.UtcNow);
+                }
                 // TODO: Add delete logic here
 
-                return RedirectToAction("Index");
+                return RedirectToAction("Index","Appointment");
             }
             catch
             {
                 return View();
             }
         }
+
+        
     }
 }

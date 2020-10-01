@@ -61,6 +61,7 @@ namespace MVCFirebase.Controllers
                     {
                         appointment.clinic_name = clinic.clinicname;
                         appointment.patient_name = patient.patient_name;
+                        appointment.id = docsnapAppointments.Id;
                         AppointmentList.Add(appointment);
                     }
                 }
@@ -200,6 +201,57 @@ namespace MVCFirebase.Controllers
 
         }
 
+        public ActionResult Fee(string id,string patient,string fee)
+        {
+            TempData["appointmentAutoId"] = id;
+            TempData["patientAutoId"] = patient;
+            TempData["fee"] = fee;
+            List<SelectListItem> paymentmode = new List<SelectListItem>() {
+                new SelectListItem {
+                    Text = "Cash", Value = "Cash"
+                },
+                new SelectListItem {
+                    Text = "Paytm", Value = "Paytm"
+                },
+                new SelectListItem {
+                    Text = "Credit Card", Value = "Credit Card"
+                },
+                new SelectListItem {
+                    Text = "Debit Card", Value = "Debit Card"
+                },
+            };
+            ViewBag.PAYMENTMODES = paymentmode;
+            return View();
+        }
 
+        // POST: Appointment/Create
+        [HttpPost]
+        public async Task<ActionResult> Fee()
+        {
+            try
+            {
+                string patientAutoId = TempData["patientAutoId"].ToString();
+                string appointmentAutoId = TempData["appointmentAutoId"].ToString();
+
+                string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
+                Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
+                FirestoreDb db = FirestoreDb.Create("greenpaperdev");
+
+                DocumentReference docRef = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("appointments").Document(appointmentAutoId);
+                DocumentSnapshot docSnap = await docRef.GetSnapshotAsync();
+
+                if (docSnap.Exists)
+                {
+                    await docRef.UpdateAsync("completionFee", DateTime.UtcNow);
+                }
+                // TODO: Add delete logic here
+
+                return RedirectToAction("Index");
+            }
+            catch
+            {
+                return View();
+            }
+        }
     }
 }

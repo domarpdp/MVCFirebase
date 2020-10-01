@@ -254,6 +254,8 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json" />
+    <None Include="Properties\PublishProfiles\FolderProfile.pubxml" />
+    <None Include="Properties\PublishProfiles\FTPProfile.pubxml" />
     <None Include="Scripts\jquery-3.4.1.intellisense.js" />
     <Content Include="Scripts\jquery-3.4.1.js" />
     <Content Include="Scripts\jquery-3.4.1.min.js" />
@@ -298,6 +300,7 @@
     <Content Include="Views\ClinicSetting\Create.cshtml" />
     <Content Include="Views\ClinicSetting\Index.cshtml" />
     <Content Include="Views\ClinicSetting\Edit.cshtml" />
+    <Content Include="Views\Appointment\Fee.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

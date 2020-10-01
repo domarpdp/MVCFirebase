@@ -73,7 +73,13 @@ namespace MVCFirebase.Models
         [FirestoreProperty]
         [Required(ErrorMessage = "Required.")]
         public string clinic_name { get; set; }
+        [FirestoreProperty]
+        [Required(ErrorMessage = "Required.")]
+        public string id { get; set; }
 
+        [FirestoreProperty]
+        [Required(ErrorMessage = "Required.")]
+        public string paymentmode { get; set; }
 
         //public ImageViewModel SelectedImage { get; set; }
 
