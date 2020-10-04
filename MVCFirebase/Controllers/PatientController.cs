@@ -1246,12 +1246,14 @@ namespace MVCFirebase.Controllers
                 DocumentSnapshot docsnapPatientUID = await docRefPatientUID.GetSnapshotAsync();
 
                 string PatientUID = docsnapPatientUID.GetValue<string>("patient_id");
-                string severity = docsnapPatientUID.GetValue<string>("severity");
-                string PatientName = docsnapPatientUID.GetValue<string>("patient_name");
-                if (severity == null)
-                {
+                string severity = "";
+                try { severity = docsnapPatientUID.GetValue<string>("severity"); }
+                catch {
                     severity = "Low";
                 }
+                                
+                string PatientName = docsnapPatientUID.GetValue<string>("patient_name");
+                
 
                 Query Qref = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("appointments").WhereEqualTo("patient", patientAutoId).WhereGreaterThanOrEqualTo("raisedDate", Timestamp.FromDateTime(ConvertedAppDate.Date)).WhereLessThan("raisedDate", Timestamp.FromDateTime(ConvertedAppDate.AddDays(1))).WhereEqualTo("status","Waiting");
                 QuerySnapshot snap = await Qref.GetSnapshotAsync();

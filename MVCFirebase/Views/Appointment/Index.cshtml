@@ -43,6 +43,11 @@
     <tr>
         <th>
 
+            @Html.DisplayNameFor(model => model.token)
+
+        </th>
+        <th>
+
             @Html.DisplayNameFor(model => model.patient_name)
 
         </th>
@@ -68,32 +73,35 @@
 
     @foreach (var item in Model)
     {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.patient_name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.clinic_name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.raisedDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.status)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.days)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.fee)
-            </td>
-            <td>
-                @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
-                @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
-                @Html.ActionLink("ViewPresc", "Index", "Image", new { @item.id, @item.patient }, new { @item.id, @item.patient }) |
-                @Html.ActionLink("Fee", "Fee", new { @item.id, @item.patient,@item.fee }, new { @item.id, @item.patient, @item.fee })
-            </td>
-        </tr>
+<tr>
+    <td>
+        @Html.DisplayFor(modelItem => item.token)
+    </td>
+    <td>
+        @Html.DisplayFor(modelItem => item.patient_name)
+    </td>
+    <td>
+        @Html.DisplayFor(modelItem => item.clinic_name)
+    </td>
+    <td>
+        @Html.DisplayFor(modelItem => item.raisedDate)
+    </td>
+    <td>
+        @Html.DisplayFor(modelItem => item.status)
+    </td>
+    <td>
+        @Html.DisplayFor(modelItem => item.days)
+    </td>
+    <td>
+        @Html.DisplayFor(modelItem => item.fee)
+    </td>
+    <td>
+        @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
+        @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
+        @Html.ActionLink("ViewPresc", "Index", "Image", new { @item.id, @item.patient }, new { @item.id, @item.patient }) |
+        @Html.ActionLink("Fee", "Fee", new { @item.id, @item.patient, @item.fee }, new { @item.id, @item.patient, @item.fee })
+    </td>
+</tr>
     }
 
 </table>

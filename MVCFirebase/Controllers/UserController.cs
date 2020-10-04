@@ -11,7 +11,7 @@ using System.Web.Mvc;
 namespace MVCFirebase.Controllers
 {
     
-    [AccessDeniedAuthorize(Roles = "SuperAdmin,Admin")]
+    [AccessDeniedAuthorize(Roles = "SuperAdmin,Admin,Doctor,Chemist,Cashier")]
     public class UserController : Controller
     {
         // GET: User
