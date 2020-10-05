@@ -14,26 +14,26 @@
         }).attr('readonly', 'readonly');
     });
 </script>
-<h2>Index</h2>
+<h2>Appointments</h2>
 
-<p>
-    @Html.ActionLink("Create New", "Create")
-</p>
 
 <table class="table" border="0">
     <tr>
-        @if (User.IsInRole("Receiptionist"))
+
+        @using (Html.BeginForm("Index", "Appointment", FormMethod.Post))
         {
-            @using (Html.BeginForm("Index", "Appointment", FormMethod.Post))
-            {
+            
                 <td width="15%">
                     <input class="form-control" name="startdate" type="text" id="startdate" style="width:200px" value="@ViewBag.Message">
                 </td>
                 <td align="left">
                     <input class="form-control" type="submit" value="Apply" style="width:100px" />
                 </td>
-            }
-            @using (@Html.BeginForm("Index", "Patient", FormMethod.Post))
+            
+        }
+        @using (@Html.BeginForm("Index", "Patient", FormMethod.Post))
+        {
+            if (User.IsInRole("Receiptionist"))
             {
                 <td width="30%" align="right">
 
@@ -43,14 +43,19 @@
                     <input type="submit" class="form-control" value="Search Patient" style="width:150px" />
                 </td>
             }
+        }
+        @if (User.IsInRole("Receiptionist"))
+        {
             <td>
                 <p>
+
                     @Html.ActionLink("Create New Patient", "Create", "Patient")
+                    
                 </p>
             </td>
         }
 
-    </tr>
+        </tr>
 </table>
 <table class="table">
     <tr>
