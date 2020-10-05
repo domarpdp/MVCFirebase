@@ -242,13 +242,13 @@ namespace MVCFirebase.Controllers
 
             List<SelectListItem> severity = new List<SelectListItem>() {
                 new SelectListItem {
-                    Text = "High", Value = "High"
+                    Text = "Low", Value = "Low"
                 },
                 new SelectListItem {
                     Text = "Medium", Value = "Medium"
                 },
                 new SelectListItem {
-                    Text = "Low", Value = "Low"
+                    Text = "High", Value = "High"
                 },
 
             };
@@ -383,13 +383,13 @@ namespace MVCFirebase.Controllers
                 ViewBag.GENDERS = genders;
                 List<SelectListItem> severity = new List<SelectListItem>() {
                 new SelectListItem {
-                    Text = "High", Value = "High"
+                    Text = "Low", Value = "Low"
                 },
                 new SelectListItem {
                     Text = "Medium", Value = "Medium"
                 },
                 new SelectListItem {
-                    Text = "Low", Value = "Low"
+                    Text = "High", Value = "High"
                 },
 
             };
@@ -682,13 +682,13 @@ namespace MVCFirebase.Controllers
 
             List<SelectListItem> severity = new List<SelectListItem>() {
                 new SelectListItem {
-                    Text = "High", Value = "High"
+                    Text = "Low", Value = "Low"
                 },
                 new SelectListItem {
                     Text = "Medium", Value = "Medium"
                 },
                 new SelectListItem {
-                    Text = "Low", Value = "Low"
+                    Text = "High", Value = "High"
                 },
 
             };
@@ -818,13 +818,13 @@ namespace MVCFirebase.Controllers
 
                 List<SelectListItem> severity = new List<SelectListItem>() {
                 new SelectListItem {
-                    Text = "High", Value = "High"
+                    Text = "Low", Value = "Low"
                 },
                 new SelectListItem {
                     Text = "Medium", Value = "Medium"
                 },
                 new SelectListItem {
-                    Text = "Low", Value = "Low"
+                    Text = "High", Value = "High"
                 },
 
             };
@@ -1298,12 +1298,7 @@ namespace MVCFirebase.Controllers
                     await colAppountments.Document().SetAsync(dataAppointment);
                     #endregion Code to create new appointment id for today
                 }
-
-
-
-
-
-                return RedirectToAction("Index", "Patient");
+                return RedirectToAction("Index", "Appointment");
             }
             catch (Exception ex)
             {

@@ -22,21 +22,34 @@
 
 <table class="table" border="0">
     <tr>
-
-        @using (Html.BeginForm("Index", "Appointment", FormMethod.Post))
+        @if (User.IsInRole("Receiptionist"))
         {
-            <td width="30%">
-                <input class="form-control" name="startdate" type="text" id="startdate" value="@ViewBag.Message">
-            </td>
-            <td align="left">
-                <input class="form-control" type="submit" value="Apply" style="width:100px" />
+            @using (Html.BeginForm("Index", "Appointment", FormMethod.Post))
+            {
+                <td width="15%">
+                    <input class="form-control" name="startdate" type="text" id="startdate" style="width:200px" value="@ViewBag.Message">
+                </td>
+                <td align="left">
+                    <input class="form-control" type="submit" value="Apply" style="width:100px" />
+                </td>
+            }
+            @using (@Html.BeginForm("Index", "Patient", FormMethod.Post))
+            {
+                <td width="30%" align="right">
+
+                    <input class="form-control" name="search" type="text" id="search" placeholder="Patient Name/UID/Mobile" style="width:200px">
+                </td>
+                <td align="left">
+                    <input type="submit" class="form-control" value="Search Patient" style="width:150px" />
+                </td>
+            }
+            <td>
+                <p>
+                    @Html.ActionLink("Create New Patient", "Create", "Patient")
+                </p>
             </td>
         }
-        <td>
-            <p>
-                @Html.ActionLink("Create New Patient", "Create", "Patient")
-            </p>
-        </td>
+
     </tr>
 </table>
 <table class="table">
@@ -96,10 +109,14 @@
         @Html.DisplayFor(modelItem => item.fee)
     </td>
     <td>
-        @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
-        @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
-        @Html.ActionLink("ViewPresc", "Index", "Image", new { @item.id, @item.patient }, new { @item.id, @item.patient }) |
-        @Html.ActionLink("Fee", "Fee", new { @item.id, @item.patient, @item.fee }, new { @item.id, @item.patient, @item.fee })
+        @if (User.IsInRole("Chemist"))
+        {
+            @Html.ActionLink("ViewPresc", "Index", "Image", new { @item.id, @item.patient }, new { @item.id, @item.patient }) <text>|</text>
+        }
+        @if (User.IsInRole("Cashier"))
+        {
+            @Html.ActionLink("Fee", "Fee", new { @item.id, @item.patient, @item.fee }, new { @item.id, @item.patient, @item.fee })
+        }
     </td>
 </tr>
     }

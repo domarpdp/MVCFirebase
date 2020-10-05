@@ -15,9 +15,10 @@ namespace MVCFirebase.Controllers
         // GET: Appointment
 
         [CheckSessionTimeOut]
-        [AccessDeniedAuthorize(Roles = "Doctor,Receptionist,Chemist,Cashier")]
+        [AccessDeniedAuthorize(Roles = "Receptionist,Chemist,Cashier")]
         public async Task<ActionResult> Index(string startdate)
         {
+
             DateTime SearchDate;
             if (startdate == null)
             {
@@ -36,16 +37,72 @@ namespace MVCFirebase.Controllers
             
 
             List<Appointment> AppointmentList = new List<Appointment>();
-
+            List<string> statusList = new List<string>();
+            
 
             //Query Qref = db.Collection("Students").WhereEqualTo("StudentName","Suvidhi");
             Query Qref = db.Collection("clinics").WhereEqualTo("clinicmobilenumber", ClinicMobileNumber); 
             QuerySnapshot snapClinics = await Qref.GetSnapshotAsync();
-
+            QuerySnapshot snapAppointments;
+            string WhoFirst = "Cashier";
             foreach (DocumentSnapshot docsnapClinics in snapClinics)
             {
                 Clinic clinic = docsnapClinics.ConvertTo<Clinic>();
-                QuerySnapshot snapAppointments = await docsnapClinics.Reference.Collection("appointments").WhereGreaterThanOrEqualTo("raisedDate",Timestamp.FromDateTime(SearchDate.Date)).WhereLessThan("raisedDate",Timestamp.FromDateTime(SearchDate.AddDays(1))).OrderByDescending("raisedDate").GetSnapshotAsync();
+
+                QuerySnapshot snapSettings = await docsnapClinics.Reference.Collection("settings").Limit(1).GetSnapshotAsync();
+                if(snapSettings.Count > 0)
+                {
+                    DocumentSnapshot docSnapSettings = snapSettings.Documents[0];
+
+                    if (docSnapSettings.Exists)
+                    {
+                        WhoFirst = docSnapSettings.GetValue<string>("whofirst");
+                    }
+                }
+                if (User.IsInRole("Cashier") && User.IsInRole("Chemist"))
+                {
+                    if(WhoFirst == "Chemist")
+                    {
+                        statusList.Add("Completed");
+                        statusList.Add("MedicineGiven");
+                    }
+                    else
+                    {
+                        statusList.Add("Completed");
+                        statusList.Add("FeeTaken");
+                    }
+
+                    snapAppointments = await docsnapClinics.Reference.Collection("appointments").WhereGreaterThanOrEqualTo("raisedDate", Timestamp.FromDateTime(SearchDate.Date)).WhereLessThan("raisedDate", Timestamp.FromDateTime(SearchDate.AddDays(1))).WhereIn("status", statusList).GetSnapshotAsync();
+                } 
+                else if (User.IsInRole("Cashier"))
+                {
+                    if(WhoFirst == "Cashier")
+                    {
+                        snapAppointments = await docsnapClinics.Reference.Collection("appointments").WhereGreaterThanOrEqualTo("raisedDate", Timestamp.FromDateTime(SearchDate.Date)).WhereLessThan("raisedDate", Timestamp.FromDateTime(SearchDate.AddDays(1))).WhereEqualTo("status", "Completed").GetSnapshotAsync();
+                    }
+                    else
+                    {
+                        snapAppointments = await docsnapClinics.Reference.Collection("appointments").WhereGreaterThanOrEqualTo("raisedDate", Timestamp.FromDateTime(SearchDate.Date)).WhereLessThan("raisedDate", Timestamp.FromDateTime(SearchDate.AddDays(1))).WhereEqualTo("status", "MedicineGiven").GetSnapshotAsync();
+                    }
+                    
+                }
+                else if (User.IsInRole("Chemist"))
+                {
+                    if (WhoFirst == "Chemist")
+                    {
+                        snapAppointments = await docsnapClinics.Reference.Collection("appointments").WhereGreaterThanOrEqualTo("raisedDate", Timestamp.FromDateTime(SearchDate.Date)).WhereLessThan("raisedDate", Timestamp.FromDateTime(SearchDate.AddDays(1))).WhereEqualTo("status", "Completed").GetSnapshotAsync();
+                    }
+                    else
+                    {
+                        snapAppointments = await docsnapClinics.Reference.Collection("appointments").WhereGreaterThanOrEqualTo("raisedDate", Timestamp.FromDateTime(SearchDate.Date)).WhereLessThan("raisedDate", Timestamp.FromDateTime(SearchDate.AddDays(1))).WhereEqualTo("status", "FeeTaken").GetSnapshotAsync();
+                    }
+                        
+                }
+                else
+                {
+                    snapAppointments = await docsnapClinics.Reference.Collection("appointments").WhereGreaterThanOrEqualTo("raisedDate", Timestamp.FromDateTime(SearchDate.Date)).WhereLessThan("raisedDate", Timestamp.FromDateTime(SearchDate.AddDays(1))).WhereEqualTo("status", "Waiting").GetSnapshotAsync();
+                }
+                    
 
                 foreach (DocumentSnapshot docsnapAppointments in snapAppointments)
                 {
@@ -67,6 +124,7 @@ namespace MVCFirebase.Controllers
                 }
 
             }
+            AppointmentList = AppointmentList.OrderByDescending(a => a.token).ToList();
             ViewBag.Message = SearchDate;
             return View(AppointmentList);
         }
@@ -147,59 +205,59 @@ namespace MVCFirebase.Controllers
 
         
         
-        public async Task<string> Prescription(string patientAutoId)
-        {
+        //public async Task<string> Prescription(string patientAutoId)
+        //{
 
-            string ClinicMobileNumber = GlobalSessionVariables.ClinicMobileNumber;
-            string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
-            Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
-            FirestoreDb db = FirestoreDb.Create("greenpaperdev");
+        //    string ClinicMobileNumber = GlobalSessionVariables.ClinicMobileNumber;
+        //    string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
+        //    Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
+        //    FirestoreDb db = FirestoreDb.Create("greenpaperdev");
 
-            string prescriptionString = "";
+        //    string prescriptionString = "";
             
 
-            Query QrefPrescriptions = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("patientList").Document(patientAutoId).Collection("prescriptions").OrderByDescending("timeStamp").Limit(1);
-            QuerySnapshot snap = await QrefPrescriptions.GetSnapshotAsync();
+        //    Query QrefPrescriptions = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("patientList").Document(patientAutoId).Collection("prescriptions").OrderByDescending("timeStamp").Limit(1);
+        //    QuerySnapshot snap = await QrefPrescriptions.GetSnapshotAsync();
 
-            foreach (DocumentSnapshot docsnap in snap)
-            {
-                if (docsnap.Exists)
-                {
+        //    foreach (DocumentSnapshot docsnap in snap)
+        //    {
+        //        if (docsnap.Exists)
+        //        {
 
-                    prescriptionString = docsnap.GetValue<string>("file");
-                }
-            }
+        //            prescriptionString = docsnap.GetValue<string>("file");
+        //        }
+        //    }
 
-            return prescriptionString;
-        }
+        //    return prescriptionString;
+        //}
 
-        public async Task<ActionResult> PrescriptionList(string patientAutoId)
-        {
-            string ClinicMobileNumber = GlobalSessionVariables.ClinicMobileNumber;
-            string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
-            Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
-            FirestoreDb db = FirestoreDb.Create("greenpaperdev");
-
-
-            List<string> prescriptionStringList = new List<string>();
-
-            Query QrefPrescriptions = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("patientList").Document(patientAutoId).Collection("prescriptions").OrderByDescending("timeStamp");
-            QuerySnapshot snap = await QrefPrescriptions.GetSnapshotAsync();
-
-            foreach (DocumentSnapshot docsnap in snap)
-            {
-                if (docsnap.Exists)
-                {
-
-                    prescriptionStringList.Add(docsnap.GetValue<string>("file"));
-                }
-            }
+        //public async Task<ActionResult> PrescriptionList(string patientAutoId)
+        //{
+        //    string ClinicMobileNumber = GlobalSessionVariables.ClinicMobileNumber;
+        //    string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
+        //    Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
+        //    FirestoreDb db = FirestoreDb.Create("greenpaperdev");
 
 
+        //    List<string> prescriptionStringList = new List<string>();
 
-            return View(prescriptionStringList);
+        //    Query QrefPrescriptions = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("patientList").Document(patientAutoId).Collection("prescriptions").OrderByDescending("timeStamp");
+        //    QuerySnapshot snap = await QrefPrescriptions.GetSnapshotAsync();
 
-        }
+        //    foreach (DocumentSnapshot docsnap in snap)
+        //    {
+        //        if (docsnap.Exists)
+        //        {
+
+        //            prescriptionStringList.Add(docsnap.GetValue<string>("file"));
+        //        }
+        //    }
+
+
+
+        //    return View(prescriptionStringList);
+
+        //}
 
         public ActionResult Fee(string id,string patient,string fee)
         {
