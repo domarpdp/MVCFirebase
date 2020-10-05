@@ -43,15 +43,13 @@ namespace MVCFirebase.Controllers
                         ImageList.Add(img);
                         i++;
                     }
-                    
 
-                    
-                    
                 }
+                _objuserloginmodel.SelectedImage = ImageList[0];
             }
 
             //_objuserloginmodel.SelectedImage = _objuserloginmodel.GetList()[0];
-            _objuserloginmodel.SelectedImage = ImageList[0];
+            
             return View(_objuserloginmodel);
 
         }
