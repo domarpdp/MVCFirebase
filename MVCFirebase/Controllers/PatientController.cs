@@ -526,7 +526,7 @@ namespace MVCFirebase.Controllers
                             {
                                 {"bill_sms" ,false},
                                 {"clinic_id" ,GlobalSessionVariables.ClinicDocumentAutoId},
-                                {"complitiondate" ,""},
+                                {"completiondate" ,null},
                                 {"date" ,""},
                                 {"days" ,""},
                                 {"fee" ,""},
@@ -1195,7 +1195,7 @@ namespace MVCFirebase.Controllers
                         {
                             {"bill_sms" ,false},
                             {"clinic_id" ,GlobalSessionVariables.ClinicDocumentAutoId},
-                            {"complitiondate" ,""},
+                            {"completiondate" ,null},
                             {"date" ,""},
                             {"days" ,""},
                             {"fee" ,""},
@@ -1282,7 +1282,7 @@ namespace MVCFirebase.Controllers
                         {
                             {"bill_sms" ,false},
                             {"clinic_id" ,GlobalSessionVariables.ClinicDocumentAutoId},
-                            {"complitiondate" ,""},
+                            {"completiondate" ,null},
                             {"date" ,""},
                             {"days" ,""},
                             {"fee" ,""},
