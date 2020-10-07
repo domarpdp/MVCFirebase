@@ -38,16 +38,16 @@ namespace MVCFirebase.Controllers
 
                 if (search != null && search != "")
                 {
-                    string searchInputToLower = search;
-                    string searchInputToUpper = search;
-                    QuerySnapshot snapPatientId = await docsnap.Reference.Collection("patientList").OrderBy("patient_id").StartAt(searchInputToUpper).EndAt(searchInputToLower + "\uf8ff").GetSnapshotAsync();
+                    string searchInputToLower = search.ToLower();
+                    string searchInputToUpper = search.ToUpper();
+                    QuerySnapshot snapPatientId = await docsnap.Reference.Collection("patientList").OrderBy("patient_id").StartAt(searchInputToUpper).EndAt(searchInputToUpper + "\uf8ff").GetSnapshotAsync();
 
                     if(snapPatientId.Count == 0)
                     {
-                        QuerySnapshot snapPatientMobileNumber = await docsnap.Reference.Collection("patientList").OrderBy("patient_mobile_number").StartAt(searchInputToUpper).EndAt(searchInputToLower + "\uf8ff").GetSnapshotAsync();
+                        QuerySnapshot snapPatientMobileNumber = await docsnap.Reference.Collection("patientList").OrderBy("patient_mobile_number").StartAt(searchInputToLower).EndAt(searchInputToLower + "\uf8ff").GetSnapshotAsync();
                         if (snapPatientMobileNumber.Count == 0)
                         {
-                            QuerySnapshot snapPatientName = await docsnap.Reference.Collection("patientList").OrderBy("patient_name").StartAt(searchInputToUpper).EndAt(searchInputToLower + "\uf8ff").GetSnapshotAsync();
+                            QuerySnapshot snapPatientName = await docsnap.Reference.Collection("patientList").OrderBy("patient_name").StartAt(searchInputToLower).EndAt(searchInputToLower + "\uf8ff").GetSnapshotAsync();
                             if (snapPatientName.Count > 0)
                             {
                                 foreach (DocumentSnapshot docsnap2 in snapPatientName)
@@ -447,7 +447,7 @@ namespace MVCFirebase.Controllers
 
                         Dictionary<string, object> data1 = new Dictionary<string, object>
                         {
-                            {"patient_name" ,patient.patient_name},
+                            {"patient_name" ,patient.patient_name.ToLower()},
                             {"age" ,patient.age},
                             {"care_of" ,patient.care_of},
                             {"city" ,patient.city},
@@ -538,7 +538,7 @@ namespace MVCFirebase.Controllers
                                     {"fee" ,""},
                                     {"patient" ,docSnapLatestPatient.Id},
                                     {"patient_id" ,patientLastId},
-                                    {"raisedDate",DateTime.SpecifyKind(patient.appointment_date, DateTimeKind.Utc)},
+                                    {"raisedDate",DateTime.SpecifyKind(patient.appointment_date.AddHours(-5).AddMinutes(-30), DateTimeKind.Utc)},
                                     {"reminder_sms" ,false},
                                     {"severity" ,"Low"},
                                     {"status" ,"Waiting"},
@@ -853,7 +853,7 @@ namespace MVCFirebase.Controllers
 
                     Dictionary<string, object> data1 = new Dictionary<string, object>
                         {
-                            {"patient_name" ,patient.patient_name},
+                            {"patient_name" ,patient.patient_name.ToLower()},
                             {"age" ,patient.age},
                             {"care_of" ,patient.care_of},
                             {"city" ,patient.city},
@@ -969,7 +969,7 @@ namespace MVCFirebase.Controllers
                 string token = collection["tokennumber"];
                 string appointmentDate = collection["datepicker"];
 
-                DateTime ConvertedAppDate = DateTime.SpecifyKind(Convert.ToDateTime(appointmentDate), DateTimeKind.Utc);
+                DateTime ConvertedAppDate = DateTime.SpecifyKind(Convert.ToDateTime(appointmentDate).AddHours(-5).AddMinutes(-30), DateTimeKind.Utc);
 
                 
                 
@@ -1029,7 +1029,7 @@ namespace MVCFirebase.Controllers
                             {"fee" ,""},
                             {"patient" ,patientAutoId},
                             {"patient_id" ,PatientUID},
-                            {"raisedDate",DateTime.SpecifyKind(Convert.ToDateTime(appointmentDate), DateTimeKind.Utc)},
+                            {"raisedDate",ConvertedAppDate},
                             {"reminder_sms" ,false},
                             {"severity" ,severity},
                             {"status" ,"Waiting"},
