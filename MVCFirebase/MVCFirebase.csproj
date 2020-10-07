@@ -298,6 +298,8 @@
     <Content Include="Views\ClinicSetting\Index.cshtml" />
     <Content Include="Views\ClinicSetting\Edit.cshtml" />
     <Content Include="Views\Appointment\Fee.cshtml" />
+    <Content Include="Views\Appointment\Waiting.cshtml" />
+    <Content Include="Views\Appointment\Completed.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -19,7 +19,7 @@ namespace MVCFirebase.Controllers
 {[Authorize]
     public class HomeController : Controller
     {
-        [Authorize]
+        [AllowAnonymous]
         public ActionResult Index()
         {
             return View();
@@ -113,7 +113,15 @@ namespace MVCFirebase.Controllers
                                 GlobalSessionVariables.UserRoles = string.Join(",", userForRoles.user_roles); 
 
                                 FormsAuthentication.SetAuthCookie(userLoggedIn.name, user.RememberMe);
-                                return RedirectToAction("Index","Patient");
+                                if(User.IsInRole("Receptionist"))
+                                {
+                                    return RedirectToAction("Index", "Appointment");
+                                }
+                                else
+                                {
+                                    return RedirectToAction("Waiting", "Appointment");
+                                }
+                                
                             }
                             else
                             {
@@ -203,7 +211,7 @@ namespace MVCFirebase.Controllers
             return View();
 
         }
-        [Authorize]
+        [AllowAnonymous]
         public ActionResult Contact()
         {
             ViewBag.Message = "Your contact page.";

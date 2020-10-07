@@ -10,6 +10,21 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-ui-timepicker-addon/1.6.3/jquery-ui-timepicker-addon.min.css" />
 <script>
     jQuery(function ($) {
+        if ($('input[name=createAppointment]:checked').val() == "Yes") {
+
+            $('#appointment_date').show();
+            $('#lblAppDate').show();
+
+            $('#tokenNumber').show();
+            $('#lblTokenNumber').show();
+
+        } else {
+            $('#appointment_date').hide();
+            $('#lblAppDate').hide();
+
+            $('#tokenNumber').hide();
+            $('#lblTokenNumber').hide();
+        }
         $("#appointment_date").datetimepicker({
             minDate: 0
         }).attr('readonly', 'readonly').change(function () {
@@ -40,6 +55,29 @@
                 //    })
             }
         });
+    });
+</script>
+<script type="text/javascript">
+    $(function () {
+        $('input[name=createAppointment]').click(function () {
+
+            if ($('input[name=createAppointment]:checked').val() == "Yes") {
+                
+                $('#appointment_date').show();
+                $('#lblAppDate').show();
+
+                $('#tokenNumber').show();
+                $('#lblTokenNumber').show();
+
+            } else {
+                $('#appointment_date').hide();
+                $('#lblAppDate').hide();
+
+                $('#tokenNumber').hide();
+                $('#lblTokenNumber').hide();
+            }
+        });
+        
     });
 </script>
 <h2>Create</h2>
@@ -92,7 +130,17 @@
     </div>
 
     <div class="form-group">
-        @Html.LabelFor(model => model.appointment_date, htmlAttributes: new { @class = "control-label col-md-2" })
+        @Html.LabelFor(model => model.createAppointment, htmlAttributes: new { @class = "control-label col-md-2" })
+        <div class="col-md-10">
+            Yes
+            @Html.RadioButtonFor(m => m.createAppointment, "Yes",new { Checked = "checked", id = "Yes" }) 
+            No
+            @Html.RadioButtonFor(m => m.createAppointment, "No", new { id = "No" })
+        </div>
+        
+    </div>
+    <div class="form-group">
+        @Html.Label("Appointment Date", htmlAttributes: new { name= "lblAppDate", id="lblAppDate",@class = "control-label col-md-2" })
         <div class="col-md-10">
             @Html.EditorFor(model => model.appointment_date, new { htmlAttributes = new { @class = "form-control" } })
             @Html.ValidationMessageFor(model => model.appointment_date, "", new { @class = "text-danger" })
@@ -100,7 +148,7 @@
     </div>
 
     <div class="form-group">
-        @Html.LabelFor(model => model.tokenNumber, htmlAttributes: new { @class = "control-label col-md-2" })
+        @Html.LabelFor(model => model.tokenNumber, htmlAttributes: new { name = "lblTokenNumber", id = "lblTokenNumber", @class = "control-label col-md-2" })
         <div class="col-md-10">
             @Html.EditorFor(model => model.tokenNumber, (string)ViewData["tokenNumber"], new { htmlAttributes = new { @class = "form-control" } })
             @Html.ValidationMessageFor(model => model.tokenNumber, "", new { @class = "text-danger" })

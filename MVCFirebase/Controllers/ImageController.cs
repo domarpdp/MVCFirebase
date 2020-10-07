@@ -122,7 +122,15 @@ namespace MVCFirebase.Controllers
 
                 if (docSnap.Exists)
                 {
-                    await docRef.UpdateAsync( "completionMedicine",DateTime.UtcNow);
+                    Dictionary<string, object> data1 = new Dictionary<string, object>
+                        {
+                            {"completiondateChemist" ,DateTime.UtcNow},
+                            {"statusChemist" ,"Completed"}
+
+                        };
+
+                    //await docRef.UpdateAsync( "completionMedicine",DateTime.UtcNow);
+                    await docRef.UpdateAsync(data1);
                 }
                 // TODO: Add delete logic here
 

@@ -67,8 +67,22 @@ namespace MVCFirebase.Models
         public string token { get; set; }
 
         [FirestoreProperty]
+        public int tokenIteger { get; set; }
+
+        [FirestoreProperty]
         [Required(ErrorMessage = "Required.")]
         public string patient_name { get; set; }
+
+        [FirestoreProperty]
+        public string patient_care_of { get; set; }
+        [FirestoreProperty]
+        public string patient_gender { get; set; }
+
+        [FirestoreProperty]
+        public string patient_age { get; set; }
+
+        [FirestoreProperty]
+        public string patient_mobile { get; set; }
 
         [FirestoreProperty]
         [Required(ErrorMessage = "Required.")]

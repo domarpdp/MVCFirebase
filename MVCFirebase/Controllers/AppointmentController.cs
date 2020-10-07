@@ -15,7 +15,7 @@ namespace MVCFirebase.Controllers
         // GET: Appointment
 
         [CheckSessionTimeOut]
-        [AccessDeniedAuthorize(Roles = "Receptionist,Chemist,Cashier")]
+        [AccessDeniedAuthorize(Roles = "Receptionist")]
         public async Task<ActionResult> Index(string startdate)
         {
 
@@ -59,50 +59,8 @@ namespace MVCFirebase.Controllers
                         WhoFirst = docSnapSettings.GetValue<string>("whofirst");
                     }
                 }
-                if (User.IsInRole("Cashier") && User.IsInRole("Chemist"))
-                {
-                    if(WhoFirst == "Chemist")
-                    {
-                        statusList.Add("Completed");
-                        statusList.Add("MedicineGiven");
-                    }
-                    else
-                    {
-                        statusList.Add("Completed");
-                        statusList.Add("FeeTaken");
-                    }
 
-                    snapAppointments = await docsnapClinics.Reference.Collection("appointments").WhereGreaterThanOrEqualTo("raisedDate", Timestamp.FromDateTime(SearchDate.Date)).WhereLessThan("raisedDate", Timestamp.FromDateTime(SearchDate.AddDays(1))).WhereIn("status", statusList).GetSnapshotAsync();
-                } 
-                else if (User.IsInRole("Cashier"))
-                {
-                    if(WhoFirst == "Cashier")
-                    {
-                        snapAppointments = await docsnapClinics.Reference.Collection("appointments").WhereGreaterThanOrEqualTo("raisedDate", Timestamp.FromDateTime(SearchDate.Date)).WhereLessThan("raisedDate", Timestamp.FromDateTime(SearchDate.AddDays(1))).WhereEqualTo("status", "Completed").GetSnapshotAsync();
-                    }
-                    else
-                    {
-                        snapAppointments = await docsnapClinics.Reference.Collection("appointments").WhereGreaterThanOrEqualTo("raisedDate", Timestamp.FromDateTime(SearchDate.Date)).WhereLessThan("raisedDate", Timestamp.FromDateTime(SearchDate.AddDays(1))).WhereEqualTo("status", "MedicineGiven").GetSnapshotAsync();
-                    }
-                    
-                }
-                else if (User.IsInRole("Chemist"))
-                {
-                    if (WhoFirst == "Chemist")
-                    {
-                        snapAppointments = await docsnapClinics.Reference.Collection("appointments").WhereGreaterThanOrEqualTo("raisedDate", Timestamp.FromDateTime(SearchDate.Date)).WhereLessThan("raisedDate", Timestamp.FromDateTime(SearchDate.AddDays(1))).WhereEqualTo("status", "Completed").GetSnapshotAsync();
-                    }
-                    else
-                    {
-                        snapAppointments = await docsnapClinics.Reference.Collection("appointments").WhereGreaterThanOrEqualTo("raisedDate", Timestamp.FromDateTime(SearchDate.Date)).WhereLessThan("raisedDate", Timestamp.FromDateTime(SearchDate.AddDays(1))).WhereEqualTo("status", "FeeTaken").GetSnapshotAsync();
-                    }
-                        
-                }
-                else
-                {
-                    snapAppointments = await docsnapClinics.Reference.Collection("appointments").WhereGreaterThanOrEqualTo("raisedDate", Timestamp.FromDateTime(SearchDate.Date)).WhereLessThan("raisedDate", Timestamp.FromDateTime(SearchDate.AddDays(1))).WhereEqualTo("status", "Waiting").GetSnapshotAsync();
-                }
-                    
+                snapAppointments = await docsnapClinics.Reference.Collection("appointments").WhereGreaterThanOrEqualTo("raisedDate", Timestamp.FromDateTime(SearchDate.Date)).WhereLessThan("raisedDate", Timestamp.FromDateTime(SearchDate.AddDays(1))).WhereEqualTo("status", "Waiting").GetSnapshotAsync();
 
                 foreach (DocumentSnapshot docsnapAppointments in snapAppointments)
                 {
@@ -118,18 +76,305 @@ namespace MVCFirebase.Controllers
                     {
                         appointment.clinic_name = clinic.clinicname;
                         appointment.patient_name = patient.patient_name;
+                        appointment.patient_care_of = patient.care_of;
+                        appointment.patient_gender = patient.gender;
+                        appointment.patient_age = patient.age;
+                        appointment.patient_mobile = patient.patient_mobile_number;
                         appointment.id = docsnapAppointments.Id;
+                        appointment.tokenIteger = Convert.ToInt32(docsnapAppointments.GetValue<string>("token"));
                         AppointmentList.Add(appointment);
                     }
                 }
 
             }
-            AppointmentList = AppointmentList.OrderByDescending(a => a.token).ToList();
-            ViewBag.Message = SearchDate;
+            AppointmentList = AppointmentList.OrderByDescending(a => a.tokenIteger).ToList();
+            ViewBag.Message = SearchDate.Date;
             return View(AppointmentList);
         }
+        [AccessDeniedAuthorize(Roles = "Chemist,Cashier")]
+        public async Task<ActionResult> Waiting(string startdate)
+        {
+
+            DateTime SearchDate;
+            if (startdate == null)
+            {
+                SearchDate = Convert.ToDateTime(DateTime.UtcNow);
+            }
+            else
+            {
+                SearchDate = Convert.ToDateTime(startdate);
+                SearchDate = DateTime.SpecifyKind(SearchDate, DateTimeKind.Utc);
+            }
+
+            string ClinicMobileNumber = GlobalSessionVariables.ClinicMobileNumber;
+            string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
+            Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
+            FirestoreDb db = FirestoreDb.Create("greenpaperdev");
 
 
+            List<Appointment> AppointmentList = new List<Appointment>();
+            List<string> statusList = new List<string>();
+
+
+            //Query Qref = db.Collection("Students").WhereEqualTo("StudentName","Suvidhi");
+            Query Qref = db.Collection("clinics").WhereEqualTo("clinicmobilenumber", ClinicMobileNumber);
+            QuerySnapshot snapClinics = await Qref.GetSnapshotAsync();
+            QuerySnapshot snapAppointments;
+            string WhoFirst = "Cashier";
+            string statusCashier = "";
+            string statusChemist = "";
+            foreach (DocumentSnapshot docsnapClinics in snapClinics)
+            {
+                Clinic clinic = docsnapClinics.ConvertTo<Clinic>();
+
+                QuerySnapshot snapSettings = await docsnapClinics.Reference.Collection("settings").Limit(1).GetSnapshotAsync();
+                if (snapSettings.Count > 0)
+                {
+                    DocumentSnapshot docSnapSettings = snapSettings.Documents[0];
+
+                    if (docSnapSettings.Exists)
+                    {
+                        WhoFirst = docSnapSettings.GetValue<string>("whofirst");
+                    }
+                }
+
+                snapAppointments = await docsnapClinics.Reference.Collection("appointments").WhereGreaterThanOrEqualTo("raisedDate", Timestamp.FromDateTime(SearchDate.Date)).WhereLessThan("raisedDate", Timestamp.FromDateTime(SearchDate.AddDays(1))).WhereEqualTo("status", "Completed").GetSnapshotAsync();
+
+                
+
+
+                foreach (DocumentSnapshot docsnapAppointments in snapAppointments)
+                {
+
+
+                    Appointment appointment = docsnapAppointments.ConvertTo<Appointment>();
+
+                    QuerySnapshot snapPatient = await docsnapClinics.Reference.Collection("patientList").WhereEqualTo("patient_id", appointment.patient_id).Limit(1).GetSnapshotAsync();
+                    DocumentSnapshot docsnapPatient = snapPatient.Documents[0];
+
+                    Patient patient = docsnapPatient.ConvertTo<Patient>();
+                    if (docsnapAppointments.Exists)
+                    {
+                        if (User.IsInRole("Cashier") && User.IsInRole("Chemist"))
+                        {
+                            try
+                            {
+                                statusCashier = docsnapAppointments.GetValue<string>("statusCashier");
+                            }
+                            catch
+                            {
+                                statusCashier = null;
+                            }
+                            if (statusCashier == null)
+                            {
+                                appointment.clinic_name = clinic.clinicname;
+                                appointment.patient_name = patient.patient_name;
+                                appointment.patient_care_of = patient.care_of;
+                                appointment.patient_gender = patient.gender;
+                                appointment.patient_age = patient.age;
+                                appointment.patient_mobile = patient.patient_mobile_number;
+                                appointment.id = docsnapAppointments.Id;
+                                appointment.tokenIteger = Convert.ToInt32(docsnapAppointments.GetValue<string>("token"));
+                                AppointmentList.Add(appointment);
+                            }
+
+                        }
+                        else if (User.IsInRole("Cashier"))
+                        {
+                            try
+                            {
+                                statusCashier = docsnapAppointments.GetValue<string>("statusCashier");
+                            }
+                            catch
+                            {
+                                statusCashier = null;
+                            }
+                            if (statusCashier == null)
+                            {
+                                appointment.clinic_name = clinic.clinicname;
+                                appointment.patient_name = patient.patient_name;
+                                appointment.patient_care_of = patient.care_of;
+                                appointment.patient_gender = patient.gender;
+                                appointment.patient_age = patient.age;
+                                appointment.patient_mobile = patient.patient_mobile_number;
+                                appointment.id = docsnapAppointments.Id;
+                                appointment.tokenIteger = Convert.ToInt32(docsnapAppointments.GetValue<string>("token"));
+                                AppointmentList.Add(appointment);
+                            }
+                        }
+                        else if (User.IsInRole("Chemist"))
+                        {
+                            try
+                            {
+                                statusChemist = docsnapAppointments.GetValue<string>("statusChemist");
+                            }
+                            catch
+                            {
+                                statusChemist = null;
+                            }
+                            if (statusChemist == null)
+                            {
+                                appointment.clinic_name = clinic.clinicname;
+                                appointment.patient_name = patient.patient_name;
+                                appointment.patient_care_of = patient.care_of;
+                                appointment.patient_gender = patient.gender;
+                                appointment.patient_age = patient.age;
+                                appointment.patient_mobile = patient.patient_mobile_number;
+                                appointment.id = docsnapAppointments.Id;
+                                appointment.tokenIteger = Convert.ToInt32(docsnapAppointments.GetValue<string>("token"));
+                                AppointmentList.Add(appointment);
+                            }
+                        }
+                    }
+                }
+
+            }
+            AppointmentList = AppointmentList.OrderByDescending(a => a.tokenIteger).ToList();
+            ViewBag.Message = SearchDate.Date;
+            return View(AppointmentList);
+        }
+        [AccessDeniedAuthorize(Roles = "Chemist,Cashier")]
+        public async Task<ActionResult> Completed(string startdate)
+        {
+
+            DateTime SearchDate;
+            if (startdate == null)
+            {
+                SearchDate = Convert.ToDateTime(DateTime.UtcNow);
+            }
+            else
+            {
+                SearchDate = Convert.ToDateTime(startdate);
+                SearchDate = DateTime.SpecifyKind(SearchDate, DateTimeKind.Utc);
+            }
+
+            string ClinicMobileNumber = GlobalSessionVariables.ClinicMobileNumber;
+            string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
+            Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
+            FirestoreDb db = FirestoreDb.Create("greenpaperdev");
+
+
+            List<Appointment> AppointmentList = new List<Appointment>();
+            List<string> statusList = new List<string>();
+
+
+            //Query Qref = db.Collection("Students").WhereEqualTo("StudentName","Suvidhi");
+            Query Qref = db.Collection("clinics").WhereEqualTo("clinicmobilenumber", ClinicMobileNumber);
+            QuerySnapshot snapClinics = await Qref.GetSnapshotAsync();
+            QuerySnapshot snapAppointments;
+            string WhoFirst = "Cashier";
+            string statusCashier = "";
+            string statusChemist;
+            foreach (DocumentSnapshot docsnapClinics in snapClinics)
+            {
+                Clinic clinic = docsnapClinics.ConvertTo<Clinic>();
+
+                QuerySnapshot snapSettings = await docsnapClinics.Reference.Collection("settings").Limit(1).GetSnapshotAsync();
+                if (snapSettings.Count > 0)
+                {
+                    DocumentSnapshot docSnapSettings = snapSettings.Documents[0];
+
+                    if (docSnapSettings.Exists)
+                    {
+                        WhoFirst = docSnapSettings.GetValue<string>("whofirst");
+                    }
+                }
+
+                snapAppointments = await docsnapClinics.Reference.Collection("appointments").WhereGreaterThanOrEqualTo("raisedDate", Timestamp.FromDateTime(SearchDate.Date)).WhereLessThan("raisedDate", Timestamp.FromDateTime(SearchDate.AddDays(1))).WhereEqualTo("status", "Completed").GetSnapshotAsync();
+
+
+
+
+                foreach (DocumentSnapshot docsnapAppointments in snapAppointments)
+                {
+
+
+                    Appointment appointment = docsnapAppointments.ConvertTo<Appointment>();
+
+                    QuerySnapshot snapPatient = await docsnapClinics.Reference.Collection("patientList").WhereEqualTo("patient_id", appointment.patient_id).Limit(1).GetSnapshotAsync();
+                    DocumentSnapshot docsnapPatient = snapPatient.Documents[0];
+
+                    Patient patient = docsnapPatient.ConvertTo<Patient>();
+                    if (docsnapAppointments.Exists)
+                    {
+                        if (User.IsInRole("Cashier") && User.IsInRole("Chemist"))
+                        {
+                            try
+                            {
+                                statusCashier = docsnapAppointments.GetValue<string>("statusCashier");
+                            }
+                            catch
+                            {
+                                statusCashier = null;
+                            }
+                            if (statusCashier != null)
+                            {
+                                appointment.clinic_name = clinic.clinicname;
+                                appointment.patient_name = patient.patient_name;
+                                appointment.patient_care_of = patient.care_of;
+                                appointment.patient_gender = patient.gender;
+                                appointment.patient_age = patient.age;
+                                appointment.patient_mobile = patient.patient_mobile_number;
+                                appointment.id = docsnapAppointments.Id;
+                                appointment.tokenIteger = Convert.ToInt32(docsnapAppointments.GetValue<string>("token"));
+                                AppointmentList.Add(appointment);
+                            }
+                        }
+                        else if (User.IsInRole("Cashier"))
+                        {
+                            try
+                            {
+                                statusCashier = docsnapAppointments.GetValue<string>("statusCashier");
+                            }
+                            catch
+                            {
+                                statusCashier = null;
+                            }
+                            if (statusCashier != null)
+                            {
+                                appointment.clinic_name = clinic.clinicname;
+                                appointment.patient_name = patient.patient_name;
+                                appointment.patient_care_of = patient.care_of;
+                                appointment.patient_gender = patient.gender;
+                                appointment.patient_age = patient.age;
+                                appointment.patient_mobile = patient.patient_mobile_number;
+                                appointment.id = docsnapAppointments.Id;
+                                appointment.tokenIteger = Convert.ToInt32(docsnapAppointments.GetValue<string>("token"));
+                                AppointmentList.Add(appointment);
+                            }
+                        }
+                        else if (User.IsInRole("Chemist"))
+                        {
+                            try
+                            {
+                                statusChemist = docsnapAppointments.GetValue<string>("statusChemist");
+                            }
+                            catch
+                            {
+                                statusChemist = null;
+                            }
+                            if (statusChemist != null)
+                            {
+                                appointment.clinic_name = clinic.clinicname;
+                                appointment.patient_name = patient.patient_name;
+                                appointment.patient_care_of = patient.care_of;
+                                appointment.patient_gender = patient.gender;
+                                appointment.patient_age = patient.age;
+                                appointment.patient_mobile = patient.patient_mobile_number;
+                                appointment.id = docsnapAppointments.Id;
+                                appointment.tokenIteger = Convert.ToInt32(docsnapAppointments.GetValue<string>("token"));
+                                AppointmentList.Add(appointment);
+                            }
+                        }
+
+                    }
+                }
+
+            }
+            AppointmentList = AppointmentList.OrderByDescending(a => a.tokenIteger).ToList();
+            ViewBag.Message = SearchDate.Date;
+            return View(AppointmentList);
+        }
 
         // GET: Appointment/Details/5
         public ActionResult Details(int id)
@@ -300,11 +545,135 @@ namespace MVCFirebase.Controllers
 
                 if (docSnap.Exists)
                 {
-                    await docRef.UpdateAsync("completionFee", DateTime.UtcNow);
+                    Dictionary<string, object> data1 = new Dictionary<string, object>
+                        {
+                            {"completiondateCashier" ,DateTime.UtcNow},
+                            {"statusCashier" ,"Completed"}
+                        
+                        };
+
+                    
+                    await docRef.UpdateAsync(data1);
+
                 }
                 // TODO: Add delete logic here
 
                 return RedirectToAction("Index");
+            }
+            catch
+            {
+                return View();
+            }
+        }
+
+
+        [HttpPost]
+        public async Task<ActionResult> SubmitCashier(FormCollection collection)
+        {
+            try
+            {
+
+                string appointmentAutoId = collection["appointmentAutoIdFee"];
+
+                string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
+                Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
+                FirestoreDb db = FirestoreDb.Create("greenpaperdev");
+
+                DocumentReference docRef = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("appointments").Document(appointmentAutoId);
+                DocumentSnapshot docSnap = await docRef.GetSnapshotAsync();
+
+                if (docSnap.Exists)
+                {
+                    Dictionary<string, object> data1 = new Dictionary<string, object>
+                        {
+                            {"completiondateCashier" ,DateTime.UtcNow},
+                            {"statusCashier" ,"Completed"},
+                            {"modeofpayment",collection["modeofpaymentFee"]}
+                        };
+
+
+                    await docRef.UpdateAsync(data1);
+
+                }
+                // TODO: Add delete logic here
+
+                return RedirectToAction("Waiting");
+            }
+            catch
+            {
+                return View();
+            }
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> SubmitChemist(FormCollection collection)
+        {
+            try
+            {
+
+                string appointmentAutoId = collection["appid"]; ;
+
+                string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
+                Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
+                FirestoreDb db = FirestoreDb.Create("greenpaperdev");
+
+                DocumentReference docRef = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("appointments").Document(appointmentAutoId);
+                DocumentSnapshot docSnap = await docRef.GetSnapshotAsync();
+
+                if (docSnap.Exists)
+                {
+                    Dictionary<string, object> data1 = new Dictionary<string, object>
+                        {
+                            {"completiondateChemist" ,DateTime.UtcNow},
+                            {"statusChemist" ,"Completed"}
+                        };
+
+
+                    await docRef.UpdateAsync(data1);
+
+                }
+                // TODO: Add delete logic here
+
+                return RedirectToAction("Waiting");
+            }
+            catch
+            {
+                return View();
+            }
+        }
+        [HttpPost]
+        public async Task<ActionResult> CashierChemistUpdate(FormCollection collection)
+        {
+            try
+            {
+
+                string appointmentAutoId = collection["appointmentAutoId"];
+
+                string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
+                Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
+                FirestoreDb db = FirestoreDb.Create("greenpaperdev");
+
+                DocumentReference docRef = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("appointments").Document(appointmentAutoId);
+                DocumentSnapshot docSnap = await docRef.GetSnapshotAsync();
+
+                if (docSnap.Exists)
+                {
+                    Dictionary<string, object> data1 = new Dictionary<string, object>
+                        {
+                            {"completiondateCashier" ,DateTime.UtcNow},
+                            {"statusCashier" ,"Completed"},
+                            {"completiondateChemist" ,DateTime.UtcNow},
+                            {"statusChemist" ,"Completed"},
+                            {"modeofpayment",collection["modeofpayment"]}
+                        };
+
+
+                    await docRef.UpdateAsync(data1);
+
+                }
+                // TODO: Add delete logic here
+
+                return RedirectToAction("Waiting");
             }
             catch
             {

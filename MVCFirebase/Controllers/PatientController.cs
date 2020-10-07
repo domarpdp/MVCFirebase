@@ -273,6 +273,7 @@ namespace MVCFirebase.Controllers
         {
             try
             {
+                
                 string patientLastId = "";
                 string patientLastIdDocId = "";
                 
@@ -382,17 +383,17 @@ namespace MVCFirebase.Controllers
                     };
                 ViewBag.GENDERS = genders;
                 List<SelectListItem> severity = new List<SelectListItem>() {
-                new SelectListItem {
-                    Text = "Low", Value = "Low"
-                },
-                new SelectListItem {
-                    Text = "Medium", Value = "Medium"
-                },
-                new SelectListItem {
-                    Text = "High", Value = "High"
-                },
+                    new SelectListItem {
+                        Text = "Low", Value = "Low"
+                    },
+                    new SelectListItem {
+                        Text = "Medium", Value = "Medium"
+                    },
+                    new SelectListItem {
+                        Text = "High", Value = "High"
+                    },
 
-            };
+                };
                 ViewBag.SEVERITIES = severity;
 
                 if (ModelState.IsValid)
@@ -494,56 +495,67 @@ namespace MVCFirebase.Controllers
                         //await colTokenNumber.Document(DateTime.Now.ToString("dd_MM_yyyy")).SetAsync(dataTokenNumber);
 
                         #endregion Code to get latest token number, increament it, set in new appointment and update increamented token number back in collection
-
-                        #region Code to check duplicate appointment for selected date having status waiting
-
-                        DateTime ConvertedAppDate = DateTime.SpecifyKind(Convert.ToDateTime(patient.appointment_date), DateTimeKind.Utc);
-
-                        Query QrefduplicateApp = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("appointments").WhereEqualTo("patient", docSnapLatestPatient.Id).WhereGreaterThanOrEqualTo("raisedDate", Timestamp.FromDateTime(ConvertedAppDate.Date)).WhereLessThan("raisedDate", Timestamp.FromDateTime(ConvertedAppDate.AddDays(1))).WhereEqualTo("status", "Waiting");
-                        QuerySnapshot duplicateApp = await QrefduplicateApp.GetSnapshotAsync();
-                        if (duplicateApp.Count > 0)
+                        if(patient.createAppointment == "Yes")
                         {
-                            ViewBag.Message = "Appointment of " + patient.patient_name + "(" + patient.patient_id + ") for " + patient.appointment_date + " already exists. ";
-                            return View(patient);
+                            #region Code to check duplicate appointment for selected date having status waiting
+
+                            DateTime ConvertedAppDate = DateTime.SpecifyKind(Convert.ToDateTime(patient.appointment_date), DateTimeKind.Utc);
+
+                            Query QrefduplicateApp = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("appointments").WhereEqualTo("patient", docSnapLatestPatient.Id).WhereGreaterThanOrEqualTo("raisedDate", Timestamp.FromDateTime(ConvertedAppDate.Date)).WhereLessThan("raisedDate", Timestamp.FromDateTime(ConvertedAppDate.AddDays(1))).WhereEqualTo("status", "Waiting");
+                            QuerySnapshot duplicateApp = await QrefduplicateApp.GetSnapshotAsync();
+                            if (duplicateApp.Count > 0)
+                            {
+                                ViewBag.Message = "Appointment of " + patient.patient_name + "(" + patient.patient_id + ") for " + patient.appointment_date + " already exists. ";
+                                return View(patient);
+                            }
+                            else
+                            {
+
+                                #endregion Code to check duplicate appointment for selected date having status waiting
+
+                                string message = await UpdateTokenNumber(patient.appointment_date.ToString(), patient.tokenNumber);
+                                if (message != null)
+                                {
+                                    ViewBag.Message = message;
+                                    return View(patient);
+                                }
+                                #region Code to create new appointment id for today
+
+
+                                CollectionReference colAppountments = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("appointments");
+
+                                Dictionary<string, object> dataAppointment = new Dictionary<string, object>
+                                {
+                                    {"bill_sms" ,false},
+                                    {"clinic_id" ,GlobalSessionVariables.ClinicDocumentAutoId},
+                                    {"completionDate" ,null},
+                                    {"completiondateChemist" ,null},
+                                    {"completiondateCashier" ,null},
+                                    {"statusChemist" ,null},
+                                    {"statusCashier" ,null},
+                                    {"date" ,""},
+                                    {"days" ,""},
+                                    {"fee" ,""},
+                                    {"patient" ,docSnapLatestPatient.Id},
+                                    {"patient_id" ,patientLastId},
+                                    {"raisedDate",DateTime.SpecifyKind(patient.appointment_date, DateTimeKind.Utc)},
+                                    {"reminder_sms" ,false},
+                                    {"severity" ,"Low"},
+                                    {"status" ,"Waiting"},
+                                    {"timeStamp" ,DateTime.UtcNow},
+                                    {"token" ,patient.tokenNumber}
+                                };
+                                await colAppountments.Document().SetAsync(dataAppointment);
+                                #endregion Code to create new appointment id for today
+
+                                return RedirectToAction("Index", "Appointment");
+                            }
                         }
                         else
                         {
-
-                            #endregion Code to check duplicate appointment for selected date having status waiting
-
-                            string message = await UpdateTokenNumber(patient.appointment_date.ToString(), patient.tokenNumber);
-                            if (message != null)
-                            {
-                                ViewBag.Message = message;
-                                return View(patient);
-                            }
-                            #region Code to create new appointment id for today
-
-
-                            CollectionReference colAppountments = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("appointments");
-
-                            Dictionary<string, object> dataAppointment = new Dictionary<string, object>
-                            {
-                                {"bill_sms" ,false},
-                                {"clinic_id" ,GlobalSessionVariables.ClinicDocumentAutoId},
-                                {"completiondate" ,null},
-                                {"date" ,""},
-                                {"days" ,""},
-                                {"fee" ,""},
-                                {"patient" ,docSnapLatestPatient.Id},
-                                {"patient_id" ,patientLastId},
-                                {"raisedDate",DateTime.SpecifyKind(patient.appointment_date, DateTimeKind.Utc)},
-                                {"reminder_sms" ,false},
-                                {"severity" ,"Low"},
-                                {"status" ,"Waiting"},
-                                {"timeStamp" ,DateTime.UtcNow},
-                                {"token" ,patient.tokenNumber}
-                            };
-                            await colAppountments.Document().SetAsync(dataAppointment);
-                            #endregion Code to create new appointment id for today
-
-                            return RedirectToAction("Index", "Appointment");
+                            return RedirectToAction("Index", "Patient");
                         }
+
 
                             
                     }
@@ -944,282 +956,7 @@ namespace MVCFirebase.Controllers
         }
 
         // POST: Patient/Delete/5
-        [HttpPost]
-        public async Task<ActionResult> CreateFutureAppointmentold(FormCollection collection)
-        {
-            try
-            {
-                
-
-                string lastTokenNumber = "";
-                
-
-                string patientAutoId = collection["patientAutoId"];
-                string token = collection["tokennumber"];
-                string appointmentDate = collection["datepicker"];
-                
-
-                string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
-                Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
-                FirestoreDb db = FirestoreDb.Create("greenpaperdev");
-                DateTime futAppDate = Convert.ToDateTime(appointmentDate);
-
-                #region Code to get latest token number, increament it, set in new appointment and update increamented token number back in collection
-                DocumentReference docRefTokenNumber = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("tokenNumber").Document(futAppDate.ToString("dd_MM_yyyy"));
-                DocumentSnapshot docsnapTokenNumber = await docRefTokenNumber.GetSnapshotAsync();
-
-
-                if (docsnapTokenNumber.Exists)
-                {
-                    lastTokenNumber = docsnapTokenNumber.GetValue<string>("last_token");
-                }
-                else
-                {
-                    lastTokenNumber = "0";
-                    CollectionReference colTokenNumber = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("tokenNumber");
-
-                    Dictionary<string, object> dataTokenNumber = new Dictionary<string, object>
-                            {
-                                {"last_token" ,"0"},
-                                {"assigned_tokens" ,null}
-                            };
-                    await colTokenNumber.Document(futAppDate.ToString("dd_MM_yyyy")).SetAsync(dataTokenNumber);
-                }
-
-                string lastTokenNumberReturned = "";
-
-                if (lastTokenNumber != "0")
-                {
-                    string[] assignedtokens = docsnapTokenNumber.GetValue<string[]>("assigned_tokens");
-
-                    
-                    if (assignedtokens != null)
-                    {
-                        int[] assignedtokensInt = Array.ConvertAll(assignedtokens, int.Parse);
-
-                        Array.Sort(assignedtokensInt);
-                        int j = 0;
-                        for (int i = 0; i < assignedtokens.Length; i++)
-                        {
-                            if (Convert.ToInt32(lastTokenNumber) + 1 > assignedtokensInt[i])
-                            {
-                                lastTokenNumberReturned = (Convert.ToInt32(lastTokenNumber) + 1).ToString();
-                                continue;
-                            }
-                            else if (Convert.ToInt32(lastTokenNumber) + 1 + j == assignedtokensInt[i])
-                            {
-                                j++;
-                                lastTokenNumberReturned = (Convert.ToInt32(lastTokenNumber) + 1 + j).ToString();
-                            }
-                            else
-                            {
-                                lastTokenNumberReturned = (Convert.ToInt32(lastTokenNumber) + 1 + j).ToString();
-                                break;
-                            }
-
-                        }
-                    }
-                    else
-                    {
-                        lastTokenNumberReturned = (Convert.ToInt32(lastTokenNumber) + 1).ToString();
-                    }
-
-                }
-                else
-                {
-                    lastTokenNumberReturned = (Convert.ToInt32(lastTokenNumber) + 1).ToString();
-                }
-
-
-
-                if (Convert.ToInt32(token) < Convert.ToInt32(lastTokenNumberReturned))
-                {
-                    ViewBag.Message = "Token Number " + token + " is already assigned.";
-                    return RedirectToAction("Index", "Patient");
-                }
-                if (Convert.ToInt32(token) < 1)
-                {
-                    ViewBag.Message = "Token Number can not be negative.";
-                    return RedirectToAction("Index", "Patient");
-                }
-                if (Convert.ToInt32(token) >= Convert.ToInt32(lastTokenNumberReturned))
-                {
-                    if(Convert.ToInt32(token) == 1)
-                    {
-
-                        DocumentReference docRefTokenNumber2 = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("tokenNumber").Document(futAppDate.ToString("dd_MM_yyyy"));
-                        DocumentSnapshot docsnapTokenNumber2 = await docRefTokenNumber2.GetSnapshotAsync();
-                        string[] assignedtokens = docsnapTokenNumber2.GetValue<string[]>("assigned_tokens");
-
-                        List<string> assignedtokenList = new List<string>();
-
-                        if (assignedtokens != null)
-                        {
-                            for (int i = 0; i < assignedtokens.Length; i++)
-                            {
-                                if (token == assignedtokens[i].ToString())
-                                {
-                                    TempData["Message"] = "Token Number " + token + " is already assigned.";
-                                    return RedirectToAction("Index", "Patient");
-                                }
-
-                            }
-                            assignedtokenList = assignedtokens.ToList();
-                        }
-
-
-
-                        CollectionReference colTokenNumber = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("tokenNumber");
-                        if(assignedtokens != null)
-                        {
-                            Dictionary<string, object> dataTokenNumber = new Dictionary<string, object>
-                            {
-                                {"last_token" ,token},
-                                {"assigned_tokens" ,assignedtokenList.ToArray()}
-                            };
-                            await colTokenNumber.Document(futAppDate.ToString("dd_MM_yyyy")).SetAsync(dataTokenNumber);
-                        }
-                        else
-                        {
-                            Dictionary<string, object> dataTokenNumber = new Dictionary<string, object>
-                            {
-                                {"last_token" ,token},
-                                {"assigned_tokens" ,null}
-                            };
-                            await colTokenNumber.Document(futAppDate.ToString("dd_MM_yyyy")).SetAsync(dataTokenNumber);
-                        }
-                        
-                        
-
-                    }
-                    else if (Convert.ToInt32(token) == Convert.ToInt32(lastTokenNumberReturned))
-                    {
-                        
-                        string[] assignedtokens = docsnapTokenNumber.GetValue<string[]>("assigned_tokens");
-                        List<string> assignedtokenList = new List<string>();
-                        if (assignedtokens != null)
-                        {
-                            for (int i = 0; i < assignedtokens.Length; i++)
-                            {
-                                if (token == assignedtokens[i].ToString())
-                                {
-                                    ViewBag.Message = "Token Number " + token + " is already assigned.";
-                                    return RedirectToAction("Index", "Patient");
-                                }
-                                
-                            }
-                            assignedtokenList = assignedtokens.ToList();
-
-                            CollectionReference colTokenNumber = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("tokenNumber");
-
-                            Dictionary<string, object> dataTokenNumber = new Dictionary<string, object>
-                            {
-                                {"last_token" ,token},
-                                {"assigned_tokens" ,assignedtokenList.ToArray()}
-                            };
-                            await colTokenNumber.Document(futAppDate.ToString("dd_MM_yyyy")).SetAsync(dataTokenNumber);
-                        }
-                        else
-                        {
-                            CollectionReference colTokenNumber = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("tokenNumber");
-
-                            Dictionary<string, object> dataTokenNumber = new Dictionary<string, object>
-                            {
-                                {"last_token" ,token},
-                                {"assigned_tokens" ,null}
-                            };
-                            await colTokenNumber.Document(futAppDate.ToString("dd_MM_yyyy")).SetAsync(dataTokenNumber);
-                        }
-                    }
-                    else
-                    {
-                        DocumentReference docRefTokenNumber1 = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("tokenNumber").Document(futAppDate.ToString("dd_MM_yyyy"));
-                        DocumentSnapshot docsnapTokenNumber1 = await docRefTokenNumber1.GetSnapshotAsync();
-                        string[] assignedtokens = docsnapTokenNumber1.GetValue<string[]>("assigned_tokens");
-
-                        List<string> assignedtokenList = new List<string>();
-
-                        if (assignedtokens != null)
-                        {
-                            for (int i = 0; i < assignedtokens.Length; i++)
-                            {
-                                if (token == assignedtokens[i].ToString())
-                                {
-                                    TempData["Message"] = "Token Number " + token + " is already assigned.";
-                                    return RedirectToAction("Index", "Patient");
-                                }
-
-                            }
-                            assignedtokenList = assignedtokens.ToList();
-                        }
-                        
-                        
-
-                        assignedtokenList.Add(token);
-
-                        if (Convert.ToInt32(token) != Convert.ToInt32(lastTokenNumberReturned))
-                        {
-                            token = lastTokenNumber;
-                        }
-
-                        CollectionReference colTokenNumber = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("tokenNumber");
-
-                        Dictionary<string, object> dataTokenNumber = new Dictionary<string, object>
-                        {
-                            {"last_token" ,token},
-                            {"assigned_tokens" ,assignedtokenList.ToArray()}
-                        };
-                        await colTokenNumber.Document(futAppDate.ToString("dd_MM_yyyy")).SetAsync(dataTokenNumber);
-                    }
-                }
-
-
-                #endregion Code to get latest token number, increament it
-                #region Code to create new appointment id for today
-
-                DocumentReference docRefPatientUID = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("patientList").Document(patientAutoId);
-                DocumentSnapshot docsnapPatientUID = await docRefPatientUID.GetSnapshotAsync();
-
-                string PatientUID = docsnapPatientUID.GetValue<string>("patient_id");
-                string severity = docsnapPatientUID.GetValue<string>("severity");
-                if (severity == null)
-                {
-                    severity = "Low";
-                }
-                
-
-
-                CollectionReference colAppountments = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("appointments");
-
-                Dictionary<string, object> dataAppointment = new Dictionary<string, object>
-                        {
-                            {"bill_sms" ,false},
-                            {"clinic_id" ,GlobalSessionVariables.ClinicDocumentAutoId},
-                            {"completiondate" ,null},
-                            {"date" ,""},
-                            {"days" ,""},
-                            {"fee" ,""},
-                            {"patient" ,patientAutoId},
-                            {"patient_id" ,PatientUID},
-                            {"raisedDate",DateTime.SpecifyKind(Convert.ToDateTime(appointmentDate), DateTimeKind.Utc)},
-                            {"reminder_sms" ,false},
-                            {"severity" ,severity},
-                            {"status" ,"Waiting"},
-                            {"timeStamp" ,DateTime.UtcNow},
-                            {"token" ,token}
-                        };
-                await colAppountments.Document().SetAsync(dataAppointment);
-                #endregion Code to create new appointment id for today
-
-
-
-                return RedirectToAction("Index", "Patient");
-            }
-            catch (Exception ex)
-            {
-                return RedirectToAction("Index", "Patient");
-            }
-        }
+        
 
         // POST: Patient/Delete/5
         [HttpPost]
@@ -1282,7 +1019,11 @@ namespace MVCFirebase.Controllers
                         {
                             {"bill_sms" ,false},
                             {"clinic_id" ,GlobalSessionVariables.ClinicDocumentAutoId},
-                            {"completiondate" ,null},
+                            {"completionDate" ,null},
+                            {"completiondateChemist" ,null},
+                            {"completiondateCashier" ,null},
+                            {"statusChemist" ,null},
+                            {"statusCashier" ,null},
                             {"date" ,""},
                             {"days" ,""},
                             {"fee" ,""},

@@ -25,12 +25,35 @@
                     <li>@Html.ActionLink("Home", "Index", "Home")</li>
                     <li>@Html.ActionLink("About", "About", "Home")</li>
                     <li>@Html.ActionLink("Contact", "Contact", "Home")</li>
-                    <li>@Html.ActionLink("Clinics", "Index", "Clinic")</li>
-                    <li>@Html.ActionLink("SuperUsers", "Index", "SuperUser")</li>
-                    <li>@Html.ActionLink("Patients", "Index", "Patient")</li>
-                    <li>@Html.ActionLink("Appointments", "Index", "Appointment")</li>
-                    <li>@Html.ActionLink("Users", "Index", "User")</li>
-                    <li>@Html.ActionLink("Settings", "Index", "ClinicSetting")</li>
+                    @if (User.IsInRole("SuperAdmin"))
+                    {
+                        <li>@Html.ActionLink("Clinics", "Index", "Clinic")</li>
+                        <li>@Html.ActionLink("SuperUsers", "Index", "SuperUser")</li>
+                    }
+
+                    @if (User.IsInRole("Receptionist"))
+                    {
+                        <li>@Html.ActionLink("Patients", "Index", "Patient")</li>
+                    }
+                    @if (User.IsInRole("Receptionist") || User.IsInRole("Chemist") || User.IsInRole("Cashier"))
+                    {
+                        if (User.IsInRole("Receptionist"))
+                        {
+                            <li>@Html.ActionLink("Appointments", "Index", "Appointment")</li>
+                        }
+                        else
+                        {
+                            <li>@Html.ActionLink("Appointments", "Waiting", "Appointment")</li>
+                        }
+
+                    }
+
+
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <li>@Html.ActionLink("Users", "Index", "User")</li>
+                        <li>@Html.ActionLink("Settings", "Index", "ClinicSetting")</li>
+                    }
                 </ul>
 
                 <ul class="nav navbar-nav navbar-right">
