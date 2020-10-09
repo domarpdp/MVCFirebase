@@ -69,14 +69,15 @@
                 }
                 else
                 {
-                    <ul class="nav navbar-nav navbar-right">
-                        <li>
-                            @using (Html.BeginForm("Login", "Home", FormMethod.Post))
-                            {
-                                <a href="javascript:;" onclick="document.forms[0].submit();"><span class="glyphicon glyphicon-log-in"></span>Log In</a>
-                            }
-                        </li>
-                    </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li>
+                @Html.ActionLink("Login", "Login", "Home")
+                @*@using (Html.BeginForm("Login", "Home", FormMethod.Post))
+        {
+            <a href="javascript:;" onclick="document.forms[0].submit();"><span class="glyphicon glyphicon-log-in"></span>Log In</a>
+        }*@
+                </li>
+            </ul>
                 }
             </div>
             @*<div class="navbar-collapse collapse">
