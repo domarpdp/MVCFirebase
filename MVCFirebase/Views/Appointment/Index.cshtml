@@ -91,12 +91,14 @@
         <th>
             Mobile/UID
         </th>
-
+        @*<th>
+            Raised Date
+        </th>*@
         <th>
             Status
         </th>
-        
-        </tr>
+
+    </tr>
 
     @foreach (var item in Model)
     {
@@ -111,6 +113,9 @@
     <td>
         @Html.DisplayFor(modelItem => item.patient_mobile) <br /> @Html.DisplayFor(modelItem => item.patient_id)
     </td>
+    @*<td>
+        @Html.DisplayFor(modelItem => item.raisedDate) <br /> @Html.DisplayFor(modelItem => item.timeStamp)
+    </td>*@
 
     <td>
         @*@Html.DisplayFor(modelItem => item.status)*@-

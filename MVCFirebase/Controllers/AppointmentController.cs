@@ -29,7 +29,11 @@ namespace MVCFirebase.Controllers
                 SearchDate = Convert.ToDateTime(startdate);
                 SearchDate = DateTime.SpecifyKind(SearchDate, DateTimeKind.Utc);
             }
-            
+
+            SearchDate = SearchDate.Date;
+            Timestamp SearchDateFrom = Timestamp.FromDateTime(SearchDate.Date.AddHours(-5).AddMinutes(-30));
+            Timestamp SearchDateTo = Timestamp.FromDateTime(SearchDate.Date.AddHours(-5).AddMinutes(-30).AddDays(1));
+
             string ClinicMobileNumber = GlobalSessionVariables.ClinicMobileNumber;
             string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
             Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
@@ -60,7 +64,7 @@ namespace MVCFirebase.Controllers
                     }
                 }
 
-                snapAppointments = await docsnapClinics.Reference.Collection("appointments").WhereGreaterThanOrEqualTo("raisedDate", Timestamp.FromDateTime(SearchDate.Date)).WhereLessThan("raisedDate", Timestamp.FromDateTime(SearchDate.AddDays(1))).WhereEqualTo("status", "Waiting").GetSnapshotAsync();
+                snapAppointments = await docsnapClinics.Reference.Collection("appointments").WhereGreaterThanOrEqualTo("raisedDate", SearchDateFrom).WhereLessThan("raisedDate", SearchDateTo).WhereEqualTo("status", "Waiting").GetSnapshotAsync();
 
                 foreach (DocumentSnapshot docsnapAppointments in snapAppointments)
                 {
@@ -105,7 +109,10 @@ namespace MVCFirebase.Controllers
                 SearchDate = Convert.ToDateTime(startdate);
                 SearchDate = DateTime.SpecifyKind(SearchDate, DateTimeKind.Utc);
             }
-
+            SearchDate = SearchDate.Date;
+            Timestamp SearchDateFrom = Timestamp.FromDateTime(SearchDate.Date.AddHours(-5).AddMinutes(-30));
+            Timestamp SearchDateTo = Timestamp.FromDateTime(SearchDate.Date.AddHours(-5).AddMinutes(-30).AddDays(1));
+            
             string ClinicMobileNumber = GlobalSessionVariables.ClinicMobileNumber;
             string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
             Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
@@ -138,7 +145,7 @@ namespace MVCFirebase.Controllers
                     }
                 }
 
-                snapAppointments = await docsnapClinics.Reference.Collection("appointments").WhereGreaterThanOrEqualTo("raisedDate", Timestamp.FromDateTime(SearchDate.Date)).WhereLessThan("raisedDate", Timestamp.FromDateTime(SearchDate.AddDays(1))).WhereEqualTo("status", "Completed").GetSnapshotAsync();
+                snapAppointments = await docsnapClinics.Reference.Collection("appointments").WhereGreaterThanOrEqualTo("raisedDate", SearchDateFrom).WhereLessThan("raisedDate", SearchDateTo).WhereEqualTo("status", "Completed").GetSnapshotAsync();
 
                 
 
@@ -247,7 +254,10 @@ namespace MVCFirebase.Controllers
                 SearchDate = Convert.ToDateTime(startdate);
                 SearchDate = DateTime.SpecifyKind(SearchDate, DateTimeKind.Utc);
             }
-
+            SearchDate = SearchDate.Date;
+            Timestamp SearchDateFrom = Timestamp.FromDateTime(SearchDate.Date.AddHours(-5).AddMinutes(-30));
+            Timestamp SearchDateTo = Timestamp.FromDateTime(SearchDate.Date.AddHours(-5).AddMinutes(-30).AddDays(1));
+            
             string ClinicMobileNumber = GlobalSessionVariables.ClinicMobileNumber;
             string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
             Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
@@ -280,7 +290,7 @@ namespace MVCFirebase.Controllers
                     }
                 }
 
-                snapAppointments = await docsnapClinics.Reference.Collection("appointments").WhereGreaterThanOrEqualTo("raisedDate", Timestamp.FromDateTime(SearchDate.Date)).WhereLessThan("raisedDate", Timestamp.FromDateTime(SearchDate.AddDays(1))).WhereEqualTo("status", "Completed").GetSnapshotAsync();
+                snapAppointments = await docsnapClinics.Reference.Collection("appointments").WhereGreaterThanOrEqualTo("raisedDate", SearchDateFrom).WhereLessThan("raisedDate", SearchDateTo).WhereEqualTo("status", "Completed").GetSnapshotAsync();
 
 
 
