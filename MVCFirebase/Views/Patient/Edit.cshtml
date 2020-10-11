@@ -84,7 +84,7 @@
     <div class="form-group">
         @Html.LabelFor(model => model.refer_by, htmlAttributes: new { @class = "control-label col-md-2" })
         <div class="col-md-10">
-            @Html.EditorFor(model => model.refer_by, new { htmlAttributes = new { @class = "form-control" } })
+            @Html.DropDownListFor(model => model.refer_by, (IEnumerable<SelectListItem>)ViewBag.REFERBYS, new { @class = "select2_demo_4 form-control" })
             @Html.ValidationMessageFor(model => model.refer_by, "", new { @class = "text-danger" })
         </div>
     </div>

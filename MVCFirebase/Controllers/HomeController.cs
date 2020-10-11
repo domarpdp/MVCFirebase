@@ -107,15 +107,35 @@ namespace MVCFirebase.Controllers
 
                             if (snapUserPassword.Count > 0)
                             {
+                                Session["sessionid"] = System.Web.HttpContext.Current.Session.SessionID;
+
+                                CollectionReference col1 = db.Collection("clinics").Document(docsnapClinic.Id).Collection("logins");
+                                Dictionary<string, object> data1 = new Dictionary<string, object>
+                                {
+                                    {"userid" ,user.mobile_number},
+                                    {"sessionid" ,System.Web.HttpContext.Current.Session.SessionID},
+                                    {"loggedin" ,true},
+                                    {"creationate",DateTime.UtcNow}
+                                };
+
+                                await col1.Document().SetAsync(data1);
+
+
                                 DocumentSnapshot docsnapUser = snapUserPassword.Documents[0];
 
                                 User userForRoles = docsnapUser.ConvertTo<User>();
                                 GlobalSessionVariables.UserRoles = string.Join(",", userForRoles.user_roles); 
 
-                                FormsAuthentication.SetAuthCookie(userLoggedIn.name, user.RememberMe);
-                                if(User.IsInRole("Receptionist"))
+                                
+                                FormsAuthentication.SetAuthCookie(userLoggedIn.mobile_number + "-" + userLoggedIn.name, user.RememberMe);
+                                //if(User.IsInRole("Receptionist"))
+                                if(userForRoles.user_roles.Contains("Receptionist"))
                                 {
                                     return RedirectToAction("Index", "Appointment");
+                                }
+                                else if (userForRoles.user_roles.Contains("Admin"))
+                                {
+                                    return RedirectToAction("Index", "User");
                                 }
                                 else
                                 {
@@ -182,7 +202,7 @@ namespace MVCFirebase.Controllers
         public async Task<ActionResult> About()
         {
             
-            var userId = "amangbhatia";
+            var userId = "xyz";
             var currentLoginTime = DateTime.UtcNow.ToString("dd-MMM-yyyy HH:mm:ss");
 
             //Save Non identifying data to firebase

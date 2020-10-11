@@ -7,7 +7,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@ViewBag.Title - My ASP.NET Application</title>
+    <title>@ViewBag.Title - Green Paper Technology</title>
     @Styles.Render("~/Content/css")
     @Scripts.Render("~/bundles/modernizr")
     
@@ -22,7 +22,10 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                @Html.ActionLink("Application name", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
+
+                <a href="/Home/Index" class="navbar-brand"> <img src="~/Images/logo copy.png" alt="Company logo" width="30" height="30" class="d-inline-block align-top" /></a>
+                @Html.ActionLink("Green Paper Technology", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
+
             </div>
 
         </div>
@@ -72,7 +75,7 @@
 
                 <hr />
                 <footer>
-                    <p>&copy; @DateTime.Now.Year - My ASP.NET Application</p>
+                    <p>&copy; @DateTime.Now.Year - Green Paper Technology</p>
                 </footer>
             </div>
         </div>
