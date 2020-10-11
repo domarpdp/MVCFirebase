@@ -2951,6 +2951,28 @@ namespace MVCFirebase.Controllers
             }
         }
 
+        // GET: Patient/AddPres/5
+        public ActionResult AddPres(int id)
+        {
+            return View();
+        }
+
+        // POST: Patient/AddPres/5
+        [HttpPost]
+        public ActionResult AddPres(int id, FormCollection collection)
+        {
+            try
+            {
+                // TODO: Add delete logic here
+
+                return RedirectToAction("Index");
+            }
+            catch
+            {
+                return View();
+            }
+        }
+
         private string PatientLastId(string databaselastid)
         {
             int numericValue = Convert.ToInt32(databaselastid.Substring(databaselastid.Length - 4));

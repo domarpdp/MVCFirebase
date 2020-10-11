@@ -301,6 +301,8 @@
     <Content Include="Views\Appointment\Fee.cshtml" />
     <Content Include="Views\Appointment\Waiting.cshtml" />
     <Content Include="Views\Appointment\Completed.cshtml" />
+    <Content Include="Views\Home\term.cshtml" />
+    <Content Include="Views\Home\Privacy.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

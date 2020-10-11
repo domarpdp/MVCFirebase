@@ -25,6 +25,16 @@ namespace MVCFirebase.Controllers
             return View();
         }
         [AllowAnonymous]
+        public ActionResult Privacy()
+        {
+            return View();
+        }
+        [AllowAnonymous]
+        public ActionResult term()
+        {
+            return View();
+        }
+        [AllowAnonymous]
         public ActionResult Login()
         {
             return View();
