@@ -59,10 +59,51 @@
                 <li class="nav-item">
                     <a class="nav-link" href="index">Contact Us</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/Home/Login">Log In</a>
+                @if (User.IsInRole("SuperAdmin"))
+                {
+                    <li>@Html.ActionLink("Clinics ", "Index", "Clinic")</li>
+                    <li>@Html.ActionLink("SuperUsers ", "Index", "SuperUser")</li>
+                }
 
-                </li>
+                @if (User.IsInRole("Receptionist"))
+                {
+                    <li>@Html.ActionLink("Patients ", "Index", "Patient")</li>
+                }
+                @if (User.IsInRole("Receptionist") || User.IsInRole("Chemist") || User.IsInRole("Cashier"))
+                {
+                    if (User.IsInRole("Receptionist"))
+                    {
+                        <li>@Html.ActionLink("Appointments ", "Index", "Appointment")</li>
+                    }
+                    else
+                    {
+                        <li>@Html.ActionLink("Appointments ", "Waiting", "Appointment")</li>
+                    }
+
+                }
+                @if (User.IsInRole("Admin"))
+                {
+                    <li>@Html.ActionLink("Users ", "Index", "User")</li>
+                    <li>@Html.ActionLink("Settings ", "Index", "ClinicSetting")</li>
+                }
+                @if (User.Identity.IsAuthenticated)
+                {
+
+                    <li>
+                        @using (Html.BeginForm("Logout", "Home", FormMethod.Post))
+                        {
+                            <a href="javascript:;" onclick="document.forms[0].submit();">Logout</a>
+                        }
+                    </li>
+
+                }
+                else
+                {
+                    <li class="nav-item">
+                        <a class="nav-link" href="/Home/Login">Log In</a>
+
+                    </li>
+                }
             </ul>
         </div>
     </nav>
@@ -191,20 +232,7 @@
         <br>
         We can sell our any product on sale or on discount or completly free which you can not complain.
         <br>
-
-
-
     </p>
-
-    <a href="#submit-form" class="elButton elButtonSize1 elButtonColor1 elButtonRounded elButtonPadding2 elButtonCorner3 elBtnHP_25 elBTN_b_1 elButtonShadowN1 elButtonTxtColor1 ea-buttonBounce elBtnVP_5 elButtonFull" style="color: rgb(0, 0, 0); font-weight: 600; background-color: rgb(255, 126, 0); font-size: 20px;" rel="noopener noreferrer">
-        <span class="elButtonMain">Request for Demo Today</span>
-        <span class="elButtonSub"></span>
-    </a>
-
-
-
-
-
 
 </div>
 </div>

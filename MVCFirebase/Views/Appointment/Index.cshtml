@@ -20,7 +20,7 @@
 <table class="table" border="0">
     <tr>
 
-        @using (Html.BeginForm())
+        @using (Html.BeginForm("","Appointment", FormMethod.Post))
         {
 
             <td width="15%">
@@ -30,14 +30,14 @@
             if (User.IsInRole("Receptionist"))
             { 
                 <td align="left">
-                    <input class="form-control" type="submit" value="Appointments" style="width:120px" formaction="Index" formmethod="post"/>
+                    <input class="form-control" type="submit" value="Appointments" style="width:120px"  formaction="/Appointment/Index" formmethod="post"/>
                 </td>
             }
         
             if (User.IsInRole("Chemist") || User.IsInRole("Cashier"))
             {
             <td align="left">
-                <input class="form-control" type="submit" value="Waiting" style="width:90px" formaction="Waiting" formmethod="post"/>
+                <input class="form-control" type="submit" value="Waiting" style="width:90px" formaction="/Appointment/Waiting" formmethod="post"/>
             </td>
             }
 
@@ -45,7 +45,7 @@
             if (User.IsInRole("Chemist") || User.IsInRole("Cashier"))
             {
             <td align="left">
-                <input class="form-control" type="submit" value="Completed" style="width:100px" formaction="Completed" formmethod="post"/>
+                <input class="form-control" type="submit" value="Completed" style="width:100px" formaction="/Appointment/Completed" formmethod="post"/>
             </td>
             }
 
