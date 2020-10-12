@@ -60,11 +60,11 @@
                 @if (User.Identity.IsAuthenticated)
                 {
                     <ul class="nav navbar-nav navbar-right">
-                        <li><a href="#"><span class="glyphicon glyphicon-user"></span><b>@HttpContext.Current.User.Identity.Name.Split('-')[1]</b></a></li>
+                        <li><a class="nav-link" href="#"><span class="glyphicon glyphicon-user"></span><b>@HttpContext.Current.User.Identity.Name.Split('-')[1]</b></a></li>
                         <li>
                             @using (Html.BeginForm("Logout", "Home", FormMethod.Post))
                             {
-                                <a href="javascript:;" onclick="document.forms[0].submit();"><span class="glyphicon glyphicon-log-in"></span> Logout</a>
+                                <a class="nav-link" href="javascript:;" onclick="document.forms[0].submit();"><span class="glyphicon glyphicon-log-in"></span> Logout</a>
                             }
                         </li>
                     </ul>
