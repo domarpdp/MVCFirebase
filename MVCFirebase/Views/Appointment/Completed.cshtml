@@ -4,7 +4,23 @@
     ViewBag.Title = "Completed";
 }
 
-<h2>Completed Appointments</h2>
+<table width="100%" border="0">
+    <tr>
+        <td><h2>Completed Appointments</h2></td>
+        @if (User.IsInRole("Cashier"))
+        {
+        <td align="right"><h5>Total Fee:</h5></td>
+        <td>@ViewData["totalfee"]</td>
+        <td align="right"><h5>Total Fee(Cash):</h5></td>
+        <td>@ViewData["totalfeecash"]</td>
+        <td align="right"><h5>Total Fee Others:</h5></td>
+        <td>@ViewData["totalfeeothers"]</td>
+        }
+
+    </tr>
+</table>
+
+
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
@@ -44,9 +60,9 @@
 
 
             if (User.IsInRole("Chemist") || User.IsInRole("Cashier"))
-            {
+            { 
                 <td align="left">
-                    <input class="form-control" type="submit" value="Completed" style="width:100px" formaction="Completed" formmethod="post" />
+                    <input class="form-control" type="submit" value="Completed" style="background-color:lightgray;width: 100px" formaction="Completed" formmethod="post" />
                 </td>
             }
 
@@ -108,7 +124,7 @@
                 Fee
             </th>
         }
-        
+
     </tr>
 
     @foreach (var item in Model)
@@ -164,7 +180,7 @@
                     @Html.DisplayFor(modelItem => item.fee)
                 </td>
             }
-            
+
         </tr>
     }
 

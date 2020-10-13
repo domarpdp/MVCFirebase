@@ -556,6 +556,9 @@ namespace MVCFirebase.Controllers
             if (Session["sessionid"] == null)
             { Session["sessionid"] = "empty"; }
 
+            int totalfee = 0;
+            int totalfeecash = 0;
+            int totalfeeothers = 0;
             // check to see if your ID in the Logins table has 
             // LoggedIn = true - if so, continue, otherwise, redirect to Login page.
             if (await IsYourLoginStillTrue(System.Web.HttpContext.Current.User.Identity.Name.Split('-')[0], Session["sessionid"].ToString()))
@@ -595,6 +598,7 @@ namespace MVCFirebase.Controllers
                     string statusCashier = "";
                     string statusChemist;
                     int i = 0;
+                    
                     foreach (DocumentSnapshot docsnapClinics in snapClinics)
                     {
                         Clinic clinic = docsnapClinics.ConvertTo<Clinic>();
@@ -649,6 +653,15 @@ namespace MVCFirebase.Controllers
                                         try { appointment.tokenIteger = Convert.ToInt32(docsnapAppointments.GetValue<string>("token")); }
                                         catch { appointment.tokenIteger = i + 1; }
                                         AppointmentList.Add(appointment);
+                                        totalfee = totalfee + Convert.ToInt32(appointment.fee);
+                                        if (appointment.paymentmode == "Cash")
+                                        {
+                                            totalfeecash = totalfeecash + Convert.ToInt32(appointment.fee);
+                                        }
+                                        else
+                                        {
+                                            totalfeeothers = totalfeeothers + Convert.ToInt32(appointment.fee);
+                                        }
                                     }
                                 }
                                 else if (User.IsInRole("Cashier"))
@@ -673,6 +686,15 @@ namespace MVCFirebase.Controllers
                                         try { appointment.tokenIteger = Convert.ToInt32(docsnapAppointments.GetValue<string>("token")); }
                                         catch { appointment.tokenIteger = i + 1; }
                                         AppointmentList.Add(appointment);
+                                        totalfee = totalfee + Convert.ToInt32(appointment.fee);
+                                        if(appointment.paymentmode == "Cash")
+                                        {
+                                            totalfeecash = totalfeecash + Convert.ToInt32(appointment.fee);
+                                        }
+                                        else
+                                        {
+                                            totalfeeothers = totalfeeothers + Convert.ToInt32(appointment.fee);
+                                        }
                                     }
                                 }
                                 else if (User.IsInRole("Chemist"))
@@ -704,6 +726,10 @@ namespace MVCFirebase.Controllers
                         }
 
                     }
+
+                    ViewData["totalfee"] = totalfee;
+                    ViewData["totalfeecash"] = totalfeecash;
+                    ViewData["totalfeeothers"] = totalfeeothers;
                     AppointmentList = AppointmentList.OrderByDescending(a => a.tokenIteger).ToList();
                     ViewBag.Message = SearchDate.Date;
                     return View(AppointmentList);
@@ -799,6 +825,15 @@ namespace MVCFirebase.Controllers
                                         try { appointment.tokenIteger = Convert.ToInt32(docsnapAppointments.GetValue<string>("token")); }
                                         catch { appointment.tokenIteger = i + 1; }
                                         AppointmentList.Add(appointment);
+                                        totalfee = totalfee + Convert.ToInt32(appointment.fee);
+                                        if (appointment.paymentmode == "Cash")
+                                        {
+                                            totalfeecash = totalfeecash + Convert.ToInt32(appointment.fee);
+                                        }
+                                        else
+                                        {
+                                            totalfeeothers = totalfeeothers + Convert.ToInt32(appointment.fee);
+                                        }
                                     }
                                 }
                                 else if (User.IsInRole("Cashier"))
@@ -823,6 +858,15 @@ namespace MVCFirebase.Controllers
                                         try { appointment.tokenIteger = Convert.ToInt32(docsnapAppointments.GetValue<string>("token")); }
                                         catch { appointment.tokenIteger = i + 1; }
                                         AppointmentList.Add(appointment);
+                                        totalfee = totalfee + Convert.ToInt32(appointment.fee);
+                                        if (appointment.paymentmode == "Cash")
+                                        {
+                                            totalfeecash = totalfeecash + Convert.ToInt32(appointment.fee);
+                                        }
+                                        else
+                                        {
+                                            totalfeeothers = totalfeeothers + Convert.ToInt32(appointment.fee);
+                                        }
                                     }
                                 }
                                 else if (User.IsInRole("Chemist"))
@@ -854,6 +898,9 @@ namespace MVCFirebase.Controllers
                         }
 
                     }
+                    ViewData["totalfee"] = totalfee;
+                    ViewData["totalfeecash"] = totalfeecash;
+                    ViewData["totalfeeothers"] = totalfeeothers;
                     AppointmentList = AppointmentList.OrderByDescending(a => a.tokenIteger).ToList();
                     ViewBag.Message = SearchDate.Date;
                     return View(AppointmentList);
