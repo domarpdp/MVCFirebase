@@ -93,7 +93,7 @@ namespace MVCFirebase.Models
 
         [FirestoreProperty]
         [Required(ErrorMessage = "Required.")]
-        public string paymentmode { get; set; }
+        public string modeofpayment { get; set; }
 
         //public ImageViewModel SelectedImage { get; set; }
 

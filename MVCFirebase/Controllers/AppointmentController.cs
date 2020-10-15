@@ -654,7 +654,7 @@ namespace MVCFirebase.Controllers
                                         catch { appointment.tokenIteger = i + 1; }
                                         AppointmentList.Add(appointment);
                                         totalfee = totalfee + Convert.ToInt32(appointment.fee);
-                                        if (appointment.paymentmode == "Cash")
+                                        if (appointment.modeofpayment == "Cash")
                                         {
                                             totalfeecash = totalfeecash + Convert.ToInt32(appointment.fee);
                                         }
@@ -687,7 +687,7 @@ namespace MVCFirebase.Controllers
                                         catch { appointment.tokenIteger = i + 1; }
                                         AppointmentList.Add(appointment);
                                         totalfee = totalfee + Convert.ToInt32(appointment.fee);
-                                        if(appointment.paymentmode == "Cash")
+                                        if(appointment.modeofpayment == "Cash")
                                         {
                                             totalfeecash = totalfeecash + Convert.ToInt32(appointment.fee);
                                         }
@@ -826,7 +826,7 @@ namespace MVCFirebase.Controllers
                                         catch { appointment.tokenIteger = i + 1; }
                                         AppointmentList.Add(appointment);
                                         totalfee = totalfee + Convert.ToInt32(appointment.fee);
-                                        if (appointment.paymentmode == "Cash")
+                                        if (appointment.modeofpayment == "Cash")
                                         {
                                             totalfeecash = totalfeecash + Convert.ToInt32(appointment.fee);
                                         }
@@ -859,7 +859,7 @@ namespace MVCFirebase.Controllers
                                         catch { appointment.tokenIteger = i + 1; }
                                         AppointmentList.Add(appointment);
                                         totalfee = totalfee + Convert.ToInt32(appointment.fee);
-                                        if (appointment.paymentmode == "Cash")
+                                        if (appointment.modeofpayment == "Cash")
                                         {
                                             totalfeecash = totalfeecash + Convert.ToInt32(appointment.fee);
                                         }
