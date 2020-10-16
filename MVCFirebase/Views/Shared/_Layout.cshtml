@@ -49,7 +49,10 @@
                         }
 
                     }
-
+                    @if (User.IsInRole("Chemist"))
+                    {
+                        <li>@Html.ActionLink("Inventory", "Index", "Inventory")</li>
+                    }
 
                     @if (User.IsInRole("Admin"))
                     {
