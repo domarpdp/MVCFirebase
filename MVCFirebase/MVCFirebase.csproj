@@ -229,6 +229,7 @@
     <Compile Include="Models\GlobalSessionVariables.cs" />
     <Compile Include="Models\ImageModel.cs" />
     <Compile Include="Models\ImageViewModel.cs" />
+    <Compile Include="Models\Inventory.cs" />
     <Compile Include="Models\LoginData.cs" />
     <Compile Include="Models\Patient.cs" />
     <Compile Include="Models\SuperUser.cs" />
@@ -305,6 +306,7 @@
     <Content Include="Views\Home\term.cshtml" />
     <Content Include="Views\Home\Privacy.cshtml" />
     <Content Include="Views\Inventory\Index.cshtml" />
+    <Content Include="Views\Inventory\Create.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

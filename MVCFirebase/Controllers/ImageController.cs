@@ -49,7 +49,7 @@ namespace MVCFirebase.Controllers
             }
 
             //_objuserloginmodel.SelectedImage = _objuserloginmodel.GetList()[0];
-            TempData["CurrentSelectedId"] = 1;
+            TempData["CurrentSelectedId"] = snapPres.Count;
             TempData["TotalPrescriptions"] = snapPres.Count;
             return View(_objuserloginmodel);
 
@@ -101,7 +101,7 @@ namespace MVCFirebase.Controllers
                 _objuserloginmodel.SelectedImage = GetList[--id > -1 ? id : ++id];
 
             TempData["SelectedId"] = id;
-            TempData["CurrentSelectedId"] = id + 1;
+            TempData["CurrentSelectedId"] = snapPres.Count - id;
             TempData["patientAutoId"] = patientAutoId;
             TempData["TotalPrescriptions"] = snapPres.Count;
              

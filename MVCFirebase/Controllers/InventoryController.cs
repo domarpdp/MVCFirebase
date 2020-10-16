@@ -1,17 +1,68 @@
-﻿using System;
+﻿using Google.Cloud.Firestore;
+using MVCFirebase.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 
 namespace MVCFirebase.Controllers
 {
+    
     public class InventoryController : Controller
     {
         // GET: Inventory
-        public ActionResult Index()
+        
+        public async Task<ActionResult> Index()
         {
-            return View();
+            //string ClinicMobileNumber = GlobalSessionVariables.ClinicMobileNumber;
+            string ClinicMobileNumber = "9811035028";
+            string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
+            Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
+            FirestoreDb db = FirestoreDb.Create("greenpaperdev");
+            List<Inventory> InventoryList = new List<Inventory>();
+
+
+            //Query Qref = db.Collection("Students").WhereEqualTo("StudentName","Suvidhi");
+            Query Qref = db.Collection("clinics").WhereEqualTo("clinicmobilenumber", ClinicMobileNumber);
+            QuerySnapshot snapClinics = await Qref.GetSnapshotAsync();
+
+            foreach (DocumentSnapshot docsnapClinics in snapClinics)
+            {
+                Clinic clinic = docsnapClinics.ConvertTo<Clinic>();
+                QuerySnapshot snapMedicines = await docsnapClinics.Reference.Collection("inventory").OrderByDescending("medicinename").GetSnapshotAsync();
+
+                foreach (DocumentSnapshot docsnapMedicines in snapMedicines)
+                {
+
+
+                    //Inventory inventory = docsnapMedicines.ConvertTo<Inventory>();
+                    Inventory inventory = new Inventory();
+                    inventory.id = docsnapMedicines.Id;
+                    
+                    inventory.shortname = docsnapMedicines.GetValue<string>("shortname");
+                    inventory.quantity = docsnapMedicines.GetValue<int>("quantity");
+                    inventory.medicinename = docsnapMedicines.GetValue<string>("medicinename");
+                    inventory.unitmrp = docsnapMedicines.GetValue<string>("unitmrp");
+                    inventory.purchasedunitprice = docsnapMedicines.GetValue<string>("purchasedunitprice");
+                    inventory.expirydate = docsnapMedicines.GetValue<Timestamp>("expirydate").ToDateTime().ToString("MM/dd/yyyy");
+                    inventory.dateadded = docsnapMedicines.GetValue<Timestamp>("dateadded").ToDateTime().ToString("MM/dd/yyyy");
+                    inventory.vendorname = docsnapMedicines.GetValue<string>("vendorname");
+                    inventory.vendormobilenumber = docsnapMedicines.GetValue<string>("vendormobilenumber");
+                    //QuerySnapshot snapPatient = await docsnapClinics.Reference.Collection("patientList").WhereEqualTo("patient_id", appointment.patient_id).Limit(1).GetSnapshotAsync();
+                    //DocumentSnapshot docsnapPatient = snapPatient.Documents[0];
+
+                    //Patient patient = docsnapPatient.ConvertTo<Patient>();
+                    if (docsnapMedicines.Exists)
+                    {
+                        InventoryList.Add(inventory);
+                    }
+                }
+
+            }
+
+            return View(InventoryList);
         }
 
         // GET: Inventory/Details/5
@@ -28,17 +79,53 @@ namespace MVCFirebase.Controllers
 
         // POST: Inventory/Create
         [HttpPost]
-        public ActionResult Create(FormCollection collection)
+        public async Task<ActionResult> Create(Inventory inventory)
         {
             try
             {
+                if (ModelState.IsValid)
+                {
+                    
+                    string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
+                    Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
+                    FirestoreDb db = FirestoreDb.Create("greenpaperdev");
+
+
+                    //CollectionReference col1 = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("patientList").Document("test");
+                    CollectionReference col1 = db.Collection("clinics").Document("ly0N6C9cO0crz0s6LMUi").Collection("inventory");
+
+
+                    Dictionary<string, object> data1 = new Dictionary<string, object>
+                    {
+                        {"shortname" ,inventory.shortname},
+                        {"quantity" ,inventory.quantity},
+                        {"medicinename" ,inventory.medicinename},
+                        {"unitmrp" ,inventory.unitmrp.ToString()},
+                        {"dateadded" ,DateTime.UtcNow},
+                        {"expirydate" ,DateTime.SpecifyKind(Convert.ToDateTime(inventory.expirydate), DateTimeKind.Utc)},
+                        {"purchasedunitprice" ,inventory.purchasedunitprice.ToString()},
+                        {"vendorname",inventory.vendorname},
+                        {"vendormobilenumber" ,inventory.vendormobilenumber}
+
+                    };
+
+                    await col1.Document().SetAsync(data1);
+
+
+
+                    return RedirectToAction("Index");
+                }
+                else
+                {
+                    return View(inventory);
+                }
                 // TODO: Add insert logic here
 
-                return RedirectToAction("Index");
+                
             }
-            catch
+            catch (Exception ex)
             {
-                return View();
+                return View(inventory);
             }
         }
 
