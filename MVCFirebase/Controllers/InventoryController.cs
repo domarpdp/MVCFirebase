@@ -24,8 +24,6 @@ namespace MVCFirebase.Controllers
             FirestoreDb db = FirestoreDb.Create("greenpaperdev");
             List<Inventory> InventoryList = new List<Inventory>();
 
-
-            //Query Qref = db.Collection("Students").WhereEqualTo("StudentName","Suvidhi");
             Query Qref = db.Collection("clinics").WhereEqualTo("clinicmobilenumber", ClinicMobileNumber);
             QuerySnapshot snapClinics = await Qref.GetSnapshotAsync();
 

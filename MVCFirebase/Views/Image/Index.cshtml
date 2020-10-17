@@ -1,7 +1,9 @@
-﻿@model MVCFirebase.Models.ImageModel
+﻿@using MVCFirebase.Models
+@model MVCFirebase.Models.ImageModel
 
 @{
     ViewBag.Title = "Prescriptions";
+    var medicinedata = (IEnumerable<Medicine>)TempData["medicine"];
 }
 
 <h2>Index</h2>
@@ -12,38 +14,91 @@
     @Html.ActionLink("Back to List", "Waiting", "Appointment")
 </div>
 <br>
-
-
-<fieldset>
-    <div id="dvCategoryResults">
-        @{
-            Html.RenderPartial("_PartialImage", Model);
-        }
-    </div>
-</fieldset>
-
-<fieldset>
-    @using (Ajax.BeginForm("GetNextOrPrevImage", "Image", new { SelectedId = Model.SelectedImage },
-        new AjaxOptions
-        {
-            HttpMethod = "Post",
-            UpdateTargetId = "dvCategoryResults"
-        }))
-    {
-        <br />
-        <input type="submit" value="<" id="btnPrev" name="ButtonType" />
-        <input type="submit" value=">" id="btnNext" name="ButtonType" />
-    }
-</fieldset>
-@*@using (Html.BeginForm("submit", "Image", "Post"))
-    {
-        @Html.AntiForgeryToken()
+@using (Html.BeginForm())
+{
+    <div>
         <div class="form-group">
-            <div class="col-md-offset-2 col-md-10">
-                <input type="submit" value="Submit" class="btn btn-default" />
+
+            <label class="control-label col-md-2">Medicine Name</label>
+            <div class="col-md-2">
+                @Html.Editor("Medicine", new { htmlAttributes = new { @class = "form-control", placeholder = "Mdeicine Name" } })
+
             </div>
         </div>
-    }*@
+        <div class="form-group">
+
+            <label class="control-label col-md-2">User Id</label>
+            <div class="col-md-2">
+                @Html.Editor("Quantity", new { htmlAttributes = new { @class = "form-control", placeholder = "Quantity" } })
+
+            </div>
+
+        </div>
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-4">
+                <input type="submit" value="Add Medicine" class="btn btn-default" />
+            </div>
+        </div>
+     </div>
+ }
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-5">
+                <table class="table table-condensed table-hover">
+                    <thead>
+                        <tr>
+                            <th>Auto Id</th>
+                            <th>Medicine Name</th>
+                            <th>Quantity</th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var medicine in medicinedata)
+                        {
+                            <tr>
+                                <td>@medicine.id</td>
+                                <td>@medicine.medicinename</td>
+                                <td>@medicine.Quantity</td>
+                                <td>@Html.ActionLink("Delete", "Delete", new { id = medicine.id })</td>
+                            </tr>
+
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <fieldset>
+            <div id="dvCategoryResults">
+                @{
+                    Html.RenderPartial("_PartialImage", Model);
+                }
+            </div>
+        </fieldset>
+
+        <fieldset>
+            @using (Ajax.BeginForm("GetNextOrPrevImage", "Image", new { SelectedId = Model.SelectedImage },
+                new AjaxOptions
+                {
+                    HttpMethod = "Post",
+                    UpdateTargetId = "dvCategoryResults"
+                }))
+            {
+                <br />
+                <input type="submit" value="<" id="btnPrev" name="ButtonType" />
+                <input type="submit" value=">" id="btnNext" name="ButtonType" />
+            }
+        </fieldset>
+        @*@using (Html.BeginForm("submit", "Image", "Post"))
+            {
+                @Html.AntiForgeryToken()
+                <div class="form-group">
+                    <div class="col-md-offset-2 col-md-10">
+                        <input type="submit" value="Submit" class="btn btn-default" />
+                    </div>
+                </div>
+            }*@
 
 
 

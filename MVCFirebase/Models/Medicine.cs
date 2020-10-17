@@ -10,6 +10,8 @@ namespace MVCFirebase.Models
     {
         [Display(Name = "Medicine Name")]
         public int serialno { get; set; }
+        [Display(Name = "Auto Id")]
+        public string id { get; set; }
 
         [Display(Name = "Medicine Name")]
         public string medicinename { get; set; }

@@ -51,6 +51,29 @@ namespace MVCFirebase.Controllers
             //_objuserloginmodel.SelectedImage = _objuserloginmodel.GetList()[0];
             TempData["CurrentSelectedId"] = snapPres.Count;
             TempData["TotalPrescriptions"] = snapPres.Count;
+
+            List<Medicine> medicineList = new List<Medicine>();
+            Query QrefMedicines = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("appointments").Document(id).Collection("medicines");
+            QuerySnapshot snapMedicines = await QrefMedicines.GetSnapshotAsync();
+            if (snapMedicines.Count > 0)
+            {
+                foreach (DocumentSnapshot docsnapMedicines in snapMedicines)
+                {
+
+                    if (docsnapMedicines.Exists)
+                    {
+                        Medicine med = docsnapMedicines.ConvertTo<Medicine>();
+                        med.id = docsnapMedicines.Id;
+                        medicineList.Add(med);
+                    }
+                }
+            }
+
+
+            TempData["medicine"] = medicineList;
+            TempData.Keep();
+
+
             return View(_objuserloginmodel);
 
         }
