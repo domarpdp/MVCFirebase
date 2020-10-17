@@ -15,6 +15,9 @@ namespace MVCFirebase.Models
         public bool reminder_sms { get; set; }
 
         [FirestoreProperty]
+        public bool inventoryon { get; set; }
+
+        [FirestoreProperty]
         [Range(1, 10000)]
         public int fee1 { get; set; }
         [FirestoreProperty]

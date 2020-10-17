@@ -1,0 +1,74 @@
+﻿@using MVCFirebase.Models
+@model IEnumerable<MVCFirebase.Models.Medicine>
+@{
+    ViewBag.Title = "AddMedicine";
+    var medicinedata = (IEnumerable<Medicine>)TempData["medicine"];
+}
+
+<h2>AddMedicine</h2>
+@using (Html.BeginForm())
+{
+<div>
+    <div class="form-group">
+
+        <label class="control-label col-md-2">Medicine Name</label>
+        <div class="col-md-2">
+            @Html.Editor("Medicine", new { htmlAttributes = new { @class = "form-control", placeholder = "Mdeicine Name" } })
+
+        </div>
+    </div>
+    <div class="form-group">
+        
+        <label class="control-label col-md-2">User Id</label>
+        <div class="col-md-2">
+            @Html.Editor("Quantity", new { htmlAttributes = new { @class = "form-control", placeholder = "Quantity" } })
+
+        </div>
+
+    </div>
+    <div class="form-group">
+        <div class="col-md-offset-2 col-md-4">
+            <input type="submit" value="Add Medicine" class="btn btn-default" />
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-md-offset-2 col-md-5">
+            <table class="table table-condensed table-hover">
+                <thead>
+                    <tr>
+                        <th>@Html.DisplayNameFor(e => e.serialno)</th>
+                        <th>@Html.DisplayNameFor(e => e.medicinename)</th>
+                        <th>@Html.DisplayNameFor(e => e.Quantity)</th>
+
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var medicine in medicinedata)
+                    {
+                    <tr>
+                        <td>@medicine.serialno</td>
+                        <td>@medicine.medicinename</td>
+                        <td>@medicine.Quantity</td>
+                        <td>@Html.ActionLink("Delete", "Delete", new { id = medicine.serialno })</td>
+                        <td>
+                            
+                            <input type="hidden" class="form-control" name="serialno" id="serialno" value="@medicine.serialno" />
+                            <input type="submit" class="form-control" value="OK" style="width:80px" formaction="/inventory/DeleteMedicine" formmethod="post"/>
+                            
+                        </td>
+                    </tr>
+
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="col-md-offset-2 col-md-10">
+            <input type="submit" value="Submit" class="btn btn-default" />
+        </div>
+    </div>
+</div>
+}
+

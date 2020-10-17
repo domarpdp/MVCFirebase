@@ -2,6 +2,7 @@
 using MVCFirebase.Models;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
@@ -42,7 +43,9 @@ namespace MVCFirebase.Controllers
                     inventory.id = docsnapMedicines.Id;
                     
                     inventory.shortname = docsnapMedicines.GetValue<string>("shortname");
-                    inventory.quantity = docsnapMedicines.GetValue<int>("quantity");
+                    inventory.quantitypurchased = docsnapMedicines.GetValue<int>("quantitypurchased");
+                    inventory.quantitygiven = docsnapMedicines.GetValue<int>("quantitygiven");
+                    inventory.quantitybalance = docsnapMedicines.GetValue<int>("quantitybalance");
                     inventory.medicinename = docsnapMedicines.GetValue<string>("medicinename");
                     inventory.unitmrp = docsnapMedicines.GetValue<string>("unitmrp");
                     inventory.purchasedunitprice = docsnapMedicines.GetValue<string>("purchasedunitprice");
@@ -98,15 +101,16 @@ namespace MVCFirebase.Controllers
                     Dictionary<string, object> data1 = new Dictionary<string, object>
                     {
                         {"shortname" ,inventory.shortname},
-                        {"quantity" ,inventory.quantity},
+                        {"quantitypurchased" ,inventory.quantitypurchased},
                         {"medicinename" ,inventory.medicinename},
                         {"unitmrp" ,inventory.unitmrp.ToString()},
                         {"dateadded" ,DateTime.UtcNow},
                         {"expirydate" ,DateTime.SpecifyKind(Convert.ToDateTime(inventory.expirydate), DateTimeKind.Utc)},
                         {"purchasedunitprice" ,inventory.purchasedunitprice.ToString()},
                         {"vendorname",inventory.vendorname},
-                        {"vendormobilenumber" ,inventory.vendormobilenumber}
-
+                        {"vendormobilenumber" ,inventory.vendormobilenumber},
+                        {"quantitygiven" ,0},
+                        {"quantitybalance" ,inventory.quantitypurchased}
                     };
 
                     await col1.Document().SetAsync(data1);
@@ -168,6 +172,90 @@ namespace MVCFirebase.Controllers
                 return RedirectToAction("Index");
             }
             catch
+            {
+                return View();
+            }
+        }
+
+        public ActionResult AddMedicine()
+        {
+            List<Medicine> medicine = new List<Medicine>();
+
+            TempData["medicine"] = medicine;
+            TempData.Keep();
+            return View();
+
+            //DataTable dt = new DataTable();
+            //dt.Columns.AddRange(new DataColumn[3] { new DataColumn("Id"), new DataColumn("Name"), new DataColumn("Country") });
+            //dt.Rows.Add(1, "John Hammond", "United States");
+            //dt.Rows.Add(2, "Mudassar Khan", "India");
+            //dt.Rows.Add(3, "Suzanne Mathews", "France");
+            //dt.Rows.Add(4, "Robert Schidner", "Russia");
+            //TempData["abc"] = dt.AsEnumerable();
+            
+            //ViewData.Model = dt.AsEnumerable();
+            //TempData.Keep();
+            //return View();
+        }
+
+        // POST: Inventory/Delete/5
+        [HttpPost]
+        public ActionResult AddMedicine(FormCollection collection)
+        {
+            try
+            {
+                int serialnoCount = 0;
+                List<Medicine> medicine = new List<Medicine>();
+                medicine = TempData["medicine"] as List<Medicine>;
+                medicine = medicine.OrderByDescending(a => a.serialno).ToList();
+
+                if (medicine.Count > 0)
+                {
+                    serialnoCount = medicine.FirstOrDefault().serialno;
+                }
+                Medicine med = new Medicine();
+                med.serialno = serialnoCount + 1;
+                med.medicinename = collection["Medicine"];
+                med.Quantity = collection["Quantity"];
+
+                medicine.Add(med);
+
+                TempData["medicine"] = medicine;
+                //string blah = myDataSet.Tables[0].Rows[0]["Name"].ToString();
+
+                // TODO: Add delete logic here
+                TempData.Keep();
+                return View();
+            }
+            catch
+            {
+                return View();
+            }
+        }
+
+        // POST: Inventory/Delete/5
+        [HttpPost]
+        public ActionResult DeleteMedicine(FormCollection collection)
+        {
+            try
+            {
+                
+                List<Medicine> medicine = new List<Medicine>();
+                medicine = TempData["medicine"] as List<Medicine>;
+                string www = collection["serialno"].ToString().Split(',').Last();
+                int serialnoremove = Convert.ToInt32(collection["serialno"].ToString().Split(',').Last());
+
+                var itemToRemove = medicine.Single(r => r.serialno == serialnoremove);
+                medicine.Remove(itemToRemove);
+
+                TempData["medicine"] = medicine;
+                //string blah = myDataSet.Tables[0].Rows[0]["Name"].ToString();
+
+                // TODO: Add delete logic here
+                TempData.Keep();
+                return RedirectToAction("AddMedicine");
+            }
+            catch (Exception ex)
             {
                 return View();
             }

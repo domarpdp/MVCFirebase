@@ -40,6 +40,7 @@ namespace MVCFirebase.Controllers
                     {
                         ClinicSettings settings = new ClinicSettings();
                         settings.bill_sms = docsnapSettings.GetValue<bool>("bill_sms");
+                        settings.inventoryon = docsnapSettings.GetValue<bool>("inventoryon");
                         settings.reminder_sms = docsnapSettings.GetValue<bool>("reminder_sms");
                         settings.fee1 = docsnapSettings.GetValue<int>("fee1");
                         settings.fee2 = docsnapSettings.GetValue<int>("fee2");
@@ -122,7 +123,7 @@ namespace MVCFirebase.Controllers
                                 {"fee1" ,settings.fee1},
                                 {"fee2" ,settings.fee2},
                                 {"fee3" ,settings.fee3},
-
+                                {"inventoryon" ,settings.inventoryon},
                                 {"days1" ,settings.days1},
                                 {"days2" ,settings.days2},
                                 {"days3" ,settings.days3},
@@ -174,6 +175,7 @@ namespace MVCFirebase.Controllers
             ClinicSettings settings = new ClinicSettings();
             settings.bill_sms = docsnapSettings.GetValue<bool>("bill_sms");
             settings.reminder_sms = docsnapSettings.GetValue<bool>("reminder_sms");
+            settings.inventoryon = docsnapSettings.GetValue<bool>("inventoryon");
             settings.fee1 = docsnapSettings.GetValue<int>("fee1");
             settings.fee2 = docsnapSettings.GetValue<int>("fee2");
             settings.fee3 = docsnapSettings.GetValue<int>("fee3");
@@ -222,6 +224,7 @@ namespace MVCFirebase.Controllers
                                 {"fee1" ,settings.fee1},
                                 {"fee2" ,settings.fee2},
                                 {"fee3" ,settings.fee3},
+                                {"inventoryon" ,settings.inventoryon},
                                 {"days1" ,settings.days1},
                                 {"days2" ,settings.days2},
                                 {"days3" ,settings.days3},

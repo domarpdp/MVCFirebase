@@ -15,7 +15,13 @@
             @Html.DisplayNameFor(model => model.shortname)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.quantity)
+            @Html.DisplayNameFor(model => model.quantitypurchased)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.quantitygiven)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.quantitybalance)
         </th>
         <th>
             @Html.DisplayNameFor(model => model.medicinename)
@@ -42,39 +48,45 @@
     </tr>
 
 @foreach (var item in Model) {
-    <tr>
-        <td>
-            @Html.DisplayFor(modelItem => item.shortname)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.quantity)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.medicinename)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.unitmrp)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.dateadded)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.expirydate)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.purchasedunitprice)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.vendorname)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.vendormobilenumber)
-        </td>
-        <td>
-            @Html.ActionLink("Edit", "Edit", new { id=item.id }) |
-            @Html.ActionLink("Delete", "Delete", new { id=item.id })
-        </td>
-    </tr>
+<tr>
+    <td>
+        @Html.DisplayFor(modelItem => item.shortname)
+    </td>
+    <td>
+        @Html.DisplayFor(modelItem => item.quantitypurchased)
+    </td>
+    <td>
+        @Html.DisplayFor(modelItem => item.quantitygiven)
+    </td>
+    <td>
+        @Html.DisplayFor(modelItem => item.quantitybalance)
+    </td>
+    <td>
+        @Html.DisplayFor(modelItem => item.medicinename)
+    </td>
+    <td>
+        @Html.DisplayFor(modelItem => item.unitmrp)
+    </td>
+    <td>
+        @Html.DisplayFor(modelItem => item.dateadded)
+    </td>
+    <td>
+        @Html.DisplayFor(modelItem => item.expirydate)
+    </td>
+    <td>
+        @Html.DisplayFor(modelItem => item.purchasedunitprice)
+    </td>
+    <td>
+        @Html.DisplayFor(modelItem => item.vendorname)
+    </td>
+    <td>
+        @Html.DisplayFor(modelItem => item.vendormobilenumber)
+    </td>
+    <td>
+        @Html.ActionLink("Edit", "Edit", new { id = item.id }) |
+        @Html.ActionLink("Delete", "Delete", new { id = item.id })
+    </td>
+</tr>
 }
 
 </table>

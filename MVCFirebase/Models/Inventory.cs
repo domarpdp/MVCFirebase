@@ -20,7 +20,17 @@ namespace MVCFirebase.Models
         [Display(Name = "Quantity")]
         [Required(ErrorMessage = "Required.")]
         [Range(1, 999)]
-        public int quantity { get; set; }
+        public int quantitypurchased { get; set; }
+
+        [FirestoreProperty]
+        [Display(Name = "Quantity Given")]
+        [Range(1, 999)]
+        public int? quantitygiven { get; set; }
+
+        [FirestoreProperty]
+        [Display(Name = "Quantity Balance")]
+        [Range(1, 999)]
+        public int? quantitybalance { get; set; }
 
         [FirestoreProperty]
         [MaxLength(100)]
