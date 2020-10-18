@@ -17,8 +17,8 @@ namespace MVCFirebase.Controllers
         
         public async Task<ActionResult> Index()
         {
-            //string ClinicMobileNumber = GlobalSessionVariables.ClinicMobileNumber;
-            string ClinicMobileNumber = "9811035028";
+            string ClinicMobileNumber = GlobalSessionVariables.ClinicMobileNumber;
+           
             string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
             Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
             FirestoreDb db = FirestoreDb.Create("greenpaperdev");
@@ -93,19 +93,19 @@ namespace MVCFirebase.Controllers
 
 
                     //CollectionReference col1 = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("patientList").Document("test");
-                    CollectionReference col1 = db.Collection("clinics").Document("ly0N6C9cO0crz0s6LMUi").Collection("inventory");
+                    CollectionReference col1 = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("inventory");
 
 
                     Dictionary<string, object> data1 = new Dictionary<string, object>
                     {
-                        {"shortname" ,inventory.shortname},
+                        {"shortname" ,inventory.shortname.ToLower()},
                         {"quantitypurchased" ,inventory.quantitypurchased},
-                        {"medicinename" ,inventory.medicinename},
+                        {"medicinename" ,inventory.medicinename.ToLower()},
                         {"unitmrp" ,inventory.unitmrp.ToString()},
                         {"dateadded" ,DateTime.UtcNow},
                         {"expirydate" ,DateTime.SpecifyKind(Convert.ToDateTime(inventory.expirydate), DateTimeKind.Utc)},
                         {"purchasedunitprice" ,inventory.purchasedunitprice.ToString()},
-                        {"vendorname",inventory.vendorname},
+                        {"vendorname",inventory.vendorname.ToLower()},
                         {"vendormobilenumber" ,inventory.vendormobilenumber},
                         {"quantitygiven" ,0},
                         {"quantitybalance" ,inventory.quantitypurchased}
@@ -198,60 +198,113 @@ namespace MVCFirebase.Controllers
 
         // POST: Inventory/Delete/5
         [HttpPost]
-        public ActionResult AddMedicine(FormCollection collection)
+        public async Task<ActionResult> AddMedicine(FormCollection collection)
         {
             try
             {
-                int serialnoCount = 0;
-                List<Medicine> medicine = new List<Medicine>();
-                medicine = TempData["medicine"] as List<Medicine>;
-                medicine = medicine.OrderByDescending(a => a.serialno).ToList();
+                string appautoid = collection["appointmentAutoId"];
+                string patientautoid = collection["patientAutoId"];
+                string inventoryautoid = collection["hfinventoryid"].Split('-')[0];
+                string unitmrp = collection["hfinventoryid"].Split('-')[1];
+                string quantitybalance = collection["hfquantitybalance"].Split('-')[2];
+                string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
+                Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
+                FirestoreDb db = FirestoreDb.Create("greenpaperdev");
 
-                if (medicine.Count > 0)
+
+                //CollectionReference col1 = db.Collection("clinics").Document("ly0N6C9cO0crz0s6LMUi").Collection("appointments").Document(appautoid).Collection("medicines");
+                CollectionReference col1 = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("appointments").Document(appautoid).Collection("medicines");
+
+                Dictionary<string, object> data1 = new Dictionary<string, object>
+                    {
+                        {"medicinename" ,collection["Medicine"]},
+                        {"quantity" ,collection["Quantity"]},
+                        {"inventoryid" ,inventoryautoid},
+                        {"unitmrp" ,unitmrp}
+                    };
+                
+                await col1.Document().SetAsync(data1);
+
+
+                DocumentReference docRef = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("inventory").Document(inventoryautoid);
+                DocumentSnapshot docSnap = await docRef.GetSnapshotAsync();
+
+                int updatedQuantityBalance = Convert.ToInt32(quantitybalance) - Convert.ToInt32(collection["Quantity"]);
+
+                Dictionary<string, object> data2 = new Dictionary<string, object>
+                            {
+                                {"quantitybalance" ,updatedQuantityBalance}
+                            };
+
+
+                if (docSnap.Exists)
                 {
-                    serialnoCount = medicine.FirstOrDefault().serialno;
+                    await docRef.UpdateAsync(data2);
                 }
-                Medicine med = new Medicine();
-                med.serialno = serialnoCount + 1;
-                med.medicinename = collection["Medicine"];
-                med.Quantity = collection["Quantity"];
 
-                medicine.Add(med);
+                return RedirectToAction("Index","Image",new { id = appautoid , patient= patientautoid });
+                //int serialnoCount = 0;
+                //List<Medicine> medicine = new List<Medicine>();
+                //medicine = TempData["medicine"] as List<Medicine>;
+                //medicine = medicine.OrderByDescending(a => a.serialno).ToList();
 
-                TempData["medicine"] = medicine;
-                //string blah = myDataSet.Tables[0].Rows[0]["Name"].ToString();
+                //if (medicine.Count > 0)
+                //{
+                //    serialnoCount = medicine.FirstOrDefault().serialno;
+                //}
+                //Medicine med = new Medicine();
+                //med.serialno = serialnoCount + 1;
+                //med.medicinename = collection["Medicine"];
+                //med.Quantity = collection["Quantity"];
 
-                // TODO: Add delete logic here
-                TempData.Keep();
-                return View();
+                //medicine.Add(med);
+
+                //TempData["medicine"] = medicine;
+                ////string blah = myDataSet.Tables[0].Rows[0]["Name"].ToString();
+
+                //// TODO: Add delete logic here
+                //TempData.Keep();
+                //return RedirectToAction("/Image/Index");
             }
             catch
             {
-                return View();
+                return RedirectToAction("Index", "Image");
             }
         }
 
         // POST: Inventory/Delete/5
         [HttpPost]
-        public ActionResult DeleteMedicine(FormCollection collection)
+        public async Task<ActionResult> DeleteMedicine(FormCollection collection)
         {
             try
             {
-                
-                List<Medicine> medicine = new List<Medicine>();
-                medicine = TempData["medicine"] as List<Medicine>;
-                string www = collection["serialno"].ToString().Split(',').Last();
-                int serialnoremove = Convert.ToInt32(collection["serialno"].ToString().Split(',').Last());
+                string appautoid = collection["appointmentAutoId"];
+                string patientautoid = collection["patientAutoId"];
+                string serialnoremove = collection["serialno"].ToString().Split(',').Last();
+                string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
+                Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
+                FirestoreDb db = FirestoreDb.Create("greenpaperdev");
 
-                var itemToRemove = medicine.Single(r => r.serialno == serialnoremove);
-                medicine.Remove(itemToRemove);
+                //CollectionReference col1 = db.Collection("clinics").Document("ly0N6C9cO0crz0s6LMUi").Collection("appointments").Document(appautoid).Collection("medicines");
+                DocumentReference docRef = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("appointments").Document(appautoid).Collection("medicines").Document(serialnoremove);
+                await docRef.DeleteAsync();
 
-                TempData["medicine"] = medicine;
-                //string blah = myDataSet.Tables[0].Rows[0]["Name"].ToString();
+                return RedirectToAction("Index", "Image", new { id = appautoid, patient = patientautoid });
 
-                // TODO: Add delete logic here
-                TempData.Keep();
-                return RedirectToAction("AddMedicine");
+                //List<Medicine> medicine = new List<Medicine>();
+                //medicine = TempData["medicine"] as List<Medicine>;
+                //string www = collection["serialno"].ToString().Split(',').Last();
+                //int serialnoremove = Convert.ToInt32(collection["serialno"].ToString().Split(',').Last());
+
+                //var itemToRemove = medicine.Single(r => r.serialno == serialnoremove);
+                //medicine.Remove(itemToRemove);
+
+                //TempData["medicine"] = medicine;
+                ////string blah = myDataSet.Tables[0].Rows[0]["Name"].ToString();
+
+                //// TODO: Add delete logic here
+                //TempData.Keep();
+                //return RedirectToAction("AddMedicine");
             }
             catch (Exception ex)
             {

@@ -6,99 +6,169 @@
     var medicinedata = (IEnumerable<Medicine>)TempData["medicine"];
 }
 
-<h2>Index</h2>
-
 <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-ajax-unobtrusive/3.2.6/jquery.unobtrusive-ajax.min.js"></script>
+<script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.10.0.min.js" type="text/javascript"></script>
+<script src="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/jquery-ui.min.js" type="text/javascript"></script>
+<link href="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/themes/blitzer/jquery-ui.css"
+      rel="Stylesheet" type="text/css" />
+<script type="text/javascript">
+    $(function () {
+        $("#Medicine").autocomplete({
+            source: function (request, response) {
+                $.ajax({
+                    url: '/Image/AutoComplete/',
+                    data: "{ 'prefix': '" + request.term + "'}",
+                    dataType: "json",
+                    type: "POST",
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+                        response($.map(data, function (item) {
+
+                            return {
+                                label: item.label,
+                                value: item.val
+                            };
+                            //return item;
+                        }))
+                    },
+                    error: function (response) {
+                        alert(response.responseText);
+                    },
+                    failure: function (response) {
+                        alert(response.responseText);
+                    }
+                });
+            },
+            change: function (e, i) {
+                //If the No match found" u.item will return null, clear the TextBox.
+                if (i.item == null) {
+                    //Clear the AutoComplete TextBox.
+                    $(this).val("");
+                    return false;
+                }
+            },
+            select: function (e, i) {
+                e.preventDefault();
+                alert('you have selected ' + i.item.label + ' ID: ' + i.item.value);
+                $("#hfinventoryid").val(i.item.value);
+                $("#hfquantitybalance").val(i.item.label);
+                $(this).val(i.item.label);
+                
+            },
+            minLength: 1
+        });
+    });
+</script>
+
+<h2>Index</h2>
+
+
 <div>
     @Html.ActionLink("Back to List", "Waiting", "Appointment")
 </div>
 <br>
-@using (Html.BeginForm())
-{
-    <div>
-        <div class="form-group">
-
-            <label class="control-label col-md-2">Medicine Name</label>
-            <div class="col-md-2">
-                @Html.Editor("Medicine", new { htmlAttributes = new { @class = "form-control", placeholder = "Mdeicine Name" } })
-
-            </div>
-        </div>
-        <div class="form-group">
-
-            <label class="control-label col-md-2">User Id</label>
-            <div class="col-md-2">
-                @Html.Editor("Quantity", new { htmlAttributes = new { @class = "form-control", placeholder = "Quantity" } })
-
-            </div>
-
-        </div>
-        <div class="form-group">
-            <div class="col-md-offset-2 col-md-4">
-                <input type="submit" value="Add Medicine" class="btn btn-default" />
-            </div>
-        </div>
-     </div>
- }
-
-        <div class="form-group">
-            <div class="col-md-offset-2 col-md-5">
-                <table class="table table-condensed table-hover">
-                    <thead>
-                        <tr>
-                            <th>Auto Id</th>
-                            <th>Medicine Name</th>
-                            <th>Quantity</th>
-
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var medicine in medicinedata)
-                        {
-                            <tr>
-                                <td>@medicine.id</td>
-                                <td>@medicine.medicinename</td>
-                                <td>@medicine.Quantity</td>
-                                <td>@Html.ActionLink("Delete", "Delete", new { id = medicine.id })</td>
-                            </tr>
-
-                        }
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <fieldset>
-            <div id="dvCategoryResults">
-                @{
-                    Html.RenderPartial("_PartialImage", Model);
-                }
-            </div>
-        </fieldset>
-
-        <fieldset>
-            @using (Ajax.BeginForm("GetNextOrPrevImage", "Image", new { SelectedId = Model.SelectedImage },
-                new AjaxOptions
+<table width="100%" border="0">
+    <tr>
+        @if (@TempData["inventoryon"].ToString() == "true")
+        {
+            <td width="60%" valign="top">
+                @using (Html.BeginForm("AddMedicine", "Inventory", FormMethod.Post))
                 {
-                    HttpMethod = "Post",
-                    UpdateTargetId = "dvCategoryResults"
-                }))
-            {
-                <br />
-                <input type="submit" value="<" id="btnPrev" name="ButtonType" />
-                <input type="submit" value=">" id="btnNext" name="ButtonType" />
-            }
-        </fieldset>
-        @*@using (Html.BeginForm("submit", "Image", "Post"))
-            {
-                @Html.AntiForgeryToken()
-                <div class="form-group">
-                    <div class="col-md-offset-2 col-md-10">
-                        <input type="submit" value="Submit" class="btn btn-default" />
-                    </div>
+                    <table>
+                        <tr>
+                            <td>
+                                <table>
+                                    <tr>
+                                        <td><label>&nbsp;Medicine&nbsp;</label></td>
+                                        <td>
+                                            <div>
+                                                @Html.Editor("Medicine", new { htmlAttributes = new { @class = "form-control", placeholder = "Mdeicine Name" } })
+                                                <input type="hidden" id="hfinventoryid" name="hfinventoryid" />
+                                                <input type="hidden" id="hfquantitybalance" name="hfquantitybalance" />
+                                            </div>
+                                        </td>
+                                        <td><label>&nbsp;&nbsp;Quantity&nbsp;&nbsp;</label></td>
+                                        <td>
+                                            <div>
+                                                @Html.Editor("Quantity", new { htmlAttributes = new { @class = "form-control", placeholder = "Quantity" } })
+
+                                            </div>
+                                        </td>
+                                        <td>&nbsp;&nbsp;</td>
+                                        <td>
+                                            <div>
+                                                <input type="hidden" value="@TempData["appointmentAutoId"]" id="appointmentAutoId" name="appointmentAutoId" class="btn btn-default" />
+                                                <input type="hidden" value="@TempData["patientAutoId"]" id="patientAutoId" name="patientAutoId" class="btn btn-default" />
+                                                <input type="submit" value="Add Medicine" class="btn btn-default" />
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <table class="table table-condensed table-hover">
+                                    <thead>
+                                        <tr>
+
+                                            <th>Medicine Name</th>
+                                            <th>Quantity</th>
+                                            <th>Price</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var medicine in medicinedata)
+                                        {
+                                        <tr>
+                                            <td>@medicine.medicinename</td>
+                                            <td>@medicine.quantity</td>
+                                            <td>@medicine.Price</td>
+
+                                            <td><input type="submit" class="form-control" value="Del" style="width:80px" formaction="/inventory/DeleteMedicine" formmethod="post" /></td>
+                                        </tr>
+
+                                        }
+                                        <tr>
+                                            <td colspan="3" align="right">Total Price = @TempData["TotalPrice"]</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+                }
+            </td>
+        }
+
+        <td>
+            <fieldset>
+                <div id="dvCategoryResults">
+                    @{
+                        Html.RenderPartial("_PartialImage", Model);
+                    }
                 </div>
-            }*@
+            </fieldset>
+
+            <fieldset>
+                @using (Ajax.BeginForm("GetNextOrPrevImage", "Image", new { SelectedId = Model.SelectedImage },
+                    new AjaxOptions
+                    {
+                        HttpMethod = "Post",
+                        UpdateTargetId = "dvCategoryResults"
+                    }))
+                {
+                    <br />
+                    <input type="submit" value="<" id="btnPrev" name="ButtonType" />
+                    <input type="submit" value=">" id="btnNext" name="ButtonType" />
+                }
+            </fieldset>
+        </td>
+    </tr>
+</table>
+
+
 
 
 

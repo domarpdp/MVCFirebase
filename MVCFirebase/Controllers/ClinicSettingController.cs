@@ -40,7 +40,14 @@ namespace MVCFirebase.Controllers
                     {
                         ClinicSettings settings = new ClinicSettings();
                         settings.bill_sms = docsnapSettings.GetValue<bool>("bill_sms");
-                        settings.inventoryon = docsnapSettings.GetValue<bool>("inventoryon");
+                        try 
+                        { 
+                            settings.inventoryon = docsnapSettings.GetValue<bool>("inventoryon"); 
+                        }
+                        catch 
+                        {
+                            settings.inventoryon = false;
+                        }
                         settings.reminder_sms = docsnapSettings.GetValue<bool>("reminder_sms");
                         settings.fee1 = docsnapSettings.GetValue<int>("fee1");
                         settings.fee2 = docsnapSettings.GetValue<int>("fee2");
@@ -175,7 +182,15 @@ namespace MVCFirebase.Controllers
             ClinicSettings settings = new ClinicSettings();
             settings.bill_sms = docsnapSettings.GetValue<bool>("bill_sms");
             settings.reminder_sms = docsnapSettings.GetValue<bool>("reminder_sms");
-            settings.inventoryon = docsnapSettings.GetValue<bool>("inventoryon");
+            try
+            {
+                settings.inventoryon = docsnapSettings.GetValue<bool>("inventoryon");
+            }
+            catch
+            {
+                settings.inventoryon = false;
+            }
+            
             settings.fee1 = docsnapSettings.GetValue<int>("fee1");
             settings.fee2 = docsnapSettings.GetValue<int>("fee2");
             settings.fee3 = docsnapSettings.GetValue<int>("fee3");

@@ -21,14 +21,18 @@ namespace MVCFirebase.Controllers
             TempData["patientAutoId"] = patient;
 
             List<ImageViewModel> ImageList = new List<ImageViewModel>();
-            string ClinicMobileNumber = GlobalSessionVariables.ClinicMobileNumber;
+            //string ClinicMobileNumber = GlobalSessionVariables.ClinicMobileNumber;
+            //string ClinicMobileNumber = "9811035028";
+            
             string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
             Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
             FirestoreDb db = FirestoreDb.Create("greenpaperdev");
             int i = 1;
-            
+
 
             Query QrefPrescriptions = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("patientList").Document(patient).Collection("prescriptions").OrderByDescending("timeStamp");
+            
+
             QuerySnapshot snapPres = await QrefPrescriptions.GetSnapshotAsync();
             if(snapPres.Count > 0)
             {
@@ -51,10 +55,12 @@ namespace MVCFirebase.Controllers
             //_objuserloginmodel.SelectedImage = _objuserloginmodel.GetList()[0];
             TempData["CurrentSelectedId"] = snapPres.Count;
             TempData["TotalPrescriptions"] = snapPres.Count;
+            decimal totalprice = 0;
 
             List<Medicine> medicineList = new List<Medicine>();
             Query QrefMedicines = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("appointments").Document(id).Collection("medicines");
             QuerySnapshot snapMedicines = await QrefMedicines.GetSnapshotAsync();
+
             if (snapMedicines.Count > 0)
             {
                 foreach (DocumentSnapshot docsnapMedicines in snapMedicines)
@@ -62,15 +68,58 @@ namespace MVCFirebase.Controllers
 
                     if (docsnapMedicines.Exists)
                     {
-                        Medicine med = docsnapMedicines.ConvertTo<Medicine>();
+                        Medicine med = new Medicine();
                         med.id = docsnapMedicines.Id;
+                        med.medicinename = docsnapMedicines.GetValue<string>("medicinename");
+                        med.quantity = docsnapMedicines.GetValue<string>("quantity");
+                        med.Price = (Convert.ToDecimal(docsnapMedicines.GetValue<string>("quantity")) * Convert.ToDecimal(docsnapMedicines.GetValue<string>("unitmrp"))).ToString();
                         medicineList.Add(med);
+                        totalprice = totalprice + Convert.ToDecimal(docsnapMedicines.GetValue<string>("quantity")) * Convert.ToDecimal(docsnapMedicines.GetValue<string>("unitmrp"));
                     }
                 }
             }
 
 
             TempData["medicine"] = medicineList;
+            if(totalprice == 0)
+            {
+                TempData["TotalPrice"] = 0;
+            }
+            else
+            {
+                TempData["TotalPrice"] = totalprice;
+            }
+            
+            QuerySnapshot snapSettings = await db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("settings").Limit(1).GetSnapshotAsync();
+            if (snapSettings.Count > 0)
+            {
+                DocumentSnapshot docSnapSettings = snapSettings.Documents[0];
+
+                if (docSnapSettings.Exists)
+                {
+                    try {
+                        if (docSnapSettings.GetValue<Boolean>("inventoryon"))
+                        {
+                            TempData["inventoryon"] = "true";
+                        }
+                        else
+                        {
+                            TempData["inventoryon"] = "false";
+                        }
+                    }
+                    catch 
+                    {
+                        TempData["inventoryon"] = "false";
+                    }
+                    
+                    
+                }
+                else
+                {
+                    TempData["inventoryon"] = "false";
+                }
+            }
+            
             TempData.Keep();
 
 
@@ -127,7 +176,7 @@ namespace MVCFirebase.Controllers
             TempData["CurrentSelectedId"] = snapPres.Count - id;
             TempData["patientAutoId"] = patientAutoId;
             TempData["TotalPrescriptions"] = snapPres.Count;
-             
+            
  
 
             return PartialView("_PartialImage", _objuserloginmodel);
@@ -170,6 +219,89 @@ namespace MVCFirebase.Controllers
             }
         }
 
-        
+        public async Task<ActionResult> MedicineDetail(string query)
+        {
+            string ClinicMobileNumber = GlobalSessionVariables.ClinicMobileNumber;
+            string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
+            Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
+            FirestoreDb db = FirestoreDb.Create("greenpaperdev");
+            List<Inventory> medicineList = new List<Inventory>();
+
+
+            Query Qref = db.Collection("clinics").WhereEqualTo("clinicmobilenumber", ClinicMobileNumber);
+            QuerySnapshot snapClinics = await Qref.GetSnapshotAsync();
+
+            foreach (DocumentSnapshot docsnapClinics in snapClinics)
+            {
+                Clinic clinic = docsnapClinics.ConvertTo<Clinic>();
+                QuerySnapshot snapMedicines = await docsnapClinics.Reference.Collection("inventory").WhereEqualTo("medicinename",query).GetSnapshotAsync();
+                if(snapMedicines.Count > 0)
+                {
+                    foreach (DocumentSnapshot docsnapMedicines in snapMedicines)
+                    {
+                        Inventory inventory = new Inventory();
+                        inventory.id = docsnapMedicines.Id;
+                        inventory.medicinename = docsnapMedicines.GetValue<string>("medicinename");
+                        inventory.shortname = docsnapMedicines.GetValue<string>("shortname");
+                        inventory.quantitybalance = docsnapMedicines.GetValue<int>("quantitybalance");
+                        inventory.expirydate = docsnapMedicines.GetValue<string>("expirydate");
+                        medicineList.Add(inventory);
+                    }
+                }
+            }
+            return View(medicineList);
+        }
+
+
+        [HttpPost]
+        public async Task<JsonResult> AutoComplete(string prefix)//I think that the id that you are passing here needs to be the search term. You may not have to change anything here, but you do in the $.ajax() call
+        {
+            List<autocomplete> autocompleteList = new List<autocomplete>();
+            try
+            {//prefix = Request.QueryString["term"];
+
+                string ClinicMobileNumber = GlobalSessionVariables.ClinicMobileNumber;
+                string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
+                Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
+                FirestoreDb db = FirestoreDb.Create("greenpaperdev");
+                
+
+                string searchInputToLower = prefix.ToLower();
+
+                Query Qref = db.Collection("clinics").WhereEqualTo("clinicmobilenumber", ClinicMobileNumber);
+                QuerySnapshot snapClinics = await Qref.GetSnapshotAsync();
+
+                foreach (DocumentSnapshot docsnapClinics in snapClinics)
+                {
+                    Clinic clinic = docsnapClinics.ConvertTo<Clinic>();
+                    QuerySnapshot snapMedicines = await docsnapClinics.Reference.Collection("inventory").OrderBy("medicinename").StartAt(searchInputToLower).EndAt(searchInputToLower + "\uf8ff").GetSnapshotAsync();
+                    if (snapMedicines.Count > 0)
+                    {
+                        foreach (DocumentSnapshot docsnapMedicines in snapMedicines)
+                        {
+                            if(Convert.ToInt32(docsnapMedicines.GetValue<int>("quantitybalance")) > 0)
+                            { 
+                            autocomplete inventory = new autocomplete();
+                            inventory.val = docsnapMedicines.Id + "-" + docsnapMedicines.GetValue<string>("unitmrp");
+                            inventory.label = docsnapMedicines.GetValue<string>("shortname") + "-"+ docsnapMedicines.GetValue<Timestamp>("expirydate").ToDateTime().ToString("MM/dd/yyyy") + "-" + docsnapMedicines.GetValue<int>("quantitybalance");
+                            //inventory.shortname = docsnapMedicines.GetValue<string>("shortname");
+                            //inventory.quantitybalance = docsnapMedicines.GetValue<int>("quantitybalance");
+                            //inventory.expirydate = docsnapMedicines.GetValue<Timestamp>("expirydate").ToDateTime().ToString("MM/dd/yyyy");
+                            autocompleteList.Add(inventory);
+                                }
+                        }
+                    }
+                }
+
+                return Json(autocompleteList);
+            
+                
+            }
+            catch (Exception ex)
+            {
+                return Json(autocompleteList);
+            }
+            
+        }
     }
 }

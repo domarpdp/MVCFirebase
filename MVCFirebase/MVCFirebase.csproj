@@ -223,6 +223,7 @@
     </Compile>
     <Compile Include="Models\AccessDeniedAuthorizeAttribute.cs" />
     <Compile Include="Models\Appointment.cs" />
+    <Compile Include="Models\autocomplete.cs" />
     <Compile Include="Models\CheckSessionTimeOutAttribute.cs" />
     <Compile Include="Models\Clinic.cs" />
     <Compile Include="Models\ClinicSettings.cs" />
@@ -308,7 +309,6 @@
     <Content Include="Views\Home\Privacy.cshtml" />
     <Content Include="Views\Inventory\Index.cshtml" />
     <Content Include="Views\Inventory\Create.cshtml" />
-    <Content Include="Views\Inventory\AddMedicine.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
