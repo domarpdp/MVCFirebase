@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Security;
+using System.IO;
+using Newtonsoft.Json;
 
 namespace MVCFirebase.Controllers
 {
@@ -430,51 +432,51 @@ namespace MVCFirebase.Controllers
                     };
                     ViewBag.DISEASES = diseases;
 
-                    List<SelectListItem> cities = new List<SelectListItem>() {
-                        new SelectListItem {
-                            Text = "Faridabad", Value = "Faridabad"
-                        },
-                        new SelectListItem {
-                            Text = "Ghaziabad", Value = "Ghaziabad"
-                        },
-                        new SelectListItem {
-                            Text = "New Delhi", Value = "New Delhi"
-                        },
-                        new SelectListItem {
-                            Text = "Bahadurgarh", Value = "Bahadurgarh"
-                        },
-                        new SelectListItem {
-                            Text = "Mathura", Value = "Mathura"
-                        },
-                        new SelectListItem {
-                            Text = "Agra", Value = "Agra"
-                        },
-                        new SelectListItem {
-                            Text = "Ballabgarh", Value = "Ballabgarh"
-                        },
-                        new SelectListItem {
-                            Text = "Gurdaspur", Value = "Gurdaspur"
-                        },
-                        new SelectListItem {
-                            Text = "Amritsar", Value = "Amritsar"
-                        },
-                        new SelectListItem {
-                            Text = "Batala", Value = "Batala"
-                        },
-                        new SelectListItem {
-                            Text = "Jallandhar", Value = "Jallandhar"
-                        },
-                        new SelectListItem {
-                            Text = "Pathankot", Value = "Pathankot"
-                        },
-                        new SelectListItem {
-                            Text = "Bathinda", Value = "Bathinda"
-                        },
-                        new SelectListItem {
-                            Text = "Ambala", Value = "Ambala"
-                        },
-                    };
-                    ViewBag.CITIES = cities;
+                    //List<SelectListItem> cities = new List<SelectListItem>() {
+                    //    new SelectListItem {
+                    //        Text = "Faridabad", Value = "Faridabad"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Ghaziabad", Value = "Ghaziabad"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "New Delhi", Value = "New Delhi"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Bahadurgarh", Value = "Bahadurgarh"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Mathura", Value = "Mathura"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Agra", Value = "Agra"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Ballabgarh", Value = "Ballabgarh"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Gurdaspur", Value = "Gurdaspur"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Amritsar", Value = "Amritsar"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Batala", Value = "Batala"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Jallandhar", Value = "Jallandhar"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Pathankot", Value = "Pathankot"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Bathinda", Value = "Bathinda"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Ambala", Value = "Ambala"
+                    //    },
+                    //};
+                    //ViewBag.CITIES = cities;
 
                     List<SelectListItem> gender = new List<SelectListItem>() {
                 new SelectListItem {
@@ -507,6 +509,9 @@ namespace MVCFirebase.Controllers
                     
             List<SelectListItem> referby = new List<SelectListItem>() {
                 new SelectListItem {
+                    Text = "PATIENT", Value = "PATIENT"
+                },
+                new SelectListItem {
                     Text = "TV ADV", Value = "TV ADV"
                 },
                 new SelectListItem {
@@ -517,9 +522,6 @@ namespace MVCFirebase.Controllers
                 },
                 new SelectListItem {
                     Text = "POSTERS", Value = "POSTERS"
-                },
-                new SelectListItem {
-                    Text = "PATIENT", Value = "PATIENT"
                 },
                 new SelectListItem {
                     Text = "INTERNET SEARCH", Value = "INTERNET SEARCH"
@@ -609,51 +611,51 @@ namespace MVCFirebase.Controllers
                     };
                     ViewBag.DISEASES = diseases;
 
-                    List<SelectListItem> cities = new List<SelectListItem>() {
-                        new SelectListItem {
-                            Text = "Faridabad", Value = "Faridabad"
-                        },
-                        new SelectListItem {
-                            Text = "Ghaziabad", Value = "Ghaziabad"
-                        },
-                        new SelectListItem {
-                            Text = "New Delhi", Value = "New Delhi"
-                        },
-                        new SelectListItem {
-                            Text = "Bahadurgarh", Value = "Bahadurgarh"
-                        },
-                        new SelectListItem {
-                            Text = "Mathura", Value = "Mathura"
-                        },
-                        new SelectListItem {
-                            Text = "Agra", Value = "Agra"
-                        },
-                        new SelectListItem {
-                            Text = "Ballabgarh", Value = "Ballabgarh"
-                        },
-                        new SelectListItem {
-                            Text = "Gurdaspur", Value = "Gurdaspur"
-                        },
-                        new SelectListItem {
-                            Text = "Amritsar", Value = "Amritsar"
-                        },
-                        new SelectListItem {
-                            Text = "Batala", Value = "Batala"
-                        },
-                        new SelectListItem {
-                            Text = "Jallandhar", Value = "Jallandhar"
-                        },
-                        new SelectListItem {
-                            Text = "Pathankot", Value = "Pathankot"
-                        },
-                        new SelectListItem {
-                            Text = "Bathinda", Value = "Bathinda"
-                        },
-                        new SelectListItem {
-                            Text = "Ambala", Value = "Ambala"
-                        },
-                    };
-                    ViewBag.CITIES = cities;
+                    //List<SelectListItem> cities = new List<SelectListItem>() {
+                    //    new SelectListItem {
+                    //        Text = "Faridabad", Value = "Faridabad"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Ghaziabad", Value = "Ghaziabad"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "New Delhi", Value = "New Delhi"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Bahadurgarh", Value = "Bahadurgarh"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Mathura", Value = "Mathura"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Agra", Value = "Agra"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Ballabgarh", Value = "Ballabgarh"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Gurdaspur", Value = "Gurdaspur"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Amritsar", Value = "Amritsar"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Batala", Value = "Batala"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Jallandhar", Value = "Jallandhar"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Pathankot", Value = "Pathankot"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Bathinda", Value = "Bathinda"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Ambala", Value = "Ambala"
+                    //    },
+                    //};
+                    //ViewBag.CITIES = cities;
 
                     List<SelectListItem> gender = new List<SelectListItem>() {
                 new SelectListItem {
@@ -685,6 +687,9 @@ namespace MVCFirebase.Controllers
 
                     List<SelectListItem> referby = new List<SelectListItem>() {
                 new SelectListItem {
+                    Text = "PATIENT", Value = "PATIENT"
+                },
+                new SelectListItem {
                     Text = "TV ADV", Value = "TV ADV"
                 },
                 new SelectListItem {
@@ -695,9 +700,6 @@ namespace MVCFirebase.Controllers
                 },
                 new SelectListItem {
                     Text = "POSTERS", Value = "POSTERS"
-                },
-                new SelectListItem {
-                    Text = "PATIENT", Value = "PATIENT"
                 },
                 new SelectListItem {
                     Text = "INTERNET SEARCH", Value = "INTERNET SEARCH"
@@ -810,51 +812,51 @@ namespace MVCFirebase.Controllers
                     };
                         ViewBag.DISEASES = diseases;
 
-                        List<SelectListItem> cities = new List<SelectListItem>() {
-                        new SelectListItem {
-                            Text = "Faridabad", Value = "Faridabad"
-                        },
-                        new SelectListItem {
-                            Text = "Ghaziabad", Value = "Ghaziabad"
-                        },
-                        new SelectListItem {
-                            Text = "New Delhi", Value = "New Delhi"
-                        },
-                        new SelectListItem {
-                            Text = "Bahadurgarh", Value = "Bahadurgarh"
-                        },
-                        new SelectListItem {
-                            Text = "Mathura", Value = "Mathura"
-                        },
-                        new SelectListItem {
-                            Text = "Agra", Value = "Agra"
-                        },
-                        new SelectListItem {
-                            Text = "Ballabgarh", Value = "Ballabgarh"
-                        },
-                        new SelectListItem {
-                            Text = "Gurdaspur", Value = "Gurdaspur"
-                        },
-                        new SelectListItem {
-                            Text = "Amritsar", Value = "Amritsar"
-                        },
-                        new SelectListItem {
-                            Text = "Batala", Value = "Batala"
-                        },
-                        new SelectListItem {
-                            Text = "Jallandhar", Value = "Jallandhar"
-                        },
-                        new SelectListItem {
-                            Text = "Pathankot", Value = "Pathankot"
-                        },
-                        new SelectListItem {
-                            Text = "Bathinda", Value = "Bathinda"
-                        },
-                        new SelectListItem {
-                            Text = "Ambala", Value = "Ambala"
-                        },
-                    };
-                        ViewBag.CITIES = cities;
+                    //    List<SelectListItem> cities = new List<SelectListItem>() {
+                    //    new SelectListItem {
+                    //        Text = "Faridabad", Value = "Faridabad"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Ghaziabad", Value = "Ghaziabad"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "New Delhi", Value = "New Delhi"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Bahadurgarh", Value = "Bahadurgarh"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Mathura", Value = "Mathura"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Agra", Value = "Agra"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Ballabgarh", Value = "Ballabgarh"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Gurdaspur", Value = "Gurdaspur"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Amritsar", Value = "Amritsar"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Batala", Value = "Batala"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Jallandhar", Value = "Jallandhar"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Pathankot", Value = "Pathankot"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Bathinda", Value = "Bathinda"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Ambala", Value = "Ambala"
+                    //    },
+                    //};
+                    //    ViewBag.CITIES = cities;
 
                         List<SelectListItem> genders = new List<SelectListItem>() {
                         new SelectListItem {
@@ -885,6 +887,9 @@ namespace MVCFirebase.Controllers
 
                         List<SelectListItem> referby = new List<SelectListItem>() {
                 new SelectListItem {
+                    Text = "PATIENT", Value = "PATIENT"
+                },
+                new SelectListItem {
                     Text = "TV ADV", Value = "TV ADV"
                 },
                 new SelectListItem {
@@ -895,9 +900,6 @@ namespace MVCFirebase.Controllers
                 },
                 new SelectListItem {
                     Text = "POSTERS", Value = "POSTERS"
-                },
-                new SelectListItem {
-                    Text = "PATIENT", Value = "PATIENT"
                 },
                 new SelectListItem {
                     Text = "INTERNET SEARCH", Value = "INTERNET SEARCH"
@@ -1171,51 +1173,51 @@ namespace MVCFirebase.Controllers
                     };
                         ViewBag.DISEASES = diseases;
 
-                        List<SelectListItem> cities = new List<SelectListItem>() {
-                        new SelectListItem {
-                            Text = "Faridabad", Value = "Faridabad"
-                        },
-                        new SelectListItem {
-                            Text = "Ghaziabad", Value = "Ghaziabad"
-                        },
-                        new SelectListItem {
-                            Text = "New Delhi", Value = "New Delhi"
-                        },
-                        new SelectListItem {
-                            Text = "Bahadurgarh", Value = "Bahadurgarh"
-                        },
-                        new SelectListItem {
-                            Text = "Mathura", Value = "Mathura"
-                        },
-                        new SelectListItem {
-                            Text = "Agra", Value = "Agra"
-                        },
-                        new SelectListItem {
-                            Text = "Ballabgarh", Value = "Ballabgarh"
-                        },
-                        new SelectListItem {
-                            Text = "Gurdaspur", Value = "Gurdaspur"
-                        },
-                        new SelectListItem {
-                            Text = "Amritsar", Value = "Amritsar"
-                        },
-                        new SelectListItem {
-                            Text = "Batala", Value = "Batala"
-                        },
-                        new SelectListItem {
-                            Text = "Jallandhar", Value = "Jallandhar"
-                        },
-                        new SelectListItem {
-                            Text = "Pathankot", Value = "Pathankot"
-                        },
-                        new SelectListItem {
-                            Text = "Bathinda", Value = "Bathinda"
-                        },
-                        new SelectListItem {
-                            Text = "Ambala", Value = "Ambala"
-                        },
-                    };
-                        ViewBag.CITIES = cities;
+                    //    List<SelectListItem> cities = new List<SelectListItem>() {
+                    //    new SelectListItem {
+                    //        Text = "Faridabad", Value = "Faridabad"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Ghaziabad", Value = "Ghaziabad"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "New Delhi", Value = "New Delhi"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Bahadurgarh", Value = "Bahadurgarh"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Mathura", Value = "Mathura"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Agra", Value = "Agra"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Ballabgarh", Value = "Ballabgarh"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Gurdaspur", Value = "Gurdaspur"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Amritsar", Value = "Amritsar"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Batala", Value = "Batala"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Jallandhar", Value = "Jallandhar"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Pathankot", Value = "Pathankot"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Bathinda", Value = "Bathinda"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Ambala", Value = "Ambala"
+                    //    },
+                    //};
+                    //    ViewBag.CITIES = cities;
 
                         List<SelectListItem> genders = new List<SelectListItem>() {
                         new SelectListItem {
@@ -1246,6 +1248,9 @@ namespace MVCFirebase.Controllers
 
                         List<SelectListItem> referby = new List<SelectListItem>() {
                 new SelectListItem {
+                    Text = "PATIENT", Value = "PATIENT"
+                },
+                new SelectListItem {
                     Text = "TV ADV", Value = "TV ADV"
                 },
                 new SelectListItem {
@@ -1257,9 +1262,7 @@ namespace MVCFirebase.Controllers
                 new SelectListItem {
                     Text = "POSTERS", Value = "POSTERS"
                 },
-                new SelectListItem {
-                    Text = "PATIENT", Value = "PATIENT"
-                },
+                
                 new SelectListItem {
                     Text = "INTERNET SEARCH", Value = "INTERNET SEARCH"
                 },
@@ -1544,51 +1547,51 @@ namespace MVCFirebase.Controllers
                         },
                     };
                     ViewBag.DISEASES = diseases;
-                    List<SelectListItem> cities = new List<SelectListItem>() {
-                        new SelectListItem {
-                            Text = "Faridabad", Value = "Faridabad"
-                        },
-                        new SelectListItem {
-                            Text = "Ghaziabad", Value = "Ghaziabad"
-                        },
-                        new SelectListItem {
-                            Text = "New Delhi", Value = "New Delhi"
-                        },
-                        new SelectListItem {
-                            Text = "Bahadurgarh", Value = "Bahadurgarh"
-                        },
-                        new SelectListItem {
-                            Text = "Mathura", Value = "Mathura"
-                        },
-                        new SelectListItem {
-                            Text = "Agra", Value = "Agra"
-                        },
-                        new SelectListItem {
-                            Text = "Ballabgarh", Value = "Ballabgarh"
-                        },
-                        new SelectListItem {
-                            Text = "Gurdaspur", Value = "Gurdaspur"
-                        },
-                        new SelectListItem {
-                            Text = "Amritsar", Value = "Amritsar"
-                        },
-                        new SelectListItem {
-                            Text = "Batala", Value = "Batala"
-                        },
-                        new SelectListItem {
-                            Text = "Jallandhar", Value = "Jallandhar"
-                        },
-                        new SelectListItem {
-                            Text = "Pathankot", Value = "Pathankot"
-                        },
-                        new SelectListItem {
-                            Text = "Bathinda", Value = "Bathinda"
-                        },
-                        new SelectListItem {
-                            Text = "Ambala", Value = "Ambala"
-                        },
-                    };
-                    ViewBag.CITIES = cities;
+                    //List<SelectListItem> cities = new List<SelectListItem>() {
+                    //    new SelectListItem {
+                    //        Text = "Faridabad", Value = "Faridabad"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Ghaziabad", Value = "Ghaziabad"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "New Delhi", Value = "New Delhi"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Bahadurgarh", Value = "Bahadurgarh"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Mathura", Value = "Mathura"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Agra", Value = "Agra"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Ballabgarh", Value = "Ballabgarh"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Gurdaspur", Value = "Gurdaspur"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Amritsar", Value = "Amritsar"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Batala", Value = "Batala"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Jallandhar", Value = "Jallandhar"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Pathankot", Value = "Pathankot"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Bathinda", Value = "Bathinda"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Ambala", Value = "Ambala"
+                    //    },
+                    //};
+                    //ViewBag.CITIES = cities;
                     List<SelectListItem> genders = new List<SelectListItem>() {
                         new SelectListItem {
                             Text = "Male", Value = "Male"
@@ -1619,6 +1622,9 @@ namespace MVCFirebase.Controllers
 
                     List<SelectListItem> referby = new List<SelectListItem>() {
                 new SelectListItem {
+                    Text = "PATIENT", Value = "PATIENT"
+                },
+                new SelectListItem {
                     Text = "TV ADV", Value = "TV ADV"
                 },
                 new SelectListItem {
@@ -1629,9 +1635,6 @@ namespace MVCFirebase.Controllers
                 },
                 new SelectListItem {
                     Text = "POSTERS", Value = "POSTERS"
-                },
-                new SelectListItem {
-                    Text = "PATIENT", Value = "PATIENT"
                 },
                 new SelectListItem {
                     Text = "INTERNET SEARCH", Value = "INTERNET SEARCH"
@@ -1722,51 +1725,51 @@ namespace MVCFirebase.Controllers
                         },
                     };
                     ViewBag.DISEASES = diseases;
-                    List<SelectListItem> cities = new List<SelectListItem>() {
-                        new SelectListItem {
-                            Text = "Faridabad", Value = "Faridabad"
-                        },
-                        new SelectListItem {
-                            Text = "Ghaziabad", Value = "Ghaziabad"
-                        },
-                        new SelectListItem {
-                            Text = "New Delhi", Value = "New Delhi"
-                        },
-                        new SelectListItem {
-                            Text = "Bahadurgarh", Value = "Bahadurgarh"
-                        },
-                        new SelectListItem {
-                            Text = "Mathura", Value = "Mathura"
-                        },
-                        new SelectListItem {
-                            Text = "Agra", Value = "Agra"
-                        },
-                        new SelectListItem {
-                            Text = "Ballabgarh", Value = "Ballabgarh"
-                        },
-                        new SelectListItem {
-                            Text = "Gurdaspur", Value = "Gurdaspur"
-                        },
-                        new SelectListItem {
-                            Text = "Amritsar", Value = "Amritsar"
-                        },
-                        new SelectListItem {
-                            Text = "Batala", Value = "Batala"
-                        },
-                        new SelectListItem {
-                            Text = "Jallandhar", Value = "Jallandhar"
-                        },
-                        new SelectListItem {
-                            Text = "Pathankot", Value = "Pathankot"
-                        },
-                        new SelectListItem {
-                            Text = "Bathinda", Value = "Bathinda"
-                        },
-                        new SelectListItem {
-                            Text = "Ambala", Value = "Ambala"
-                        },
-                    };
-                    ViewBag.CITIES = cities;
+                    //List<SelectListItem> cities = new List<SelectListItem>() {
+                    //    new SelectListItem {
+                    //        Text = "Faridabad", Value = "Faridabad"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Ghaziabad", Value = "Ghaziabad"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "New Delhi", Value = "New Delhi"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Bahadurgarh", Value = "Bahadurgarh"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Mathura", Value = "Mathura"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Agra", Value = "Agra"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Ballabgarh", Value = "Ballabgarh"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Gurdaspur", Value = "Gurdaspur"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Amritsar", Value = "Amritsar"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Batala", Value = "Batala"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Jallandhar", Value = "Jallandhar"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Pathankot", Value = "Pathankot"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Bathinda", Value = "Bathinda"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Ambala", Value = "Ambala"
+                    //    },
+                    //};
+                    //ViewBag.CITIES = cities;
                     List<SelectListItem> genders = new List<SelectListItem>() {
                         new SelectListItem {
                             Text = "Male", Value = "Male"
@@ -1797,6 +1800,9 @@ namespace MVCFirebase.Controllers
 
                     List<SelectListItem> referby = new List<SelectListItem>() {
                 new SelectListItem {
+                    Text = "PATIENT", Value = "PATIENT"
+                },
+                new SelectListItem {
                     Text = "TV ADV", Value = "TV ADV"
                 },
                 new SelectListItem {
@@ -1807,9 +1813,6 @@ namespace MVCFirebase.Controllers
                 },
                 new SelectListItem {
                     Text = "POSTERS", Value = "POSTERS"
-                },
-                new SelectListItem {
-                    Text = "PATIENT", Value = "PATIENT"
                 },
                 new SelectListItem {
                     Text = "INTERNET SEARCH", Value = "INTERNET SEARCH"
@@ -1917,51 +1920,51 @@ namespace MVCFirebase.Controllers
                         },
                     };
                         ViewBag.DISEASES = diseases;
-                        List<SelectListItem> cities = new List<SelectListItem>() {
-                        new SelectListItem {
-                            Text = "Faridabad", Value = "Faridabad"
-                        },
-                        new SelectListItem {
-                            Text = "Ghaziabad", Value = "Ghaziabad"
-                        },
-                        new SelectListItem {
-                            Text = "New Delhi", Value = "New Delhi"
-                        },
-                        new SelectListItem {
-                            Text = "Bahadurgarh", Value = "Bahadurgarh"
-                        },
-                        new SelectListItem {
-                            Text = "Mathura", Value = "Mathura"
-                        },
-                        new SelectListItem {
-                            Text = "Agra", Value = "Agra"
-                        },
-                        new SelectListItem {
-                            Text = "Ballabgarh", Value = "Ballabgarh"
-                        },
-                        new SelectListItem {
-                            Text = "Gurdaspur", Value = "Gurdaspur"
-                        },
-                        new SelectListItem {
-                            Text = "Amritsar", Value = "Amritsar"
-                        },
-                        new SelectListItem {
-                            Text = "Batala", Value = "Batala"
-                        },
-                        new SelectListItem {
-                            Text = "Jallandhar", Value = "Jallandhar"
-                        },
-                        new SelectListItem {
-                            Text = "Pathankot", Value = "Pathankot"
-                        },
-                        new SelectListItem {
-                            Text = "Bathinda", Value = "Bathinda"
-                        },
-                        new SelectListItem {
-                            Text = "Ambala", Value = "Ambala"
-                        },
-                    };
-                        ViewBag.CITIES = cities;
+                    //    List<SelectListItem> cities = new List<SelectListItem>() {
+                    //    new SelectListItem {
+                    //        Text = "Faridabad", Value = "Faridabad"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Ghaziabad", Value = "Ghaziabad"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "New Delhi", Value = "New Delhi"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Bahadurgarh", Value = "Bahadurgarh"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Mathura", Value = "Mathura"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Agra", Value = "Agra"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Ballabgarh", Value = "Ballabgarh"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Gurdaspur", Value = "Gurdaspur"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Amritsar", Value = "Amritsar"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Batala", Value = "Batala"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Jallandhar", Value = "Jallandhar"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Pathankot", Value = "Pathankot"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Bathinda", Value = "Bathinda"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Ambala", Value = "Ambala"
+                    //    },
+                    //};
+                    //    ViewBag.CITIES = cities;
                         List<SelectListItem> genders = new List<SelectListItem>() {
                         new SelectListItem {
                             Text = "Male", Value = "Male"
@@ -1978,6 +1981,9 @@ namespace MVCFirebase.Controllers
 
                         List<SelectListItem> referby = new List<SelectListItem>() {
                 new SelectListItem {
+                    Text = "PATIENT", Value = "PATIENT"
+                },
+                new SelectListItem {
                     Text = "TV ADV", Value = "TV ADV"
                 },
                 new SelectListItem {
@@ -1988,9 +1994,6 @@ namespace MVCFirebase.Controllers
                 },
                 new SelectListItem {
                     Text = "POSTERS", Value = "POSTERS"
-                },
-                new SelectListItem {
-                    Text = "PATIENT", Value = "PATIENT"
                 },
                 new SelectListItem {
                     Text = "INTERNET SEARCH", Value = "INTERNET SEARCH"
@@ -2117,51 +2120,51 @@ namespace MVCFirebase.Controllers
                         },
                     };
                         ViewBag.DISEASES = diseases;
-                        List<SelectListItem> cities = new List<SelectListItem>() {
-                        new SelectListItem {
-                            Text = "Faridabad", Value = "Faridabad"
-                        },
-                        new SelectListItem {
-                            Text = "Ghaziabad", Value = "Ghaziabad"
-                        },
-                        new SelectListItem {
-                            Text = "New Delhi", Value = "New Delhi"
-                        },
-                        new SelectListItem {
-                            Text = "Bahadurgarh", Value = "Bahadurgarh"
-                        },
-                        new SelectListItem {
-                            Text = "Mathura", Value = "Mathura"
-                        },
-                        new SelectListItem {
-                            Text = "Agra", Value = "Agra"
-                        },
-                        new SelectListItem {
-                            Text = "Ballabgarh", Value = "Ballabgarh"
-                        },
-                        new SelectListItem {
-                            Text = "Gurdaspur", Value = "Gurdaspur"
-                        },
-                        new SelectListItem {
-                            Text = "Amritsar", Value = "Amritsar"
-                        },
-                        new SelectListItem {
-                            Text = "Batala", Value = "Batala"
-                        },
-                        new SelectListItem {
-                            Text = "Jallandhar", Value = "Jallandhar"
-                        },
-                        new SelectListItem {
-                            Text = "Pathankot", Value = "Pathankot"
-                        },
-                        new SelectListItem {
-                            Text = "Bathinda", Value = "Bathinda"
-                        },
-                        new SelectListItem {
-                            Text = "Ambala", Value = "Ambala"
-                        },
-                    };
-                        ViewBag.CITIES = cities;
+                    //    List<SelectListItem> cities = new List<SelectListItem>() {
+                    //    new SelectListItem {
+                    //        Text = "Faridabad", Value = "Faridabad"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Ghaziabad", Value = "Ghaziabad"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "New Delhi", Value = "New Delhi"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Bahadurgarh", Value = "Bahadurgarh"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Mathura", Value = "Mathura"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Agra", Value = "Agra"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Ballabgarh", Value = "Ballabgarh"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Gurdaspur", Value = "Gurdaspur"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Amritsar", Value = "Amritsar"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Batala", Value = "Batala"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Jallandhar", Value = "Jallandhar"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Pathankot", Value = "Pathankot"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Bathinda", Value = "Bathinda"
+                    //    },
+                    //    new SelectListItem {
+                    //        Text = "Ambala", Value = "Ambala"
+                    //    },
+                    //};
+                    //    ViewBag.CITIES = cities;
                         List<SelectListItem> genders = new List<SelectListItem>() {
                         new SelectListItem {
                             Text = "Male", Value = "Male"
@@ -2192,6 +2195,9 @@ namespace MVCFirebase.Controllers
 
                         List<SelectListItem> referby = new List<SelectListItem>() {
                 new SelectListItem {
+                    Text = "PATIENT", Value = "PATIENT"
+                },
+                new SelectListItem {
                     Text = "TV ADV", Value = "TV ADV"
                 },
                 new SelectListItem {
@@ -2202,9 +2208,6 @@ namespace MVCFirebase.Controllers
                 },
                 new SelectListItem {
                     Text = "POSTERS", Value = "POSTERS"
-                },
-                new SelectListItem {
-                    Text = "PATIENT", Value = "PATIENT"
                 },
                 new SelectListItem {
                     Text = "INTERNET SEARCH", Value = "INTERNET SEARCH"
@@ -3043,6 +3046,16 @@ namespace MVCFirebase.Controllers
                     }
                 }
             }
+        }
+
+        [HttpPost]
+        public JsonResult cityautocomplete(string city)//I think that the id that you are passing here needs to be the search term. You may not have to change anything here, but you do in the $.ajax() call
+        {
+                List<city> cityList = new List<city>();
+                string json = System.IO.File.ReadAllText(Server.MapPath(@"~/Content/JsonFiles/cities.json"));
+                cityList = JsonConvert.DeserializeObject<List<city>>(json);
+                cityList = cityList.Where(a => a.name.StartsWith(city.ToLower())).ToList();
+                return Json(cityList);
         }
     }
 }

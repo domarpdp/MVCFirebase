@@ -24,7 +24,7 @@
                     contentType: "application/json; charset=utf-8",
                     success: function (data) {
                         response($.map(data, function (item) {
-
+                            
                             return {
                                 label: item.label,
                                 value: item.val
@@ -50,7 +50,7 @@
             },
             select: function (e, i) {
                 e.preventDefault();
-                alert('you have selected ' + i.item.label + ' ID: ' + i.item.value);
+                //alert('you have selected ' + i.item.label + ' ID: ' + i.item.value);
                 $("#hfinventoryid").val(i.item.value);
                 $("#hfquantitybalance").val(i.item.label);
                 $(this).val(i.item.label);

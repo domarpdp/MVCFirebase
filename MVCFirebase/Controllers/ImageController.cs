@@ -281,14 +281,14 @@ namespace MVCFirebase.Controllers
                         {
                             if(Convert.ToInt32(docsnapMedicines.GetValue<int>("quantitybalance")) > 0)
                             { 
-                            autocomplete inventory = new autocomplete();
-                            inventory.val = docsnapMedicines.Id + "-" + docsnapMedicines.GetValue<string>("unitmrp");
-                            inventory.label = docsnapMedicines.GetValue<string>("shortname") + "-"+ docsnapMedicines.GetValue<Timestamp>("expirydate").ToDateTime().ToString("MM/dd/yyyy") + "-" + docsnapMedicines.GetValue<int>("quantitybalance");
-                            //inventory.shortname = docsnapMedicines.GetValue<string>("shortname");
-                            //inventory.quantitybalance = docsnapMedicines.GetValue<int>("quantitybalance");
-                            //inventory.expirydate = docsnapMedicines.GetValue<Timestamp>("expirydate").ToDateTime().ToString("MM/dd/yyyy");
-                            autocompleteList.Add(inventory);
-                                }
+                                autocomplete inventory = new autocomplete();
+                                inventory.val = docsnapMedicines.Id + "-" + docsnapMedicines.GetValue<string>("unitmrp");
+                                inventory.label = docsnapMedicines.GetValue<string>("shortname") + "-"+ docsnapMedicines.GetValue<Timestamp>("expirydate").ToDateTime().ToString("MM/dd/yyyy") + "-" + docsnapMedicines.GetValue<int>("quantitybalance");
+                                //inventory.shortname = docsnapMedicines.GetValue<string>("shortname");
+                                //inventory.quantitybalance = docsnapMedicines.GetValue<int>("quantitybalance");
+                                //inventory.expirydate = docsnapMedicines.GetValue<Timestamp>("expirydate").ToDateTime().ToString("MM/dd/yyyy");
+                                autocompleteList.Add(inventory);
+                            }
                         }
                     }
                 }

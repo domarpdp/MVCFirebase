@@ -225,6 +225,7 @@
     <Compile Include="Models\Appointment.cs" />
     <Compile Include="Models\autocomplete.cs" />
     <Compile Include="Models\CheckSessionTimeOutAttribute.cs" />
+    <Compile Include="Models\city.cs" />
     <Compile Include="Models\Clinic.cs" />
     <Compile Include="Models\ClinicSettings.cs" />
     <Compile Include="Models\GlobalSessionVariables.cs" />
@@ -256,6 +257,8 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json" />
+    <Content Include="Content\JsonFiles\city.json" />
+    <Content Include="Content\JsonFiles\cities.json" />
     <None Include="Properties\PublishProfiles\FolderProfile.pubxml" />
     <None Include="Properties\PublishProfiles\FTPProfile.pubxml" />
     <None Include="Scripts\jquery-3.4.1.intellisense.js" />
