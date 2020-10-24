@@ -111,7 +111,7 @@ namespace MVCFirebase.Controllers
         // POST: User/Create
         [CheckSessionTimeOut]
         [HttpPost]
-        public ActionResult Create(User user)
+        public async Task<ActionResult> Create(User user)
         {try
             {
                 if (ModelState.IsValid)
@@ -121,9 +121,53 @@ namespace MVCFirebase.Controllers
                     FirestoreDb db = FirestoreDb.Create("greenpaperdev");
 
 
+                    DocumentReference docRef = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId);
+                    DocumentSnapshot docSnap = await docRef.GetSnapshotAsync();
+
+                    string selectedPlan = docSnap.GetValue<string>("selected_plan");
+
+                    string ClinicMobileNumber = GlobalSessionVariables.ClinicMobileNumber;
+                    Query QrefUsers = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("user");
+                    QuerySnapshot snapUsers = await QrefUsers.GetSnapshotAsync();
+
+                    switch (selectedPlan)
+                    {
+                        case "plan_silver":
+                            if(snapUsers.Count > 1)
+                            {
+                                ViewBag.Message = "Please upgrade your Plan to create more users.";
+                                return View();
+                            }
+                            break;
+                        case "plan_gold":
+                            if (snapUsers.Count > 2)
+                            {
+                                ViewBag.Message = "Please upgrade your Plan to create more users.";
+                                return View();
+                            }
+                            break;
+                        case "plan_platinum":
+                            if (snapUsers.Count > 3)
+                            {
+                                ViewBag.Message = "Please upgrade your Plan to create more users.";
+                                return View();
+                            }
+                            break;
+                        default:
+                            // code block
+                            break;
+                    }
+
+
+
                     //CollectionReference col1 = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("patientList").Document("test");
                     CollectionReference col1 = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("user");
                     
+                    if(user.user_roles[0].ToString() == "")
+                    {
+                        ViewBag.Message = "Please select at leat one role.";
+                        return View(user);
+                    }
                     string[] roles = user.user_roles[0].Remove(user.user_roles[0].Length - 1,1).Split(',');
                     
                     Dictionary<string, object> data1 = new Dictionary<string, object>
@@ -143,7 +187,7 @@ namespace MVCFirebase.Controllers
 
                     
 
-                    col1.Document().SetAsync(data1);
+                    await col1.Document().SetAsync(data1);
 
                     
 
@@ -222,7 +266,11 @@ namespace MVCFirebase.Controllers
 
                     DocumentReference docRef = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("user").Document(id);
                     DocumentSnapshot docSnap = await docRef.GetSnapshotAsync();
-                    
+                    if (user.user_roles[0].ToString() == "" || user.user_roles[0].ToString() == "System.String[]")
+                    {
+                        ViewBag.Message = "Please select at leat one role.";
+                        return View(user);
+                    }
                     string[] roles = user.user_roles[0].Remove(user.user_roles[0].Length - 1, 1).Split(',');
 
                     Dictionary<string, object> data1 = new Dictionary<string, object>

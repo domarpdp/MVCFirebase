@@ -260,6 +260,7 @@ namespace MVCFirebase.Controllers
                         SearchDate = DateTime.SpecifyKind(SearchDate, DateTimeKind.Utc);
                     }
                     SearchDate = SearchDate.Date;
+
                     Timestamp SearchDateFrom = Timestamp.FromDateTime(SearchDate.Date.AddHours(-5).AddMinutes(-30));
                     Timestamp SearchDateTo = Timestamp.FromDateTime(SearchDate.Date.AddHours(-5).AddMinutes(-30).AddDays(1));
 
@@ -340,49 +341,104 @@ namespace MVCFirebase.Controllers
                                 }
                                 else if (User.IsInRole("Cashier"))
                                 {
-                                    try
+                                    
+                                    if(WhoFirst == "Cashier")
                                     {
-                                        statusCashier = docsnapAppointments.GetValue<string>("statusCashier");
+                                        try
+                                        {
+                                            statusCashier = docsnapAppointments.GetValue<string>("statusCashier");
+                                        }
+                                        catch
+                                        {
+                                            statusCashier = null;
+                                        }
+                                        if (statusCashier == null)
+                                        {
+                                            appointment.clinic_name = clinic.clinicname;
+                                            appointment.patient_name = patient.patient_name;
+                                            appointment.patient_care_of = patient.care_of;
+                                            appointment.patient_gender = patient.gender;
+                                            appointment.patient_age = patient.age;
+                                            appointment.patient_mobile = patient.patient_mobile_number;
+                                            appointment.id = docsnapAppointments.Id;
+                                            appointment.tokenIteger = Convert.ToInt32(docsnapAppointments.GetValue<string>("token"));
+                                            AppointmentList.Add(appointment);
+                                        }
                                     }
-                                    catch
+                                    else
                                     {
-                                        statusCashier = null;
+                                        try
+                                        {
+                                            statusChemist = docsnapAppointments.GetValue<string>("statusChemist");
+                                        }
+                                        catch
+                                        {
+                                            statusChemist = null;
+                                        }
+                                        if (statusChemist != null)
+                                        {
+                                            appointment.clinic_name = clinic.clinicname;
+                                            appointment.patient_name = patient.patient_name;
+                                            appointment.patient_care_of = patient.care_of;
+                                            appointment.patient_gender = patient.gender;
+                                            appointment.patient_age = patient.age;
+                                            appointment.patient_mobile = patient.patient_mobile_number;
+                                            appointment.id = docsnapAppointments.Id;
+                                            appointment.tokenIteger = Convert.ToInt32(docsnapAppointments.GetValue<string>("token"));
+                                            AppointmentList.Add(appointment);
+                                        }
                                     }
-                                    if (statusCashier == null)
-                                    {
-                                        appointment.clinic_name = clinic.clinicname;
-                                        appointment.patient_name = patient.patient_name;
-                                        appointment.patient_care_of = patient.care_of;
-                                        appointment.patient_gender = patient.gender;
-                                        appointment.patient_age = patient.age;
-                                        appointment.patient_mobile = patient.patient_mobile_number;
-                                        appointment.id = docsnapAppointments.Id;
-                                        appointment.tokenIteger = Convert.ToInt32(docsnapAppointments.GetValue<string>("token"));
-                                        AppointmentList.Add(appointment);
-                                    }
+                                    
                                 }
                                 else if (User.IsInRole("Chemist"))
                                 {
-                                    try
+                                    if (WhoFirst == "Cashier")
                                     {
-                                        statusChemist = docsnapAppointments.GetValue<string>("statusChemist");
+                                        try
+                                        {
+                                            statusCashier = docsnapAppointments.GetValue<string>("statusCashier");
+                                        }
+                                        catch
+                                        {
+                                            statusCashier = null;
+                                        }
+                                        if (statusCashier != null)
+                                        {
+                                            appointment.clinic_name = clinic.clinicname;
+                                            appointment.patient_name = patient.patient_name;
+                                            appointment.patient_care_of = patient.care_of;
+                                            appointment.patient_gender = patient.gender;
+                                            appointment.patient_age = patient.age;
+                                            appointment.patient_mobile = patient.patient_mobile_number;
+                                            appointment.id = docsnapAppointments.Id;
+                                            appointment.tokenIteger = Convert.ToInt32(docsnapAppointments.GetValue<string>("token"));
+                                            AppointmentList.Add(appointment);
+                                        }
                                     }
-                                    catch
+                                    else
                                     {
-                                        statusChemist = null;
+                                        try
+                                        {
+                                            statusChemist = docsnapAppointments.GetValue<string>("statusChemist");
+                                        }
+                                        catch
+                                        {
+                                            statusChemist = null;
+                                        }
+                                        if (statusChemist == null)
+                                        {
+                                            appointment.clinic_name = clinic.clinicname;
+                                            appointment.patient_name = patient.patient_name;
+                                            appointment.patient_care_of = patient.care_of;
+                                            appointment.patient_gender = patient.gender;
+                                            appointment.patient_age = patient.age;
+                                            appointment.patient_mobile = patient.patient_mobile_number;
+                                            appointment.id = docsnapAppointments.Id;
+                                            appointment.tokenIteger = Convert.ToInt32(docsnapAppointments.GetValue<string>("token"));
+                                            AppointmentList.Add(appointment);
+                                        }
                                     }
-                                    if (statusChemist == null)
-                                    {
-                                        appointment.clinic_name = clinic.clinicname;
-                                        appointment.patient_name = patient.patient_name;
-                                        appointment.patient_care_of = patient.care_of;
-                                        appointment.patient_gender = patient.gender;
-                                        appointment.patient_age = patient.age;
-                                        appointment.patient_mobile = patient.patient_mobile_number;
-                                        appointment.id = docsnapAppointments.Id;
-                                        appointment.tokenIteger = Convert.ToInt32(docsnapAppointments.GetValue<string>("token"));
-                                        AppointmentList.Add(appointment);
-                                    }
+                                    
                                 }
                             }
                         }
@@ -390,6 +446,14 @@ namespace MVCFirebase.Controllers
                     }
                     AppointmentList = AppointmentList.OrderByDescending(a => a.tokenIteger).ToList();
                     ViewBag.Message = SearchDate.Date;
+                    if (SearchDate.Date < DateTime.Now.Date)
+                    {
+                        ViewData["DateType"] = "OldDate";
+                    }
+                    else
+                    {
+                        ViewData["DateType"] = "CurrentDate";
+                    }
                     return View(AppointmentList);
                 }
                 else
@@ -488,48 +552,100 @@ namespace MVCFirebase.Controllers
                                 }
                                 else if (User.IsInRole("Cashier"))
                                 {
-                                    try
+                                    if (WhoFirst == "Cashier")
                                     {
-                                        statusCashier = docsnapAppointments.GetValue<string>("statusCashier");
+                                        try
+                                        {
+                                            statusCashier = docsnapAppointments.GetValue<string>("statusCashier");
+                                        }
+                                        catch
+                                        {
+                                            statusCashier = null;
+                                        }
+                                        if (statusCashier == null)
+                                        {
+                                            appointment.clinic_name = clinic.clinicname;
+                                            appointment.patient_name = patient.patient_name;
+                                            appointment.patient_care_of = patient.care_of;
+                                            appointment.patient_gender = patient.gender;
+                                            appointment.patient_age = patient.age;
+                                            appointment.patient_mobile = patient.patient_mobile_number;
+                                            appointment.id = docsnapAppointments.Id;
+                                            appointment.tokenIteger = Convert.ToInt32(docsnapAppointments.GetValue<string>("token"));
+                                            AppointmentList.Add(appointment);
+                                        }
                                     }
-                                    catch
+                                    else
                                     {
-                                        statusCashier = null;
-                                    }
-                                    if (statusCashier == null)
-                                    {
-                                        appointment.clinic_name = clinic.clinicname;
-                                        appointment.patient_name = patient.patient_name;
-                                        appointment.patient_care_of = patient.care_of;
-                                        appointment.patient_gender = patient.gender;
-                                        appointment.patient_age = patient.age;
-                                        appointment.patient_mobile = patient.patient_mobile_number;
-                                        appointment.id = docsnapAppointments.Id;
-                                        appointment.tokenIteger = Convert.ToInt32(docsnapAppointments.GetValue<string>("token"));
-                                        AppointmentList.Add(appointment);
+                                        try
+                                        {
+                                            statusChemist = docsnapAppointments.GetValue<string>("statusChemist");
+                                        }
+                                        catch
+                                        {
+                                            statusChemist = null;
+                                        }
+                                        if (statusChemist != null)
+                                        {
+                                            appointment.clinic_name = clinic.clinicname;
+                                            appointment.patient_name = patient.patient_name;
+                                            appointment.patient_care_of = patient.care_of;
+                                            appointment.patient_gender = patient.gender;
+                                            appointment.patient_age = patient.age;
+                                            appointment.patient_mobile = patient.patient_mobile_number;
+                                            appointment.id = docsnapAppointments.Id;
+                                            appointment.tokenIteger = Convert.ToInt32(docsnapAppointments.GetValue<string>("token"));
+                                            AppointmentList.Add(appointment);
+                                        }
                                     }
                                 }
                                 else if (User.IsInRole("Chemist"))
                                 {
-                                    try
+                                    if (WhoFirst == "Cashier")
                                     {
-                                        statusChemist = docsnapAppointments.GetValue<string>("statusChemist");
+                                        try
+                                        {
+                                            statusCashier = docsnapAppointments.GetValue<string>("statusCashier");
+                                        }
+                                        catch
+                                        {
+                                            statusCashier = null;
+                                        }
+                                        if (statusCashier != null)
+                                        {
+                                            appointment.clinic_name = clinic.clinicname;
+                                            appointment.patient_name = patient.patient_name;
+                                            appointment.patient_care_of = patient.care_of;
+                                            appointment.patient_gender = patient.gender;
+                                            appointment.patient_age = patient.age;
+                                            appointment.patient_mobile = patient.patient_mobile_number;
+                                            appointment.id = docsnapAppointments.Id;
+                                            appointment.tokenIteger = Convert.ToInt32(docsnapAppointments.GetValue<string>("token"));
+                                            AppointmentList.Add(appointment);
+                                        }
                                     }
-                                    catch
+                                    else
                                     {
-                                        statusChemist = null;
-                                    }
-                                    if (statusChemist == null)
-                                    {
-                                        appointment.clinic_name = clinic.clinicname;
-                                        appointment.patient_name = patient.patient_name;
-                                        appointment.patient_care_of = patient.care_of;
-                                        appointment.patient_gender = patient.gender;
-                                        appointment.patient_age = patient.age;
-                                        appointment.patient_mobile = patient.patient_mobile_number;
-                                        appointment.id = docsnapAppointments.Id;
-                                        appointment.tokenIteger = Convert.ToInt32(docsnapAppointments.GetValue<string>("token"));
-                                        AppointmentList.Add(appointment);
+                                        try
+                                        {
+                                            statusChemist = docsnapAppointments.GetValue<string>("statusChemist");
+                                        }
+                                        catch
+                                        {
+                                            statusChemist = null;
+                                        }
+                                        if (statusChemist == null)
+                                        {
+                                            appointment.clinic_name = clinic.clinicname;
+                                            appointment.patient_name = patient.patient_name;
+                                            appointment.patient_care_of = patient.care_of;
+                                            appointment.patient_gender = patient.gender;
+                                            appointment.patient_age = patient.age;
+                                            appointment.patient_mobile = patient.patient_mobile_number;
+                                            appointment.id = docsnapAppointments.Id;
+                                            appointment.tokenIteger = Convert.ToInt32(docsnapAppointments.GetValue<string>("token"));
+                                            AppointmentList.Add(appointment);
+                                        }
                                     }
                                 }
                             }
@@ -538,6 +654,14 @@ namespace MVCFirebase.Controllers
                     }
                     AppointmentList = AppointmentList.OrderByDescending(a => a.tokenIteger).ToList();
                     ViewBag.Message = SearchDate.Date;
+                    if (SearchDate.Date < DateTime.Now.Date)
+                    {
+                        ViewData["DateType"] = "OldDate";
+                    }
+                    else
+                    {
+                        ViewData["DateType"] = "CurrentDate";
+                    }
                     return View(AppointmentList);
                 }
             }

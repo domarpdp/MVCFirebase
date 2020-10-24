@@ -504,15 +504,40 @@ namespace MVCFirebase.Controllers
             };
                     ViewBag.SEVERITIES = severity;
 
-                    List<SelectListItem> referby = new List<SelectListItem>() {
+                    
+            List<SelectListItem> referby = new List<SelectListItem>() {
                 new SelectListItem {
-                    Text = "Friend", Value = "Friend"
+                    Text = "TV ADV", Value = "TV ADV"
                 },
                 new SelectListItem {
-                    Text = "NewsPaper", Value = "NewsPaper"
+                    Text = "SOCIAL MEDIA", Value = "SOCIAL MEDIA"
                 },
                 new SelectListItem {
-                    Text = "Web", Value = "Web"
+                    Text = "WALL PAINTING", Value = "WALL PAINTING"
+                },
+                new SelectListItem {
+                    Text = "POSTERS", Value = "POSTERS"
+                },
+                new SelectListItem {
+                    Text = "PATIENT", Value = "PATIENT"
+                },
+                new SelectListItem {
+                    Text = "INTERNET SEARCH", Value = "INTERNET SEARCH"
+                },
+                new SelectListItem {
+                    Text = "CALLS", Value = "CALLS"
+                },
+                new SelectListItem {
+                    Text = "DOCTOR", Value = "DOCTOR"
+                },
+                new SelectListItem {
+                    Text = "HOSPITAL", Value = "HOSPITAL"
+                },
+                new SelectListItem {
+                    Text = "MAIL/MSG", Value = "MAILMSG"
+                },
+                new SelectListItem {
+                    Text = "RANDOM", Value = "RANDOM"
                 },
 
             };
@@ -660,13 +685,37 @@ namespace MVCFirebase.Controllers
 
                     List<SelectListItem> referby = new List<SelectListItem>() {
                 new SelectListItem {
-                    Text = "Friend", Value = "Friend"
+                    Text = "TV ADV", Value = "TV ADV"
                 },
                 new SelectListItem {
-                    Text = "NewsPaper", Value = "NewsPaper"
+                    Text = "SOCIAL MEDIA", Value = "SOCIAL MEDIA"
                 },
                 new SelectListItem {
-                    Text = "Web", Value = "Web"
+                    Text = "WALL PAINTING", Value = "WALL PAINTING"
+                },
+                new SelectListItem {
+                    Text = "POSTERS", Value = "POSTERS"
+                },
+                new SelectListItem {
+                    Text = "PATIENT", Value = "PATIENT"
+                },
+                new SelectListItem {
+                    Text = "INTERNET SEARCH", Value = "INTERNET SEARCH"
+                },
+                new SelectListItem {
+                    Text = "CALLS", Value = "CALLS"
+                },
+                new SelectListItem {
+                    Text = "DOCTOR", Value = "DOCTOR"
+                },
+                new SelectListItem {
+                    Text = "HOSPITAL", Value = "HOSPITAL"
+                },
+                new SelectListItem {
+                    Text = "MAIL/MSG", Value = "MAILMSG"
+                },
+                new SelectListItem {
+                    Text = "RANDOM", Value = "RANDOM"
                 },
 
             };
@@ -690,158 +739,6 @@ namespace MVCFirebase.Controllers
                 FormsAuthentication.SignOut();
                 return RedirectToAction("Login", "Home");
             }
-        }
-        // GET: Patient/Create
-        public async Task<ActionResult> Create1()
-        {
-            List<SelectListItem> diseases = new List<SelectListItem>() {
-                        new SelectListItem {
-                            Text = "General -(fever/general acute complaints)", Value = "General"
-                        },
-                        new SelectListItem {
-                            Text = "ENT (ear nose throat)", Value = "ENT(ear nose throat)"
-                        },
-                        new SelectListItem {
-                            Text = "CNS (central nervous system", Value = "CNS(central nervous system)"
-                        },
-                        new SelectListItem {
-                            Text = "DERMATO (skin/hair)", Value = "DERMATO./SKIN/hair"
-                        },
-                        new SelectListItem {
-                            Text = "GIT (gastro intestinal track)", Value = "GIT(gastro intestinal track)"
-                        },
-                        new SelectListItem {
-                            Text = "SURGERY", Value = "SURGERY"
-                        },
-                        new SelectListItem {
-                            Text = "TUMORS/ONCOLOGY", Value = "TUMOURS/ONCOLOGY"
-                        },
-                        new SelectListItem {
-                            Text = "HAEMATOLOGY (blood)", Value = "HAEMATOLOGY(blood)"
-                        },
-                        new SelectListItem {
-                            Text = "ORTHOPADICS (bones & muscles)", Value = "ORTHOPADICS(bones & muscles)"
-                        },
-                        new SelectListItem {
-                            Text = "PAEDIATRIC (child)", Value = "paediatric"
-                        },
-                        new SelectListItem {
-                            Text = "OPTHALMOLOGISTS (EYE)", Value = "opthalmologists(eye)"
-                        },
-                        new SelectListItem {
-                            Text = "CVS (cardio vascular system/heart)", Value = "CVS(cardio vascular system/heart)"
-                        },
-                        new SelectListItem {
-                            Text = "ENDOCRINOLOGY", Value = "ENDOCRINOLOGY"
-                        },
-                        new SelectListItem {
-                            Text = "GYNAECOLOGY & OBS", Value = "GYNAECOLOGY & OBS"
-                        },
-                        new SelectListItem {
-                            Text = "GENETICS", Value = "GENETICS"
-                        },
-                    };
-            ViewBag.DISEASES = diseases;
-
-            List<SelectListItem> cities = new List<SelectListItem>() {
-                        new SelectListItem {
-                            Text = "Faridabad", Value = "Faridabad"
-                        },
-                        new SelectListItem {
-                            Text = "Ghaziabad", Value = "Ghaziabad"
-                        },
-                        new SelectListItem {
-                            Text = "New Delhi", Value = "New Delhi"
-                        },
-                        new SelectListItem {
-                            Text = "Bahadurgarh", Value = "Bahadurgarh"
-                        },
-                        new SelectListItem {
-                            Text = "Mathura", Value = "Mathura"
-                        },
-                        new SelectListItem {
-                            Text = "Agra", Value = "Agra"
-                        },
-                        new SelectListItem {
-                            Text = "Ballabgarh", Value = "Ballabgarh"
-                        },
-                        new SelectListItem {
-                            Text = "Gurdaspur", Value = "Gurdaspur"
-                        },
-                        new SelectListItem {
-                            Text = "Amritsar", Value = "Amritsar"
-                        },
-                        new SelectListItem {
-                            Text = "Batala", Value = "Batala"
-                        },
-                        new SelectListItem {
-                            Text = "Jallandhar", Value = "Jallandhar"
-                        },
-                        new SelectListItem {
-                            Text = "Pathankot", Value = "Pathankot"
-                        },
-                        new SelectListItem {
-                            Text = "Bathinda", Value = "Bathinda"
-                        },
-                        new SelectListItem {
-                            Text = "Ambala", Value = "Ambala"
-                        },
-                    };
-            ViewBag.CITIES = cities;
-
-            List<SelectListItem> gender = new List<SelectListItem>() {
-                new SelectListItem {
-                    Text = "Male", Value = "Male"
-                },
-                new SelectListItem {
-                    Text = "Female", Value = "Female"
-                },
-                new SelectListItem {
-                    Text = "Other", Value = "Other"
-                },
-                
-            };
-            ViewBag.GENDER = gender;
-
-            List<SelectListItem> severity = new List<SelectListItem>() {
-                new SelectListItem {
-                    Text = "Low", Value = "Low"
-                },
-                new SelectListItem {
-                    Text = "Medium", Value = "Medium"
-                },
-                new SelectListItem {
-                    Text = "High", Value = "High"
-                },
-
-            };
-            ViewBag.SEVERITIES = severity;
-
-            List<SelectListItem> referby = new List<SelectListItem>() {
-                new SelectListItem {
-                    Text = "Friend", Value = "Friend"
-                },
-                new SelectListItem {
-                    Text = "NewsPaper", Value = "NewsPaper"
-                },
-                new SelectListItem {
-                    Text = "Web", Value = "Web"
-                },
-
-            };
-            ViewBag.REFERBYS = referby;
-
-            string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
-            Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
-            FirestoreDb db = FirestoreDb.Create("greenpaperdev");
-            DocumentReference docRefClinicCity = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId);
-            DocumentSnapshot docSnapClinicCity = await docRefClinicCity.GetSnapshotAsync();
-            Clinic clinic = docSnapClinicCity.ConvertTo<Clinic>();
-            Patient patient = new Patient();
-            patient.city = clinic.cliniccity;
-            patient.appointment_date = DateTime.Now;
-            patient.tokenNumber = await getLatestToken(DateTime.Now.ToString("MM/dd/yyyy"));
-            return View(patient);
         }
 
         [HttpPost]
@@ -988,16 +885,40 @@ namespace MVCFirebase.Controllers
 
                         List<SelectListItem> referby = new List<SelectListItem>() {
                 new SelectListItem {
-                    Text = "Friend", Value = "Friend"
+                    Text = "TV ADV", Value = "TV ADV"
                 },
                 new SelectListItem {
-                    Text = "NewsPaper", Value = "NewsPaper"
+                    Text = "SOCIAL MEDIA", Value = "SOCIAL MEDIA"
                 },
                 new SelectListItem {
-                    Text = "Web", Value = "Web"
+                    Text = "WALL PAINTING", Value = "WALL PAINTING"
+                },
+                new SelectListItem {
+                    Text = "POSTERS", Value = "POSTERS"
+                },
+                new SelectListItem {
+                    Text = "PATIENT", Value = "PATIENT"
+                },
+                new SelectListItem {
+                    Text = "INTERNET SEARCH", Value = "INTERNET SEARCH"
+                },
+                new SelectListItem {
+                    Text = "CALLS", Value = "CALLS"
+                },
+                new SelectListItem {
+                    Text = "DOCTOR", Value = "DOCTOR"
+                },
+                new SelectListItem {
+                    Text = "HOSPITAL", Value = "HOSPITAL"
+                },
+                new SelectListItem {
+                    Text = "MAIL/MSG", Value = "MAILMSG"
+                },
+                new SelectListItem {
+                    Text = "RANDOM", Value = "RANDOM"
                 },
 
-                };
+            };
                         ViewBag.REFERBYS = referby;
 
                         if (ModelState.IsValid)
@@ -1325,16 +1246,40 @@ namespace MVCFirebase.Controllers
 
                         List<SelectListItem> referby = new List<SelectListItem>() {
                 new SelectListItem {
-                    Text = "Friend", Value = "Friend"
+                    Text = "TV ADV", Value = "TV ADV"
                 },
                 new SelectListItem {
-                    Text = "NewsPaper", Value = "NewsPaper"
+                    Text = "SOCIAL MEDIA", Value = "SOCIAL MEDIA"
                 },
                 new SelectListItem {
-                    Text = "Web", Value = "Web"
+                    Text = "WALL PAINTING", Value = "WALL PAINTING"
+                },
+                new SelectListItem {
+                    Text = "POSTERS", Value = "POSTERS"
+                },
+                new SelectListItem {
+                    Text = "PATIENT", Value = "PATIENT"
+                },
+                new SelectListItem {
+                    Text = "INTERNET SEARCH", Value = "INTERNET SEARCH"
+                },
+                new SelectListItem {
+                    Text = "CALLS", Value = "CALLS"
+                },
+                new SelectListItem {
+                    Text = "DOCTOR", Value = "DOCTOR"
+                },
+                new SelectListItem {
+                    Text = "HOSPITAL", Value = "HOSPITAL"
+                },
+                new SelectListItem {
+                    Text = "MAIL/MSG", Value = "MAILMSG"
+                },
+                new SelectListItem {
+                    Text = "RANDOM", Value = "RANDOM"
                 },
 
-                };
+            };
                         ViewBag.REFERBYS = referby;
 
                         if (ModelState.IsValid)
@@ -1534,344 +1479,6 @@ namespace MVCFirebase.Controllers
                 return RedirectToAction("Login", "Home");
             }
         }
-        // POST: Patient/Create
-        [HttpPost]
-        public async Task<ActionResult> Create1(Patient patient)
-        {
-            try
-            {
-                
-                string patientLastId = "";
-                string patientLastIdDocId = "";
-                
-                List<SelectListItem> diseases = new List<SelectListItem>() {
-                        new SelectListItem {
-                            Text = "General -(fever/general acute complaints)", Value = "General"
-                        },
-                        new SelectListItem {
-                            Text = "ENT (ear nose throat)", Value = "ENT(ear nose throat)"
-                        },
-                        new SelectListItem {
-                            Text = "CNS (central nervous system", Value = "CNS(central nervous system)"
-                        },
-                        new SelectListItem {
-                            Text = "DERMATO (skin/hair)", Value = "DERMATO./SKIN/hair"
-                        },
-                        new SelectListItem {
-                            Text = "GIT (gastro intestinal track)", Value = "GIT(gastro intestinal track)"
-                        },
-                        new SelectListItem {
-                            Text = "SURGERY", Value = "SURGERY"
-                        },
-                        new SelectListItem {
-                            Text = "TUMORS/ONCOLOGY", Value = "TUMOURS/ONCOLOGY"
-                        },
-                        new SelectListItem {
-                            Text = "HAEMATOLOGY (blood)", Value = "HAEMATOLOGY(blood)"
-                        },
-                        new SelectListItem {
-                            Text = "ORTHOPADICS (bones & muscles)", Value = "ORTHOPADICS(bones & muscles)"
-                        },
-                        new SelectListItem {
-                            Text = "PAEDIATRIC (child)", Value = "paediatric"
-                        },
-                        new SelectListItem {
-                            Text = "OPTHALMOLOGISTS (EYE)", Value = "opthalmologists(eye)"
-                        },
-                        new SelectListItem {
-                            Text = "CVS (cardio vascular system/heart)", Value = "CVS(cardio vascular system/heart)"
-                        },
-                        new SelectListItem {
-                            Text = "ENDOCRINOLOGY", Value = "ENDOCRINOLOGY"
-                        },
-                        new SelectListItem {
-                            Text = "GYNAECOLOGY & OBS", Value = "GYNAECOLOGY & OBS"
-                        },
-                        new SelectListItem {
-                            Text = "GENETICS", Value = "GENETICS"
-                        },
-                    };
-                ViewBag.DISEASES = diseases;
-
-                List<SelectListItem> cities = new List<SelectListItem>() {
-                        new SelectListItem {
-                            Text = "Faridabad", Value = "Faridabad"
-                        },
-                        new SelectListItem {
-                            Text = "Ghaziabad", Value = "Ghaziabad"
-                        },
-                        new SelectListItem {
-                            Text = "New Delhi", Value = "New Delhi"
-                        },
-                        new SelectListItem {
-                            Text = "Bahadurgarh", Value = "Bahadurgarh"
-                        },
-                        new SelectListItem {
-                            Text = "Mathura", Value = "Mathura"
-                        },
-                        new SelectListItem {
-                            Text = "Agra", Value = "Agra"
-                        },
-                        new SelectListItem {
-                            Text = "Ballabgarh", Value = "Ballabgarh"
-                        },
-                        new SelectListItem {
-                            Text = "Gurdaspur", Value = "Gurdaspur"
-                        },
-                        new SelectListItem {
-                            Text = "Amritsar", Value = "Amritsar"
-                        },
-                        new SelectListItem {
-                            Text = "Batala", Value = "Batala"
-                        },
-                        new SelectListItem {
-                            Text = "Jallandhar", Value = "Jallandhar"
-                        },
-                        new SelectListItem {
-                            Text = "Pathankot", Value = "Pathankot"
-                        },
-                        new SelectListItem {
-                            Text = "Bathinda", Value = "Bathinda"
-                        },
-                        new SelectListItem {
-                            Text = "Ambala", Value = "Ambala"
-                        },
-                    };
-                ViewBag.CITIES = cities;
-
-                List<SelectListItem> genders = new List<SelectListItem>() {
-                        new SelectListItem {
-                            Text = "Male", Value = "Male"
-                        },
-                        new SelectListItem {
-                            Text = "Female", Value = "Female"
-                        },
-                        new SelectListItem {
-                            Text = "Other", Value = "Other"
-                        },
-
-                    };
-                ViewBag.GENDERS = genders;
-                List<SelectListItem> severity = new List<SelectListItem>() {
-                    new SelectListItem {
-                        Text = "Low", Value = "Low"
-                    },
-                    new SelectListItem {
-                        Text = "Medium", Value = "Medium"
-                    },
-                    new SelectListItem {
-                        Text = "High", Value = "High"
-                    },
-
-                };
-                ViewBag.SEVERITIES = severity;
-
-                List<SelectListItem> referby = new List<SelectListItem>() {
-                new SelectListItem {
-                    Text = "Friend", Value = "Friend"
-                },
-                new SelectListItem {
-                    Text = "NewsPaper", Value = "NewsPaper"
-                },
-                new SelectListItem {
-                    Text = "Web", Value = "Web"
-                },
-
-                };
-                ViewBag.REFERBYS = referby;
-
-                if (ModelState.IsValid)
-                {
-                    
-
-                    //string lastTokenNumber = "0";
-                    string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
-                    Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
-                    FirestoreDb db = FirestoreDb.Create("greenpaperdev");
-                    DocumentReference docRefClinicCity = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId);
-                    DocumentSnapshot docSnapClinicCity = await docRefClinicCity.GetSnapshotAsync();
-
-                    #region Code to checkduplicacy of patient on the basis of name and mobile number
-                    Query Qref = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("patientList").WhereEqualTo("patient_name", patient.patient_name).WhereEqualTo("patient_mobile_number", patient.patient_mobile_number);
-                    QuerySnapshot snap = await Qref.GetSnapshotAsync();
-                    if (snap.Count > 0)
-                    {
-                        ViewBag.Message = "Patient " + patient.patient_name + " having Mobile number " + patient.patient_mobile_number + " already exists. " ;
-                    }
-                    #endregion Code to checkduplicacy of patient on the basis of name and mobile number
-                    Query QrefUsers = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("users").WhereEqualTo("patient_name", patient.patient_name).WhereEqualTo("patient_mobile_number", patient.patient_mobile_number);
-                    QuerySnapshot snapUsers = await QrefUsers.GetSnapshotAsync();
-                    if (snapUsers.Count > 0)
-                    {
-                        ViewBag.Message = "Patient " + patient.patient_name + " having Mobile number " + patient.patient_mobile_number + " already exists. ";
-                    }
-
-                    #region Code to generate new patient UID and update in paltientLastId collection
-                    else
-                    {
-                        Query QrefPatientLastId = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("patientLastId").Limit(1);
-                        QuerySnapshot snapPatientLastId = await QrefPatientLastId.GetSnapshotAsync();
-                        if (snapPatientLastId.Count > 0)
-                        {
-                            DocumentSnapshot docsnap2 = snapPatientLastId.Documents[0];
-                            patientLastIdDocId = docsnap2.Id;
-
-                            patientLastId = PatientLastId(docsnap2.GetValue<string>("id"));//Code to get plus one patientLastId
-
-                            DocumentReference docRef = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("patientLastId").Document(patientLastIdDocId);
-                            DocumentSnapshot docSnap = await docRef.GetSnapshotAsync();
-
-                            Dictionary<string, object> dataPatientLastId = new Dictionary<string, object>
-                            {
-                                {"id" ,patientLastId}
-                            };
-
-                            if (docSnap.Exists)
-                            {
-                                await docRef.UpdateAsync(dataPatientLastId);
-                            }
-
-                        }
-                        #endregion Code to generate new patient UID and update in paltientLastId collection
-                        #region Code to create new Patient
-                        CollectionReference col1 = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("patientList");
-
-                        Dictionary<string, object> data1 = new Dictionary<string, object>
-                        {
-                            {"patient_name" ,patient.patient_name.ToLower()},
-                            {"age" ,patient.age},
-                            {"care_of" ,patient.care_of},
-                            {"city" ,patient.city},
-                            {"creation_date" ,DateTime.UtcNow},
-                            {"disease" ,patient.disease},
-                            {"gender" ,patient.gender},
-                            {"severity" ,patient.severity},
-                            {"patient_id" ,patientLastId},
-                            {"patient_mobile_number",patient.patient_mobile_number},
-                            {"refer_by" ,patient.refer_by},
-                            {"refer_to_doctor" ,patient.refer_to_doctor},
-                            {"search_text" ,patient.patient_name+patient.patient_mobile_number+patientLastId}
-                        };
-                        await col1.Document().SetAsync(data1);
-                        #endregion Code to create new Patient
-                        #region Code to get newly created patient's auto id
-                        Query QrefLatestPatient = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("patientList").WhereEqualTo("patient_id", patientLastId).Limit(1);
-                        QuerySnapshot snapLatestPatient = await QrefLatestPatient.GetSnapshotAsync();
-
-                        DocumentSnapshot docSnapLatestPatient = snapLatestPatient.Documents[0];
-                        #endregion Code to get newly created patient's auto id
-                        #region Code to get latest token number, increament it, set in new appointment and update increamented token number back in collection (Commented)
-                        //DocumentReference docRefTokenNumber = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("tokenNumber").Document(DateTime.Now.ToString("dd_MM_yyyy"));
-                        //DocumentSnapshot docsnapTokenNumber = await docRefTokenNumber.GetSnapshotAsync();
-
-                        //if (docsnapTokenNumber.Exists)
-                        //{
-                        //    lastTokenNumber = docsnapTokenNumber.GetValue<string>("last_token");
-                        //}
-                        //else
-                        //{
-                        //    lastTokenNumber = "0";
-                        //}
-
-                        //lastTokenNumber = (Convert.ToInt32(lastTokenNumber) + 1).ToString();
-
-                        //CollectionReference colTokenNumber = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("tokenNumber");
-
-                        //Dictionary<string, object> dataTokenNumber = new Dictionary<string, object>
-                        //{
-                        //    {"last_token" ,lastTokenNumber},
-                        //    {"assigned_tokens" ,null}
-
-                        //};
-                        //await colTokenNumber.Document(DateTime.Now.ToString("dd_MM_yyyy")).SetAsync(dataTokenNumber);
-
-                        #endregion Code to get latest token number, increament it, set in new appointment and update increamented token number back in collection
-                        if(patient.createAppointment == "Yes")
-                        {
-                            #region Code to check duplicate appointment for selected date having status waiting
-
-                            DateTime ConvertedAppDate = DateTime.SpecifyKind(Convert.ToDateTime(patient.appointment_date), DateTimeKind.Utc);
-
-                            Query QrefduplicateApp = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("appointments").WhereEqualTo("patient", docSnapLatestPatient.Id).WhereGreaterThanOrEqualTo("raisedDate", Timestamp.FromDateTime(ConvertedAppDate.Date)).WhereLessThan("raisedDate", Timestamp.FromDateTime(ConvertedAppDate.AddDays(1))).WhereEqualTo("status", "Waiting");
-                            QuerySnapshot duplicateApp = await QrefduplicateApp.GetSnapshotAsync();
-                            if (duplicateApp.Count > 0)
-                            {
-                                ViewBag.Message = "Appointment of " + patient.patient_name + "(" + patient.patient_id + ") for " + patient.appointment_date + " already exists. ";
-                                return View(patient);
-                            }
-                            else
-                            {
-
-                                #endregion Code to check duplicate appointment for selected date having status waiting
-
-                                string message = await UpdateTokenNumber(patient.appointment_date.ToString(), patient.tokenNumber);
-                                if (message != null)
-                                {
-                                    ViewBag.Message = message;
-                                    return View(patient);
-                                }
-                                #region Code to create new appointment id for today
-
-
-                                CollectionReference colAppountments = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("appointments");
-
-                                Dictionary<string, object> dataAppointment = new Dictionary<string, object>
-                                {
-                                    {"bill_sms" ,false},
-                                    {"clinic_id" ,GlobalSessionVariables.ClinicDocumentAutoId},
-                                    {"completionDate" ,null},
-                                    {"completiondateChemist" ,null},
-                                    {"completiondateCashier" ,null},
-                                    {"statusChemist" ,null},
-                                    {"statusCashier" ,null},
-                                    {"date" ,""},
-                                    {"days" ,""},
-                                    {"fee" ,""},
-                                    {"patient" ,docSnapLatestPatient.Id},
-                                    {"patient_id" ,patientLastId},
-                                    {"raisedDate",DateTime.SpecifyKind(patient.appointment_date.AddHours(-5).AddMinutes(-30), DateTimeKind.Utc)},
-                                    {"reminder_sms" ,false},
-                                    {"severity" ,"Low"},
-                                    {"status" ,"Waiting"},
-                                    {"timeStamp" ,DateTime.UtcNow},
-                                    {"token" ,patient.tokenNumber}
-                                };
-                                await colAppountments.Document().SetAsync(dataAppointment);
-                                #endregion Code to create new appointment id for today
-
-                                return RedirectToAction("Index", "Appointment");
-                            }
-                        }
-                        else
-                        {
-                            return RedirectToAction("Index", "Patient");
-                        }
-
-
-                            
-                    }
-
-
-
-                    return View(patient);
-
-                    
-                }
-                else
-                {
-                    
-                    return View(patient);
-                }
-
-                
-            }
-            catch (Exception ex)
-            {
-                return View();
-            }
-
-            
-        }
 
         public async Task<ActionResult> Edit(string id)
         {
@@ -2012,13 +1619,37 @@ namespace MVCFirebase.Controllers
 
                     List<SelectListItem> referby = new List<SelectListItem>() {
                 new SelectListItem {
-                    Text = "Friend", Value = "Friend"
+                    Text = "TV ADV", Value = "TV ADV"
                 },
                 new SelectListItem {
-                    Text = "NewsPaper", Value = "NewsPaper"
+                    Text = "SOCIAL MEDIA", Value = "SOCIAL MEDIA"
                 },
                 new SelectListItem {
-                    Text = "Web", Value = "Web"
+                    Text = "WALL PAINTING", Value = "WALL PAINTING"
+                },
+                new SelectListItem {
+                    Text = "POSTERS", Value = "POSTERS"
+                },
+                new SelectListItem {
+                    Text = "PATIENT", Value = "PATIENT"
+                },
+                new SelectListItem {
+                    Text = "INTERNET SEARCH", Value = "INTERNET SEARCH"
+                },
+                new SelectListItem {
+                    Text = "CALLS", Value = "CALLS"
+                },
+                new SelectListItem {
+                    Text = "DOCTOR", Value = "DOCTOR"
+                },
+                new SelectListItem {
+                    Text = "HOSPITAL", Value = "HOSPITAL"
+                },
+                new SelectListItem {
+                    Text = "MAIL/MSG", Value = "MAILMSG"
+                },
+                new SelectListItem {
+                    Text = "RANDOM", Value = "RANDOM"
                 },
 
             };
@@ -2166,13 +1797,37 @@ namespace MVCFirebase.Controllers
 
                     List<SelectListItem> referby = new List<SelectListItem>() {
                 new SelectListItem {
-                    Text = "Friend", Value = "Friend"
+                    Text = "TV ADV", Value = "TV ADV"
                 },
                 new SelectListItem {
-                    Text = "NewsPaper", Value = "NewsPaper"
+                    Text = "SOCIAL MEDIA", Value = "SOCIAL MEDIA"
                 },
                 new SelectListItem {
-                    Text = "Web", Value = "Web"
+                    Text = "WALL PAINTING", Value = "WALL PAINTING"
+                },
+                new SelectListItem {
+                    Text = "POSTERS", Value = "POSTERS"
+                },
+                new SelectListItem {
+                    Text = "PATIENT", Value = "PATIENT"
+                },
+                new SelectListItem {
+                    Text = "INTERNET SEARCH", Value = "INTERNET SEARCH"
+                },
+                new SelectListItem {
+                    Text = "CALLS", Value = "CALLS"
+                },
+                new SelectListItem {
+                    Text = "DOCTOR", Value = "DOCTOR"
+                },
+                new SelectListItem {
+                    Text = "HOSPITAL", Value = "HOSPITAL"
+                },
+                new SelectListItem {
+                    Text = "MAIL/MSG", Value = "MAILMSG"
+                },
+                new SelectListItem {
+                    Text = "RANDOM", Value = "RANDOM"
                 },
 
             };
@@ -2196,158 +1851,7 @@ namespace MVCFirebase.Controllers
                 return RedirectToAction("Login", "Home");
             }
         }
-        // GET: Patient/Edit/5
-        public async Task<ActionResult> Edit1(string id)
-        {
-            string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
-            Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
-            FirestoreDb db = FirestoreDb.Create("greenpaperdev");
-            List<SelectListItem> diseases = new List<SelectListItem>() {
-                        new SelectListItem {
-                            Text = "General -(fever/general acute complaints)", Value = "General"
-                        },
-                        new SelectListItem {
-                            Text = "ENT (ear nose throat)", Value = "ENT(ear nose throat)"
-                        },
-                        new SelectListItem {
-                            Text = "CNS (central nervous system", Value = "CNS(central nervous system)"
-                        },
-                        new SelectListItem {
-                            Text = "DERMATO (skin/hair)", Value = "DERMATO./SKIN/hair"
-                        },
-                        new SelectListItem {
-                            Text = "GIT (gastro intestinal track)", Value = "GIT(gastro intestinal track)"
-                        },
-                        new SelectListItem {
-                            Text = "SURGERY", Value = "SURGERY"
-                        },
-                        new SelectListItem {
-                            Text = "TUMORS/ONCOLOGY", Value = "TUMOURS/ONCOLOGY"
-                        },
-                        new SelectListItem {
-                            Text = "HAEMATOLOGY (blood)", Value = "HAEMATOLOGY(blood)"
-                        },
-                        new SelectListItem {
-                            Text = "ORTHOPADICS (bones & muscles)", Value = "ORTHOPADICS(bones & muscles)"
-                        },
-                        new SelectListItem {
-                            Text = "PAEDIATRIC (child)", Value = "paediatric"
-                        },
-                        new SelectListItem {
-                            Text = "OPTHALMOLOGISTS (EYE)", Value = "opthalmologists(eye)"
-                        },
-                        new SelectListItem {
-                            Text = "CVS (cardio vascular system/heart)", Value = "CVS(cardio vascular system/heart)"
-                        },
-                        new SelectListItem {
-                            Text = "ENDOCRINOLOGY", Value = "ENDOCRINOLOGY"
-                        },
-                        new SelectListItem {
-                            Text = "GYNAECOLOGY & OBS", Value = "GYNAECOLOGY & OBS"
-                        },
-                        new SelectListItem {
-                            Text = "GENETICS", Value = "GENETICS"
-                        },
-                    };
-            ViewBag.DISEASES = diseases;
-            List<SelectListItem> cities = new List<SelectListItem>() {
-                        new SelectListItem {
-                            Text = "Faridabad", Value = "Faridabad"
-                        },
-                        new SelectListItem {
-                            Text = "Ghaziabad", Value = "Ghaziabad"
-                        },
-                        new SelectListItem {
-                            Text = "New Delhi", Value = "New Delhi"
-                        },
-                        new SelectListItem {
-                            Text = "Bahadurgarh", Value = "Bahadurgarh"
-                        },
-                        new SelectListItem {
-                            Text = "Mathura", Value = "Mathura"
-                        },
-                        new SelectListItem {
-                            Text = "Agra", Value = "Agra"
-                        },
-                        new SelectListItem {
-                            Text = "Ballabgarh", Value = "Ballabgarh"
-                        },
-                        new SelectListItem {
-                            Text = "Gurdaspur", Value = "Gurdaspur"
-                        },
-                        new SelectListItem {
-                            Text = "Amritsar", Value = "Amritsar"
-                        },
-                        new SelectListItem {
-                            Text = "Batala", Value = "Batala"
-                        },
-                        new SelectListItem {
-                            Text = "Jallandhar", Value = "Jallandhar"
-                        },
-                        new SelectListItem {
-                            Text = "Pathankot", Value = "Pathankot"
-                        },
-                        new SelectListItem {
-                            Text = "Bathinda", Value = "Bathinda"
-                        },
-                        new SelectListItem {
-                            Text = "Ambala", Value = "Ambala"
-                        },
-                    };
-            ViewBag.CITIES = cities;
-            List<SelectListItem> genders = new List<SelectListItem>() {
-                        new SelectListItem {
-                            Text = "Male", Value = "Male"
-                        },
-                        new SelectListItem {
-                            Text = "Female", Value = "Female"
-                        },
-                        new SelectListItem {
-                            Text = "Other", Value = "Other"
-                        },
 
-                    };
-            ViewBag.GENDERS = genders;
-
-            List<SelectListItem> severity = new List<SelectListItem>() {
-                new SelectListItem {
-                    Text = "Low", Value = "Low"
-                },
-                new SelectListItem {
-                    Text = "Medium", Value = "Medium"
-                },
-                new SelectListItem {
-                    Text = "High", Value = "High"
-                },
-
-            };
-            ViewBag.SEVERITIES = severity;
-
-            List<SelectListItem> referby = new List<SelectListItem>() {
-                new SelectListItem {
-                    Text = "Friend", Value = "Friend"
-                },
-                new SelectListItem {
-                    Text = "NewsPaper", Value = "NewsPaper"
-                },
-                new SelectListItem {
-                    Text = "Web", Value = "Web"
-                },
-
-            };
-            ViewBag.REFERBYS = referby;
-
-            //CollectionReference col1 = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("patientList").Document("test");
-            DocumentReference docRef = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("patientList").Document(id);
-            DocumentSnapshot docSnap = await docRef.GetSnapshotAsync();
-            Patient patient = docSnap.ConvertTo<Patient>();
-            patient.appointment_date = DateTime.UtcNow;
-            patient.tokenNumber = "0";
-            //patient.id = id;
-            
-
-            return View(patient);
-        }
 
         [HttpPost]
         public async Task<ActionResult> Edit(string id, Patient patient)
@@ -2472,33 +1976,45 @@ namespace MVCFirebase.Controllers
                     };
                         ViewBag.GENDERS = genders;
 
-                        List<SelectListItem> severity = new List<SelectListItem>() {
+                        List<SelectListItem> referby = new List<SelectListItem>() {
                 new SelectListItem {
-                    Text = "Low", Value = "Low"
+                    Text = "TV ADV", Value = "TV ADV"
                 },
                 new SelectListItem {
-                    Text = "Medium", Value = "Medium"
+                    Text = "SOCIAL MEDIA", Value = "SOCIAL MEDIA"
                 },
                 new SelectListItem {
-                    Text = "High", Value = "High"
+                    Text = "WALL PAINTING", Value = "WALL PAINTING"
+                },
+                new SelectListItem {
+                    Text = "POSTERS", Value = "POSTERS"
+                },
+                new SelectListItem {
+                    Text = "PATIENT", Value = "PATIENT"
+                },
+                new SelectListItem {
+                    Text = "INTERNET SEARCH", Value = "INTERNET SEARCH"
+                },
+                new SelectListItem {
+                    Text = "CALLS", Value = "CALLS"
+                },
+                new SelectListItem {
+                    Text = "DOCTOR", Value = "DOCTOR"
+                },
+                new SelectListItem {
+                    Text = "HOSPITAL", Value = "HOSPITAL"
+                },
+                new SelectListItem {
+                    Text = "MAIL/MSG", Value = "MAILMSG"
+                },
+                new SelectListItem {
+                    Text = "RANDOM", Value = "RANDOM"
                 },
 
             };
-                        ViewBag.SEVERITIES = severity;
-
-                        List<SelectListItem> referby = new List<SelectListItem>() {
-                new SelectListItem {
-                    Text = "Friend", Value = "Friend"
-                },
-                new SelectListItem {
-                    Text = "NewsPaper", Value = "NewsPaper"
-                },
-                new SelectListItem {
-                    Text = "Web", Value = "Web"
-                },
-
-                };
                         ViewBag.REFERBYS = referby;
+
+                        
                         if (ModelState.IsValid)
                         {
                             string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
@@ -2676,16 +2192,40 @@ namespace MVCFirebase.Controllers
 
                         List<SelectListItem> referby = new List<SelectListItem>() {
                 new SelectListItem {
-                    Text = "Friend", Value = "Friend"
+                    Text = "TV ADV", Value = "TV ADV"
                 },
                 new SelectListItem {
-                    Text = "NewsPaper", Value = "NewsPaper"
+                    Text = "SOCIAL MEDIA", Value = "SOCIAL MEDIA"
                 },
                 new SelectListItem {
-                    Text = "Web", Value = "Web"
+                    Text = "WALL PAINTING", Value = "WALL PAINTING"
+                },
+                new SelectListItem {
+                    Text = "POSTERS", Value = "POSTERS"
+                },
+                new SelectListItem {
+                    Text = "PATIENT", Value = "PATIENT"
+                },
+                new SelectListItem {
+                    Text = "INTERNET SEARCH", Value = "INTERNET SEARCH"
+                },
+                new SelectListItem {
+                    Text = "CALLS", Value = "CALLS"
+                },
+                new SelectListItem {
+                    Text = "DOCTOR", Value = "DOCTOR"
+                },
+                new SelectListItem {
+                    Text = "HOSPITAL", Value = "HOSPITAL"
+                },
+                new SelectListItem {
+                    Text = "MAIL/MSG", Value = "MAILMSG"
+                },
+                new SelectListItem {
+                    Text = "RANDOM", Value = "RANDOM"
                 },
 
-                };
+            };
                         ViewBag.REFERBYS = referby;
                         if (ModelState.IsValid)
                         {
@@ -2739,193 +2279,6 @@ namespace MVCFirebase.Controllers
             {
                 FormsAuthentication.SignOut();
                 return RedirectToAction("Login", "Home");
-            }
-        }
-        // POST: Patient/Edit/5
-        [HttpPost]
-        public async Task<ActionResult> Edit1(string id, Patient patient)
-        {
-            try
-            {
-                List<SelectListItem> diseases = new List<SelectListItem>() {
-                        new SelectListItem {
-                            Text = "General -(fever/general acute complaints)", Value = "General"
-                        },
-                        new SelectListItem {
-                            Text = "ENT (ear nose throat)", Value = "ENT(ear nose throat)"
-                        },
-                        new SelectListItem {
-                            Text = "CNS (central nervous system", Value = "CNS(central nervous system)"
-                        },
-                        new SelectListItem {
-                            Text = "DERMATO (skin/hair)", Value = "DERMATO./SKIN/hair"
-                        },
-                        new SelectListItem {
-                            Text = "GIT (gastro intestinal track)", Value = "GIT(gastro intestinal track)"
-                        },
-                        new SelectListItem {
-                            Text = "SURGERY", Value = "SURGERY"
-                        },
-                        new SelectListItem {
-                            Text = "TUMORS/ONCOLOGY", Value = "TUMOURS/ONCOLOGY"
-                        },
-                        new SelectListItem {
-                            Text = "HAEMATOLOGY (blood)", Value = "HAEMATOLOGY(blood)"
-                        },
-                        new SelectListItem {
-                            Text = "ORTHOPADICS (bones & muscles)", Value = "ORTHOPADICS(bones & muscles)"
-                        },
-                        new SelectListItem {
-                            Text = "PAEDIATRIC (child)", Value = "paediatric"
-                        },
-                        new SelectListItem {
-                            Text = "OPTHALMOLOGISTS (EYE)", Value = "opthalmologists(eye)"
-                        },
-                        new SelectListItem {
-                            Text = "CVS (cardio vascular system/heart)", Value = "CVS(cardio vascular system/heart)"
-                        },
-                        new SelectListItem {
-                            Text = "ENDOCRINOLOGY", Value = "ENDOCRINOLOGY"
-                        },
-                        new SelectListItem {
-                            Text = "GYNAECOLOGY & OBS", Value = "GYNAECOLOGY & OBS"
-                        },
-                        new SelectListItem {
-                            Text = "GENETICS", Value = "GENETICS"
-                        },
-                    };
-                ViewBag.DISEASES = diseases;
-                List<SelectListItem> cities = new List<SelectListItem>() {
-                        new SelectListItem {
-                            Text = "Faridabad", Value = "Faridabad"
-                        },
-                        new SelectListItem {
-                            Text = "Ghaziabad", Value = "Ghaziabad"
-                        },
-                        new SelectListItem {
-                            Text = "New Delhi", Value = "New Delhi"
-                        },
-                        new SelectListItem {
-                            Text = "Bahadurgarh", Value = "Bahadurgarh"
-                        },
-                        new SelectListItem {
-                            Text = "Mathura", Value = "Mathura"
-                        },
-                        new SelectListItem {
-                            Text = "Agra", Value = "Agra"
-                        },
-                        new SelectListItem {
-                            Text = "Ballabgarh", Value = "Ballabgarh"
-                        },
-                        new SelectListItem {
-                            Text = "Gurdaspur", Value = "Gurdaspur"
-                        },
-                        new SelectListItem {
-                            Text = "Amritsar", Value = "Amritsar"
-                        },
-                        new SelectListItem {
-                            Text = "Batala", Value = "Batala"
-                        },
-                        new SelectListItem {
-                            Text = "Jallandhar", Value = "Jallandhar"
-                        },
-                        new SelectListItem {
-                            Text = "Pathankot", Value = "Pathankot"
-                        },
-                        new SelectListItem {
-                            Text = "Bathinda", Value = "Bathinda"
-                        },
-                        new SelectListItem {
-                            Text = "Ambala", Value = "Ambala"
-                        },
-                    };
-                ViewBag.CITIES = cities;
-                List<SelectListItem> genders = new List<SelectListItem>() {
-                        new SelectListItem {
-                            Text = "Male", Value = "Male"
-                        },
-                        new SelectListItem {
-                            Text = "Female", Value = "Female"
-                        },
-                        new SelectListItem {
-                            Text = "Other", Value = "Other"
-                        },
-
-                    };
-                ViewBag.GENDERS = genders;
-
-                List<SelectListItem> severity = new List<SelectListItem>() {
-                new SelectListItem {
-                    Text = "Low", Value = "Low"
-                },
-                new SelectListItem {
-                    Text = "Medium", Value = "Medium"
-                },
-                new SelectListItem {
-                    Text = "High", Value = "High"
-                },
-
-            };
-                ViewBag.SEVERITIES = severity;
-
-                List<SelectListItem> referby = new List<SelectListItem>() {
-                new SelectListItem {
-                    Text = "Friend", Value = "Friend"
-                },
-                new SelectListItem {
-                    Text = "NewsPaper", Value = "NewsPaper"
-                },
-                new SelectListItem {
-                    Text = "Web", Value = "Web"
-                },
-
-                };
-                ViewBag.REFERBYS = referby;
-                if (ModelState.IsValid)
-                {
-                    string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
-                    Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
-                    FirestoreDb db = FirestoreDb.Create("greenpaperdev");
-
-                    DocumentReference docRef = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("patientList").Document(id);
-                    DocumentSnapshot docSnap = await docRef.GetSnapshotAsync();
-
-                    Dictionary<string, object> data1 = new Dictionary<string, object>
-                        {
-                            {"patient_name" ,patient.patient_name.ToLower()},
-                            {"age" ,patient.age},
-                            {"care_of" ,patient.care_of},
-                            {"city" ,patient.city},
-                            {"creation_date" ,DateTime.SpecifyKind(patient.creation_date, DateTimeKind.Utc)},
-                            {"disease" ,patient.disease},
-                            {"gender" ,patient.gender},
-                            {"severity" ,patient.severity},
-                            {"patient_id" ,patient.patient_id},
-                            {"patient_mobile_number",patient.patient_mobile_number},
-                            {"refer_by" ,patient.refer_by},
-                            {"refer_to_doctor" ,patient.refer_to_doctor},
-                            {"search_text" ,patient.patient_name+patient.patient_mobile_number+patient.patient_id}
-                        };
-                    
-
-                    if (docSnap.Exists)
-                    {
-                        await docRef.UpdateAsync(data1);
-                    }
-
-                    return RedirectToAction("Index");
-                }
-                else
-                {
-                    
-                    return View(patient);
-                }
-
-
-            }
-            catch
-            {
-                return View(patient);
             }
         }
 

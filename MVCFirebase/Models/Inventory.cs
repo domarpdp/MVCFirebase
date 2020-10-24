@@ -33,6 +33,12 @@ namespace MVCFirebase.Models
         public int? quantitybalance { get; set; }
 
         [FirestoreProperty]
+        [Display(Name = "Minimum Quantity")]
+        [Required(ErrorMessage = "Required.")]
+        [Range(1, 999)]
+        public int? quantitymin { get; set; }
+
+        [FirestoreProperty]
         [MaxLength(100)]
         [Display(Name = "Medicine Name")]
         [Required(ErrorMessage = "Required.")]

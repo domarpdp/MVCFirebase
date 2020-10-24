@@ -44,6 +44,7 @@ namespace MVCFirebase.Controllers
                     inventory.quantitypurchased = docsnapMedicines.GetValue<int>("quantitypurchased");
                     inventory.quantitygiven = docsnapMedicines.GetValue<int>("quantitygiven");
                     inventory.quantitybalance = docsnapMedicines.GetValue<int>("quantitybalance");
+                    inventory.quantitymin = docsnapMedicines.GetValue<int>("quantitymin");
                     inventory.medicinename = docsnapMedicines.GetValue<string>("medicinename");
                     inventory.unitmrp = docsnapMedicines.GetValue<string>("unitmrp");
                     inventory.purchasedunitprice = docsnapMedicines.GetValue<string>("purchasedunitprice");
@@ -100,6 +101,7 @@ namespace MVCFirebase.Controllers
                     {
                         {"shortname" ,inventory.shortname.ToLower()},
                         {"quantitypurchased" ,inventory.quantitypurchased},
+                        {"quantitymin" ,inventory.quantitymin},
                         {"medicinename" ,inventory.medicinename.ToLower()},
                         {"unitmrp" ,inventory.unitmrp.ToString()},
                         {"dateadded" ,DateTime.UtcNow},
