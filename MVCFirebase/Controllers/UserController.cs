@@ -129,6 +129,34 @@ namespace MVCFirebase.Controllers
                     string ClinicMobileNumber = GlobalSessionVariables.ClinicMobileNumber;
                     Query QrefUsers = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("user");
                     QuerySnapshot snapUsers = await QrefUsers.GetSnapshotAsync();
+                    foreach (DocumentSnapshot docsnapUsers in snapUsers)
+                    {
+                        User dbuser = docsnapUsers.ConvertTo<User>();
+                        if (dbuser.user_roles.Contains("Receptionist"))
+                        {
+                            if(user.user_roles[0].ToString().IndexOf("Receptionist") >= 0)
+                            {
+                                ViewBag.Message = "Only 1 Receptionist is allowed to create.";
+                                return View();
+                            }
+                        }
+                        if (dbuser.user_roles.Contains("Chemist"))
+                        {
+                            if (user.user_roles[0].ToString().IndexOf("Chemist") >= 0)
+                            {
+                                ViewBag.Message = "Only 1 Chemist is allowed to create.";
+                                return View();
+                            }
+                        }
+                        if (dbuser.user_roles.Contains("Cashier"))
+                        {
+                            if (user.user_roles[0].ToString().IndexOf("Cashier") >= 0)
+                            {
+                                ViewBag.Message = "Only 1 Cashier is allowed to create.";
+                                return View();
+                            }
+                        }
+                    }
 
                     switch (selectedPlan)
                     {
@@ -266,6 +294,42 @@ namespace MVCFirebase.Controllers
 
                     DocumentReference docRef = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("user").Document(id);
                     DocumentSnapshot docSnap = await docRef.GetSnapshotAsync();
+
+                    Query QrefUsers = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("user");
+                    QuerySnapshot snapUsers = await QrefUsers.GetSnapshotAsync();
+                    foreach (DocumentSnapshot docsnapUsers in snapUsers)
+                    {
+                        if (docsnapUsers.Id != id)
+                        {
+                            User dbuser = docsnapUsers.ConvertTo<User>();
+                            if (dbuser.user_roles.Contains("Receptionist"))
+                            {
+                                if (user.user_roles[0].ToString().IndexOf("Receptionist") >= 0)
+                                {
+                                    ViewBag.Message = "Only 1 Receptionist is allowed to create.";
+                                    return View();
+                                }
+                            }
+                            if (dbuser.user_roles.Contains("Chemist"))
+                            {
+                                if (user.user_roles[0].ToString().IndexOf("Chemist") >= 0)
+                                {
+                                    ViewBag.Message = "Only 1 Chemist is allowed to create.";
+                                    return View();
+                                }
+                            }
+                            if (dbuser.user_roles.Contains("Cashier"))
+                            {
+                                if (user.user_roles[0].ToString().IndexOf("Cashier") >= 0)
+                                {
+                                    ViewBag.Message = "Only 1 Cashier is allowed to create.";
+                                    return View();
+                                }
+                            }
+                        }
+
+                    }
+
                     if (user.user_roles[0].ToString() == "" || user.user_roles[0].ToString() == "System.String[]")
                     {
                         ViewBag.Message = "Please select at leat one role.";

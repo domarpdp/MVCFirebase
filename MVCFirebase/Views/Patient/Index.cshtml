@@ -167,6 +167,15 @@
                                 </div>
 
                             </div>
+                            <div class="form-group">
+                                <div class="col-md-5">
+                                    @Html.Label("ReferTo", "Refer Tor:")
+                                </div>
+                                
+                                <div class="col-md-5">
+                                    @Html.DropDownList("referto", (IEnumerable<SelectListItem>)ViewBag.USERS, new { @class = "select2_demo_4 form-control" })
+                                </div>
+                            </div>
 
                         </div>
 
