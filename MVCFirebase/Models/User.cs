@@ -11,6 +11,7 @@ namespace MVCFirebase.Models
     public class User
     {
         [FirestoreProperty]
+        [Display(Name = "Clinic Mobile Number:")]
         public string clinicmobilenumber { get; set; }
 
         [FirestoreProperty]
@@ -58,6 +59,7 @@ namespace MVCFirebase.Models
         public string Id { get; set; }
 
         [FirestoreProperty]
+        [Display(Name = "Roles:")]
         public string[] user_roles { get; set; }
     }
 }

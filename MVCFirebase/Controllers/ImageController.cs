@@ -119,7 +119,11 @@ namespace MVCFirebase.Controllers
                     TempData["inventoryon"] = "false";
                 }
             }
-            
+
+            DocumentReference docRef = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("appointments").Document(id);
+            DocumentSnapshot docSnap = await docRef.GetSnapshotAsync();
+
+            TempData["days"] = docSnap.GetValue<string>("days");
             TempData.Keep();
 
 

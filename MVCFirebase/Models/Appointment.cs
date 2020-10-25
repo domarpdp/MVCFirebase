@@ -11,6 +11,7 @@ namespace MVCFirebase.Models
     public class Appointment
     {
         [FirestoreProperty]
+        [Display(Name = "Bill SMS:")]
         [Required(ErrorMessage = "Required.")]
         public bool bill_sms { get; set; }
 

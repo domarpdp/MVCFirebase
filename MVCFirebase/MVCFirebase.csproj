@@ -236,6 +236,7 @@
     <Compile Include="Models\Medicine.cs" />
     <Compile Include="Models\Patient.cs" />
     <Compile Include="Models\SuperUser.cs" />
+    <Compile Include="Models\SuperUserClinicSettings.cs" />
     <Compile Include="Models\User.cs" />
     <Compile Include="Models\UserRoleProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

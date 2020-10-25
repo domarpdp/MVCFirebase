@@ -65,10 +65,11 @@
 
 
 <div>
-    @Html.ActionLink("Back to List", "Waiting", "Appointment")
+    @Html.ActionLink("Back to List", "Waiting", "Appointment") <br /><text>(Medicine will be given for <span style="font-size:large">@TempData["days"]</span> days)</text>
 </div>
 <br>
 <table width="100%" border="0">
+    
     <tr>
         @if (@TempData["inventoryon"].ToString() == "true")
         {
