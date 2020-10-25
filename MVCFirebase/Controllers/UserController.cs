@@ -137,7 +137,7 @@ namespace MVCFirebase.Controllers
                             if(user.user_roles[0].ToString().IndexOf("Receptionist") >= 0)
                             {
                                 ViewBag.Message = "Only 1 Receptionist is allowed to create.";
-                                return View();
+                                return View(user);
                             }
                         }
                         if (dbuser.user_roles.Contains("Chemist"))
@@ -145,7 +145,7 @@ namespace MVCFirebase.Controllers
                             if (user.user_roles[0].ToString().IndexOf("Chemist") >= 0)
                             {
                                 ViewBag.Message = "Only 1 Chemist is allowed to create.";
-                                return View();
+                                return View(user);
                             }
                         }
                         if (dbuser.user_roles.Contains("Cashier"))
@@ -153,7 +153,7 @@ namespace MVCFirebase.Controllers
                             if (user.user_roles[0].ToString().IndexOf("Cashier") >= 0)
                             {
                                 ViewBag.Message = "Only 1 Cashier is allowed to create.";
-                                return View();
+                                return View(user);
                             }
                         }
                     }
@@ -164,21 +164,21 @@ namespace MVCFirebase.Controllers
                             if(snapUsers.Count > 1)
                             {
                                 ViewBag.Message = "Please upgrade your Plan to create more users.";
-                                return View();
+                                return View(user);
                             }
                             break;
                         case "plan_gold":
                             if (snapUsers.Count > 2)
                             {
                                 ViewBag.Message = "Please upgrade your Plan to create more users.";
-                                return View();
+                                return View(user);
                             }
                             break;
                         case "plan_platinum":
                             if (snapUsers.Count > 3)
                             {
                                 ViewBag.Message = "Please upgrade your Plan to create more users.";
-                                return View();
+                                return View(user);
                             }
                             break;
                         default:
@@ -307,7 +307,7 @@ namespace MVCFirebase.Controllers
                                 if (user.user_roles[0].ToString().IndexOf("Receptionist") >= 0)
                                 {
                                     ViewBag.Message = "Only 1 Receptionist is allowed to create.";
-                                    return View();
+                                    return View(user);
                                 }
                             }
                             if (dbuser.user_roles.Contains("Chemist"))
@@ -315,7 +315,7 @@ namespace MVCFirebase.Controllers
                                 if (user.user_roles[0].ToString().IndexOf("Chemist") >= 0)
                                 {
                                     ViewBag.Message = "Only 1 Chemist is allowed to create.";
-                                    return View();
+                                    return View(user);
                                 }
                             }
                             if (dbuser.user_roles.Contains("Cashier"))
@@ -323,7 +323,7 @@ namespace MVCFirebase.Controllers
                                 if (user.user_roles[0].ToString().IndexOf("Cashier") >= 0)
                                 {
                                     ViewBag.Message = "Only 1 Cashier is allowed to create.";
-                                    return View();
+                                    return View(user);
                                 }
                             }
                         }
