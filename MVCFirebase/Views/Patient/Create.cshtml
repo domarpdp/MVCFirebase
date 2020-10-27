@@ -24,6 +24,10 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-ui-timepicker-addon/1.6.3/jquery-ui-timepicker-addon.min.css" type="text/css" />
 <script type="text/javascript">
     $(function () {
+        var d = new Date($.now());
+        var formattedDate = (d.getMonth() + 1) + "/" + d.getDate() + "/" + d.getFullYear() + " " + d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds();
+        $("#appointment_date").val(formattedDate);
+
         $("#city").autocomplete({
             source: function (request, response) {
                 $.ajax({

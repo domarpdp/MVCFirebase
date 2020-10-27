@@ -519,7 +519,7 @@ namespace MVCFirebase.Controllers
                     Clinic clinic = docSnapClinicCity.ConvertTo<Clinic>();
                     Patient patient = new Patient();
                     patient.city = clinic.cliniccity;
-                    patient.appointment_date = DateTime.Now;
+                    //patient.appointment_date = DateTime.Now;
                     patient.tokenNumber = await getLatestToken(DateTime.Now.ToString("MM/dd/yyyy"));
 
                     QuerySnapshot snapUsersDoctors = await docSnapClinicCity.Reference.Collection("user").WhereArrayContains("user_roles","Doctor").GetSnapshotAsync();
@@ -550,7 +550,7 @@ namespace MVCFirebase.Controllers
                     Clinic clinic = docSnapClinicCity.ConvertTo<Clinic>();
                     Patient patient = new Patient();
                     patient.city = clinic.cliniccity;
-                    patient.appointment_date = DateTime.Now;
+                    //patient.appointment_date = DateTime.Now;
                     patient.tokenNumber = await getLatestToken(DateTime.Now.ToString("MM/dd/yyyy"));
 
                     QuerySnapshot snapUsersDoctors = await docSnapClinicCity.Reference.Collection("user").WhereArrayContains("user_roles", "Doctor").GetSnapshotAsync();
