@@ -33,6 +33,15 @@
 <script>
     $(function () {
         $('.modal-link').click(function () {
+            $.post("/Patient/getCurrentServerDate", { xyz: "test" },
+                function (data) {
+                    alert(data);
+                    var d = new Date(data);
+                    var formattedDate = (d.getMonth() + 1) + "/" + d.getDate() + "/" + d.getFullYear() + " " + d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds();
+                    $("#datepicker").val(formattedDate);
+                })
+
+
             $('#patientAutoId').val($(this).attr('data-id'));
             var d = new Date($.now());
             var formattedDate = (d.getMonth() + 1) + "/" + d.getDate() + "/" + d.getFullYear() + " " + d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds();

@@ -2208,6 +2208,12 @@ namespace MVCFirebase.Controllers
             return lastTokenNumberReturned;
         }
 
+        [HttpPost]
+        public string getCurrentServerDate(string xyz)
+        {
+            return DateTime.Now.ToString();
+        }
+
         public async static Task<bool> IsYourLoginStillTrue(string userId, string sid)
         {
             string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
