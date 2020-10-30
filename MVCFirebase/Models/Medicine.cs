@@ -10,6 +10,7 @@ namespace MVCFirebase.Models
     {
         [Display(Name = "Auto Id")]
         public int serialno { get; set; }
+
         [Display(Name = "Auto Id")]
         public string id { get; set; }
 
@@ -21,6 +22,9 @@ namespace MVCFirebase.Models
 
         [Display(Name = "Price")]
         public string Price { get; set; }
+
+        [Display(Name = "Inventory Id")]
+        public string inventoryid { get; set; }
 
 
     }

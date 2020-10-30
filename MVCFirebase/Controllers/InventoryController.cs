@@ -276,20 +276,36 @@ namespace MVCFirebase.Controllers
 
         // POST: Inventory/Delete/5
         [HttpPost]
-        public async Task<ActionResult> DeleteMedicine(FormCollection collection)
+        public async Task<ActionResult> DeleteMedicine(string id,string appointmentid,string patientid,string quantity,string inventoryid)
         {
             try
             {
-                string appautoid = collection["appointmentAutoId"];
-                string patientautoid = collection["patientAutoId"];
-                string serialnoremove = collection["serialno"].ToString().Split(',').Last();
+                string appautoid = appointmentid;
+                string patientautoid = patientid;
+                string medicineId = id;
                 string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
                 Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
                 FirestoreDb db = FirestoreDb.Create("greenpaperdev");
 
                 //CollectionReference col1 = db.Collection("clinics").Document("ly0N6C9cO0crz0s6LMUi").Collection("appointments").Document(appautoid).Collection("medicines");
-                DocumentReference docRef = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("appointments").Document(appautoid).Collection("medicines").Document(serialnoremove);
+                DocumentReference docRef = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("appointments").Document(appautoid).Collection("medicines").Document(medicineId);
                 await docRef.DeleteAsync();
+
+                DocumentReference docRefInventory = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("inventory").Document(inventoryid);
+                DocumentSnapshot docSnapInventory = await docRefInventory.GetSnapshotAsync();
+
+                int updatedQuantityBalance = docSnapInventory.GetValue<int>("quantitybalance") + Convert.ToInt32(quantity);
+
+                Dictionary<string, object> data2 = new Dictionary<string, object>
+                            {
+                                {"quantitybalance" ,updatedQuantityBalance}
+                            };
+
+
+                if (docSnapInventory.Exists)
+                {
+                    await docRef.UpdateAsync(data2);
+                }
 
                 return RedirectToAction("Index", "Image", new { id = appautoid, patient = patientautoid });
 

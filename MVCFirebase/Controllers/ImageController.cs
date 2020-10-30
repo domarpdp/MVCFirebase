@@ -73,6 +73,7 @@ namespace MVCFirebase.Controllers
                         med.medicinename = docsnapMedicines.GetValue<string>("medicinename");
                         med.quantity = docsnapMedicines.GetValue<string>("quantity");
                         med.Price = (Convert.ToDecimal(docsnapMedicines.GetValue<string>("quantity")) * Convert.ToDecimal(docsnapMedicines.GetValue<string>("unitmrp"))).ToString();
+                        med.inventoryid = docsnapMedicines.GetValue<string>("inventoryid");
                         medicineList.Add(med);
                         totalprice = totalprice + Convert.ToDecimal(docsnapMedicines.GetValue<string>("quantity")) * Convert.ToDecimal(docsnapMedicines.GetValue<string>("unitmrp"));
                     }

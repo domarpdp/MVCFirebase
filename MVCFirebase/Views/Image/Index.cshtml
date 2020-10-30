@@ -129,10 +129,8 @@
                                             <td>@medicine.quantity</td>
                                             <td>@medicine.Price</td>
 
-                                            <td>
-                                                <input type="submit" class="form-control" value="Del" style="width:80px" formaction="/inventory/DeleteMedicine" formmethod="post" />
-
-                                                @using (Html.BeginForm("Delete", "Image", new { id = medicine.id, appointmentid = @TempData["appointmentAutoId"] },FormMethod.Post))
+                                            <td align="right">
+                                                @using (Html.BeginForm("DeleteMedicine", "Inventory", new { id = medicine.id, appointmentid = @TempData["appointmentAutoId"],patientid=@TempData["patientAutoId"],quantity= medicine.quantity,inventoryid = medicine.inventoryid },FormMethod.Post))
                                                 {
                                                     <input type="submit" class="btn btn-danger" value="Delete" onclick="return confirm('Are U sure for Delete medicine.')"/>
                                                 }
