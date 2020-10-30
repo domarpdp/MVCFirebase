@@ -307,5 +307,27 @@ namespace MVCFirebase.Controllers
             }
             
         }
+
+        // GET: Appointment/Delete/5
+        public ActionResult Delete(string id)
+        {
+            return View();
+        }
+
+        // POST: Appointment/Delete/5
+        [HttpPost]
+        public ActionResult Delete(string id, string appointmentid)
+        {
+            try
+            {
+                // TODO: Add delete logic here
+
+                return RedirectToAction("Index");
+            }
+            catch
+            {
+                return View();
+            }
+        }
     }
 }

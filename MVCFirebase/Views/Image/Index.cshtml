@@ -74,38 +74,40 @@
         @if (@TempData["inventoryon"].ToString() == "true")
         {
             <td width="60%" valign="top">
-                @using (Html.BeginForm("AddMedicine", "Inventory", FormMethod.Post))
-                {
+                
                     <table>
                         <tr>
                             <td>
-                                <table>
-                                    <tr>
-                                        <td><label>&nbsp;Medicine&nbsp;</label></td>
-                                        <td>
-                                            <div>
-                                                @Html.Editor("Medicine", new { htmlAttributes = new { @class = "form-control", placeholder = "Mdeicine Name" } })
-                                                <input type="hidden" id="hfinventoryid" name="hfinventoryid" />
-                                                <input type="hidden" id="hfquantitybalance" name="hfquantitybalance" />
-                                            </div>
-                                        </td>
-                                        <td><label>&nbsp;&nbsp;Quantity&nbsp;&nbsp;</label></td>
-                                        <td>
-                                            <div>
-                                                @Html.Editor("Quantity", new { htmlAttributes = new { @class = "form-control", placeholder = "Quantity" } })
+                                @using (Html.BeginForm("AddMedicine", "Inventory", FormMethod.Post))
+                                {
+                                    <table>
+                                        <tr>
+                                            <td><label>&nbsp;Medicine&nbsp;</label></td>
+                                            <td>
+                                                <div>
+                                                    @Html.Editor("Medicine", new { htmlAttributes = new { @class = "form-control", placeholder = "Mdeicine Name" } })
+                                                    <input type="hidden" id="hfinventoryid" name="hfinventoryid" />
+                                                    <input type="hidden" id="hfquantitybalance" name="hfquantitybalance" />
+                                                </div>
+                                            </td>
+                                            <td><label>&nbsp;&nbsp;Quantity&nbsp;&nbsp;</label></td>
+                                            <td>
+                                                <div>
+                                                    @Html.Editor("Quantity", new { htmlAttributes = new { @class = "form-control", placeholder = "Quantity" } })
 
-                                            </div>
-                                        </td>
-                                        <td>&nbsp;&nbsp;</td>
-                                        <td>
-                                            <div>
-                                                <input type="hidden" value="@TempData["appointmentAutoId"]" id="appointmentAutoId" name="appointmentAutoId" class="btn btn-default" />
-                                                <input type="hidden" value="@TempData["patientAutoId"]" id="patientAutoId" name="patientAutoId" class="btn btn-default" />
-                                                <input type="submit" value="Add Medicine" class="btn btn-default" />
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </table>
+                                                </div>
+                                            </td>
+                                            <td>&nbsp;&nbsp;</td>
+                                            <td>
+                                                <div>
+                                                    <input type="hidden" value="@TempData["appointmentAutoId"]" id="appointmentAutoId" name="appointmentAutoId" class="btn btn-default" />
+                                                    <input type="hidden" value="@TempData["patientAutoId"]" id="patientAutoId" name="patientAutoId" class="btn btn-default" />
+                                                    <input type="submit" value="Add Medicine" class="btn btn-default" />
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                }
                             </td>
                         </tr>
                         <tr>
@@ -127,7 +129,14 @@
                                             <td>@medicine.quantity</td>
                                             <td>@medicine.Price</td>
 
-                                            <td><input type="submit" class="form-control" value="Del" style="width:80px" formaction="/inventory/DeleteMedicine" formmethod="post" /></td>
+                                            <td>
+                                                <input type="submit" class="form-control" value="Del" style="width:80px" formaction="/inventory/DeleteMedicine" formmethod="post" />
+
+                                                @using (Html.BeginForm("Delete", "Image", new { id = medicine.id, appointmentid = @TempData["appointmentAutoId"] },FormMethod.Post))
+                                                {
+                                                    <input type="submit" class="btn btn-danger" value="Delete" onclick="return confirm('Are U sure for Delete medicine.')"/>
+                                                }
+                                            </td>
                                         </tr>
 
                                         }
@@ -139,7 +148,7 @@
                             </td>
                         </tr>
                     </table>
-                }
+                
             </td>
         }
 
