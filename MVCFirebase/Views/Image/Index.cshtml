@@ -65,7 +65,7 @@
 
 
 <div>
-    @Html.ActionLink("Back to List", "Waiting", "Appointment") <br /><text>(Medicine will be given for <span style="font-size:large">@TempData["days"]</span> days)</text>
+    @Html.ActionLink("Back to List", "Waiting", "Appointment") <br /><text>(Medicine given for <span style="font-size:large">@TempData["days"]</span> days)</text>
 </div>
 <br>
 <table width="100%" border="0">
@@ -75,12 +75,14 @@
         {
             <td width="60%" valign="top">
                 
-                    <table>
+                    <table width="100%">
                         <tr>
                             <td>
                                 @using (Html.BeginForm("AddMedicine", "Inventory", FormMethod.Post))
                                 {
-                                    <table>
+                                    if (ViewData["DateType"].ToString() == "CurrentDate")
+                                    {
+                                    <table width="100%">
                                         <tr>
                                             <td><label>&nbsp;Medicine&nbsp;</label></td>
                                             <td>
@@ -107,12 +109,13 @@
                                             </td>
                                         </tr>
                                     </table>
-                                }
+                                    }
+                                 }
                             </td>
                         </tr>
                         <tr>
                             <td>
-                                <table class="table table-condensed table-hover">
+                                <table class="table table-condensed table-hover" border="0" width="100%">
                                     <thead>
                                         <tr>
 
@@ -130,9 +133,12 @@
                                             <td>@medicine.Price</td>
 
                                             <td align="right">
-                                                @using (Html.BeginForm("DeleteMedicine", "Inventory", new { id = medicine.id, appointmentid = @TempData["appointmentAutoId"],patientid=@TempData["patientAutoId"],quantity= medicine.quantity,inventoryid = medicine.inventoryid },FormMethod.Post))
+                                                @using (Html.BeginForm("DeleteMedicine", "Inventory", new { id = medicine.id, appointmentid = @TempData["appointmentAutoId"], patientid = @TempData["patientAutoId"], quantity = medicine.quantity, inventoryid = medicine.inventoryid }, FormMethod.Post))
                                                 {
-                                                    <input type="submit" class="btn btn-danger" value="Delete" onclick="return confirm('Are U sure for Delete medicine.')"/>
+                                                    if (ViewData["DateType"].ToString() == "CurrentDate")
+                                                    {
+                                                    <input type="submit" class="btn btn-danger" value="Delete" onclick="return confirm('Are you sure to delete medicine.')"/>
+                                                    }
                                                 }
                                             </td>
                                         </tr>

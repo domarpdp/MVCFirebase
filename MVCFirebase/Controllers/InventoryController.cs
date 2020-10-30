@@ -304,25 +304,11 @@ namespace MVCFirebase.Controllers
 
                 if (docSnapInventory.Exists)
                 {
-                    await docRef.UpdateAsync(data2);
+                    await docRefInventory.UpdateAsync(data2);
                 }
 
                 return RedirectToAction("Index", "Image", new { id = appautoid, patient = patientautoid });
-
-                //List<Medicine> medicine = new List<Medicine>();
-                //medicine = TempData["medicine"] as List<Medicine>;
-                //string www = collection["serialno"].ToString().Split(',').Last();
-                //int serialnoremove = Convert.ToInt32(collection["serialno"].ToString().Split(',').Last());
-
-                //var itemToRemove = medicine.Single(r => r.serialno == serialnoremove);
-                //medicine.Remove(itemToRemove);
-
-                //TempData["medicine"] = medicine;
-                ////string blah = myDataSet.Tables[0].Rows[0]["Name"].ToString();
-
-                //// TODO: Add delete logic here
-                //TempData.Keep();
-                //return RedirectToAction("AddMedicine");
+                
             }
             catch (Exception ex)
             {

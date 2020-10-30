@@ -125,6 +125,18 @@ namespace MVCFirebase.Controllers
             DocumentSnapshot docSnap = await docRef.GetSnapshotAsync();
 
             TempData["days"] = docSnap.GetValue<string>("days");
+
+            
+
+            if (docSnap.GetValue<Timestamp>("raisedDate").ToDateTime().Date < DateTime.Now.Date)
+            {
+                ViewData["DateType"] = "OldDate";
+            }
+            else
+            {
+                ViewData["DateType"] = "CurrentDate";
+            }
+
             TempData.Keep();
 
 
