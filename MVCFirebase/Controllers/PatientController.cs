@@ -165,7 +165,7 @@ namespace MVCFirebase.Controllers
                         Clinic clinic = docsnap.ConvertTo<Clinic>();
 
                         #region Code to get doctors list for refer to
-                        QuerySnapshot snapUsersDoctors = await docsnap.Reference.Collection("user").WhereArrayContains("user_roles", "Doctor").GetSnapshotAsync();
+                        QuerySnapshot snapUsersDoctors = await docsnap.Reference.Collection("user").WhereArrayContainsAny("user_roles",new string[]{ "Doctor", "Chemist" }).GetSnapshotAsync();
                         foreach (DocumentSnapshot docsnapUsers in snapUsersDoctors)
                         {
                             SelectListItem user = new SelectListItem();
@@ -1607,6 +1607,10 @@ namespace MVCFirebase.Controllers
         [HttpPost]
         public async Task<ActionResult> CreateFutureAppointment(FormCollection collection)
         {
+            DateTime CompletionDate;//field used when refer to has Chemist role
+            string fee = "";
+            string days = "";
+            List<Appointment> AppointmentList = new List<Appointment>();
 
             if (Session["sessionid"] == null)
             { Session["sessionid"] = "empty"; }
@@ -1625,6 +1629,9 @@ namespace MVCFirebase.Controllers
                         string token = collection["tokennumber"];
                         string appointmentDate = collection["datepicker"];
                         string referto = collection["referto"];
+                        
+
+
 
                         DateTime ConvertedAppDate = DateTime.SpecifyKind(Convert.ToDateTime(appointmentDate).AddHours(-5).AddMinutes(-30), DateTimeKind.Utc);
 
@@ -1654,6 +1661,7 @@ namespace MVCFirebase.Controllers
                         QuerySnapshot snap = await Qref.GetSnapshotAsync();
                         if (snap.Count > 0)
                         {
+
                             TempData["Message"] = "Appointment of " + PatientName + "(" + PatientUID + ") for " + appointmentDate + " already exists. ";
 
                             return RedirectToAction("Index", "Patient");
@@ -1664,38 +1672,118 @@ namespace MVCFirebase.Controllers
 
                             #region Code to create new appointment id for today
 
-                            string message = await UpdateTokenNumber(appointmentDate, token);
-                            if (message != null)
-                            {
-                                TempData["Message"] = message;
-                                return RedirectToAction("Index", "Patient");
-                            }
+                            #region Check refer to is chemist
+
+                            DocumentReference docRef = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("user").Document(referto);
+                            DocumentSnapshot docSnap = await docRef.GetSnapshotAsync();
+                            User user = docSnap.ConvertTo<User>();
 
                             CollectionReference colAppountments = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("appointments");
 
-                            Dictionary<string, object> dataAppointment = new Dictionary<string, object>
-                        {
-                            {"bill_sms" ,false},
-                            {"clinic_id" ,GlobalSessionVariables.ClinicDocumentAutoId},
-                            {"completionDate" ,null},
-                            {"completiondateChemist" ,null},
-                            {"completiondateCashier" ,null},
-                            {"statusChemist" ,null},
-                            {"statusCashier" ,null},
-                            {"date" ,""},
-                            {"days" ,""},
-                            {"fee" ,""},
-                            {"patient" ,patientAutoId},
-                            {"patient_id" ,PatientUID},
-                            {"raisedDate",ConvertedAppDate},
-                            {"reminder_sms" ,false},
-                            {"severity" ,severity},
-                            {"status" ,"Waiting"},
-                            {"timeStamp" ,DateTime.UtcNow},
-                            {"token" ,token},
-                            {"refertodoctor" ,referto}
-                        };
-                            await colAppountments.Document().SetAsync(dataAppointment);
+
+                            if (user.user_roles.Contains("Chemist"))
+                            {
+                                Query QrefPrescriptions = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("patientList").Document(patientAutoId).Collection("prescriptions").OrderByDescending("timeStamp");
+
+
+                                QuerySnapshot snapPres = await QrefPrescriptions.GetSnapshotAsync();
+                                if (snapPres.Count == 0)
+                                {
+                                    TempData["Message"] = "Selected Patient has no Prescription";
+                                    return RedirectToAction("Index", "Patient");
+                                }
+
+                                Query QrefCompletedAppointments = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("appointments").WhereEqualTo("patient", patientAutoId).WhereEqualTo("status","Completed");
+                                QuerySnapshot snapCompletedAppointments = await QrefCompletedAppointments.GetSnapshotAsync();
+                                if (snapCompletedAppointments.Count > 0)
+                                {
+                                    foreach (DocumentSnapshot docsnapCompletedAppointment in snapCompletedAppointments)
+                                    {
+                                        Appointment appointment = docsnapCompletedAppointment.ConvertTo<Appointment>();
+                                        AppointmentList.Add(appointment);
+                                    }
+
+                                    AppointmentList = AppointmentList.OrderByDescending(a => a.raisedDate).ToList();
+
+                                    Appointment app = AppointmentList.FirstOrDefault();
+
+                                    fee = app.fee;
+                                    days = app.days;
+                                        
+                                }
+                                else
+                                {
+                                    TempData["Message"] = "Selected Patient has not been checked by Doctor yet";
+                                    return RedirectToAction("Index", "Patient");
+                                }
+
+                                CompletionDate = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Utc);
+
+                                string message = await UpdateTokenNumber(appointmentDate, token);
+                                if (message != null)
+                                {
+                                    TempData["Message"] = message;
+                                    return RedirectToAction("Index", "Patient");
+                                }
+
+                                Dictionary<string, object> dataAppointment = new Dictionary<string, object>
+                                {
+                                    {"bill_sms" ,false},
+                                    {"clinic_id" ,GlobalSessionVariables.ClinicDocumentAutoId},
+                                    {"completionDate" ,CompletionDate},
+                                    {"completiondateChemist" ,null},
+                                    {"completiondateCashier" ,null},
+                                    {"statusChemist" ,null},
+                                    {"statusCashier" ,null},
+                                    {"date" ,""},
+                                    {"days" ,days},
+                                    {"fee" ,fee},
+                                    {"patient" ,patientAutoId},
+                                    {"patient_id" ,PatientUID},
+                                    {"raisedDate",CompletionDate},
+                                    {"reminder_sms" ,false},
+                                    {"severity" ,severity},
+                                    {"status" ,"Completed"},
+                                    {"timeStamp" ,DateTime.UtcNow},
+                                    {"token" ,token},
+                                    {"refertodoctor" ,referto}
+                                };
+                                await colAppountments.Document().SetAsync(dataAppointment);
+                            }
+                            else
+                            {
+                                string message = await UpdateTokenNumber(appointmentDate, token);
+                                if (message != null)
+                                {
+                                    TempData["Message"] = message;
+                                    return RedirectToAction("Index", "Patient");
+                                }
+
+                                Dictionary<string, object> dataAppointment = new Dictionary<string, object>
+                                {
+                                    {"bill_sms" ,false},
+                                    {"clinic_id" ,GlobalSessionVariables.ClinicDocumentAutoId},
+                                    {"completionDate" ,null},
+                                    {"completiondateChemist" ,null},
+                                    {"completiondateCashier" ,null},
+                                    {"statusChemist" ,null},
+                                    {"statusCashier" ,null},
+                                    {"date" ,""},
+                                    {"days" ,""},
+                                    {"fee" ,""},
+                                    {"patient" ,patientAutoId},
+                                    {"patient_id" ,PatientUID},
+                                    {"raisedDate",ConvertedAppDate},
+                                    {"reminder_sms" ,false},
+                                    {"severity" ,severity},
+                                    {"status" ,"Waiting"},
+                                    {"timeStamp" ,DateTime.UtcNow},
+                                    {"token" ,token},
+                                    {"refertodoctor" ,referto}
+                                };
+                                await colAppountments.Document().SetAsync(dataAppointment);
+                            }
+                            #endregion Check refer to is chemist or Doctor
                             #endregion Code to create new appointment id for today
                         }
                         return RedirectToAction("Index", "Appointment");
@@ -1756,38 +1844,125 @@ namespace MVCFirebase.Controllers
 
                             #region Code to create new appointment id for today
 
-                            string message = await UpdateTokenNumber(appointmentDate, token);
-                            if (message != null)
-                            {
-                                TempData["Message"] = message;
-                                return RedirectToAction("Index", "Patient");
-                            }
+                            
+
+
+
+                            #region Check refer to is chemist
+
+                            DocumentReference docRef = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("user").Document(referto);
+                            DocumentSnapshot docSnap = await docRef.GetSnapshotAsync();
+                            User user = docSnap.ConvertTo<User>();
+
+
+
+
+
 
                             CollectionReference colAppountments = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("appointments");
 
-                            Dictionary<string, object> dataAppointment = new Dictionary<string, object>
-                        {
-                            {"bill_sms" ,false},
-                            {"clinic_id" ,GlobalSessionVariables.ClinicDocumentAutoId},
-                            {"completionDate" ,null},
-                            {"completiondateChemist" ,null},
-                            {"completiondateCashier" ,null},
-                            {"statusChemist" ,null},
-                            {"statusCashier" ,null},
-                            {"date" ,""},
-                            {"days" ,""},
-                            {"fee" ,""},
-                            {"patient" ,patientAutoId},
-                            {"patient_id" ,PatientUID},
-                            {"raisedDate",ConvertedAppDate},
-                            {"reminder_sms" ,false},
-                            {"severity" ,severity},
-                            {"status" ,"Waiting"},
-                            {"timeStamp" ,DateTime.UtcNow},
-                            {"token" ,token},
-                            {"refertodoctor" ,referto}
-                        };
-                            await colAppountments.Document().SetAsync(dataAppointment);
+
+                            if (user.user_roles.Contains("Chemist"))
+                            {
+                                Query QrefPrescriptions = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("patientList").Document(patientAutoId).Collection("prescriptions").OrderByDescending("timeStamp");
+
+
+                                QuerySnapshot snapPres = await QrefPrescriptions.GetSnapshotAsync();
+                                if (snapPres.Count == 0)
+                                {
+                                    TempData["Message"] = "Selected Patient has no Prescription";
+                                    return RedirectToAction("Index", "Patient");
+                                }
+
+                                Query QrefCompletedAppointments = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("appointments").WhereEqualTo("patient", patientAutoId).WhereEqualTo("status", "Completed");
+                                QuerySnapshot snapCompletedAppointments = await QrefCompletedAppointments.GetSnapshotAsync();
+                                if (snapCompletedAppointments.Count > 0)
+                                {
+                                    foreach (DocumentSnapshot docsnapCompletedAppointment in snapCompletedAppointments)
+                                    {
+                                        Appointment appointment = docsnapCompletedAppointment.ConvertTo<Appointment>();
+                                        AppointmentList.Add(appointment);
+                                    }
+
+                                    AppointmentList = AppointmentList.OrderByDescending(a => a.raisedDate).ToList();
+
+                                    Appointment app = AppointmentList.FirstOrDefault();
+
+                                    fee = app.fee;
+                                    days = app.days;
+
+                                }
+                                else
+                                {
+                                    TempData["Message"] = "Selected Patient has not been checked by Doctor yet";
+                                    return RedirectToAction("Index", "Patient");
+                                }
+
+                                CompletionDate = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Utc);
+                                string message = await UpdateTokenNumber(appointmentDate, token);
+                                if (message != null)
+                                {
+                                    TempData["Message"] = message;
+                                    return RedirectToAction("Index", "Patient");
+                                }
+
+                                Dictionary<string, object> dataAppointment = new Dictionary<string, object>
+                                {
+                                    {"bill_sms" ,false},
+                                    {"clinic_id" ,GlobalSessionVariables.ClinicDocumentAutoId},
+                                    {"completionDate" ,CompletionDate},
+                                    {"completiondateChemist" ,null},
+                                    {"completiondateCashier" ,null},
+                                    {"statusChemist" ,null},
+                                    {"statusCashier" ,null},
+                                    {"date" ,""},
+                                    {"days" ,days},
+                                    {"fee" ,fee},
+                                    {"patient" ,patientAutoId},
+                                    {"patient_id" ,PatientUID},
+                                    {"raisedDate",CompletionDate},
+                                    {"reminder_sms" ,false},
+                                    {"severity" ,severity},
+                                    {"status" ,"Completed"},
+                                    {"timeStamp" ,DateTime.UtcNow},
+                                    {"token" ,token},
+                                    {"refertodoctor" ,referto}
+                                };
+                                await colAppountments.Document().SetAsync(dataAppointment);
+                            }
+                            else
+                            {
+                                string message = await UpdateTokenNumber(appointmentDate, token);
+                                if (message != null)
+                                {
+                                    TempData["Message"] = message;
+                                    return RedirectToAction("Index", "Patient");
+                                }
+                                Dictionary<string, object> dataAppointment = new Dictionary<string, object>
+                                {
+                                    {"bill_sms" ,false},
+                                    {"clinic_id" ,GlobalSessionVariables.ClinicDocumentAutoId},
+                                    {"completionDate" ,null},
+                                    {"completiondateChemist" ,null},
+                                    {"completiondateCashier" ,null},
+                                    {"statusChemist" ,null},
+                                    {"statusCashier" ,null},
+                                    {"date" ,""},
+                                    {"days" ,""},
+                                    {"fee" ,""},
+                                    {"patient" ,patientAutoId},
+                                    {"patient_id" ,PatientUID},
+                                    {"raisedDate",ConvertedAppDate},
+                                    {"reminder_sms" ,false},
+                                    {"severity" ,severity},
+                                    {"status" ,"Waiting"},
+                                    {"timeStamp" ,DateTime.UtcNow},
+                                    {"token" ,token},
+                                    {"refertodoctor" ,referto}
+                                };
+                                await colAppountments.Document().SetAsync(dataAppointment);
+                            }
+                            #endregion Check refer to is chemist or Doctor
                             #endregion Code to create new appointment id for today
                         }
                         return RedirectToAction("Index", "Appointment");

@@ -14,6 +14,14 @@
       rel="Stylesheet" type="text/css" />
 <script type="text/javascript">
     $(function () {
+        $('.modal-link').click(function () {
+            alert($(this).attr('data-id') + 'both');
+            $('#appointmentAutoId').val($(this).attr('data-id'));
+        });
+        $('.modal-link-feeonly').click(function () {
+            alert($(this).attr('data-id') + 'fee only');
+            $('#appointmentAutoIdFee').val($(this).attr('data-id'));
+        });
         $("#Medicine").autocomplete({
             source: function (request, response) {
                 $.ajax({
@@ -24,7 +32,7 @@
                     contentType: "application/json; charset=utf-8",
                     success: function (data) {
                         response($.map(data, function (item) {
-                            
+
                             return {
                                 label: item.label,
                                 value: item.val
@@ -54,7 +62,7 @@
                 $("#hfinventoryid").val(i.item.value);
                 $("#hfquantitybalance").val(i.item.label);
                 $(this).val(i.item.label);
-                
+
             },
             minLength: 1
         });
@@ -69,19 +77,19 @@
 </div>
 <br>
 <table width="100%" border="0">
-    
+
     <tr>
         @if (@TempData["inventoryon"].ToString() == "true")
         {
             <td width="60%" valign="top">
-                
-                    <table width="100%">
-                        <tr>
-                            <td>
-                                @using (Html.BeginForm("AddMedicine", "Inventory", FormMethod.Post))
+
+                <table width="100%">
+                    <tr>
+                        <td>
+                            @using (Html.BeginForm("AddMedicine", "Inventory", FormMethod.Post))
+                            {
+                                if (ViewData["DateType"].ToString() == "CurrentDate")
                                 {
-                                    if (ViewData["DateType"].ToString() == "CurrentDate")
-                                    {
                                     <table width="100%">
                                         <tr>
                                             <td><label>&nbsp;Medicine&nbsp;</label></td>
@@ -109,24 +117,24 @@
                                             </td>
                                         </tr>
                                     </table>
-                                    }
-                                 }
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <table class="table table-condensed table-hover" border="0" width="100%">
-                                    <thead>
-                                        <tr>
+                                }
+                            }
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <table class="table table-condensed table-hover" border="0" width="100%">
+                                <thead>
+                                    <tr>
 
-                                            <th>Medicine Name</th>
-                                            <th>Quantity</th>
-                                            <th>Price</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach (var medicine in medicinedata)
-                                        {
+                                        <th>Medicine Name</th>
+                                        <th>Quantity</th>
+                                        <th>Price</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var medicine in medicinedata)
+                                    {
                                         <tr>
                                             <td>@medicine.medicinename</td>
                                             <td>@medicine.quantity</td>
@@ -137,22 +145,25 @@
                                                 {
                                                     if (ViewData["DateType"].ToString() == "CurrentDate")
                                                     {
-                                                    <input type="submit" class="btn btn-danger" value="Delete" onclick="return confirm('Are you sure to delete medicine.')"/>
+                                                        <input type="submit" class="btn btn-danger" value="Delete" onclick="return confirm('Are you sure to delete medicine.')" />
                                                     }
                                                 }
                                             </td>
                                         </tr>
 
-                                        }
-                                        <tr>
-                                            <td colspan="3" align="right">Total Price = @TempData["TotalPrice"]</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </td>
-                        </tr>
-                    </table>
-                
+                                    }
+                                    <tr>
+                                        <td colspan="3" align="right">Total Price = @TempData["TotalPrice"]</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><a class="btn btn-info" data-id="@TempData["appointmentAutoId"]" data-toggle="modal" data-target=".bootstrapmodal">Submit</a></td>
+                    </tr>
+                </table>
+
             </td>
         }
 
@@ -182,6 +193,101 @@
     </tr>
 </table>
 
+@using (Html.BeginForm("CashierChemistUpdate", "Appointment", FormMethod.Post))
+{
+    <div class="form-horizontal">
+        <div class="modal fade bootstrapmodal">
+            <div class="modal-dialog">
+
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button data-dismiss="modal" class="close"><span>&times;</span></button>
+                        Please Select Mode of Payment
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <div class="col-md-5">
+                                Mode of Payment
+                            </div>
+
+                            <div class="col-md-5">
+                                <select name="modeofpayment" id="modeofpayment">
+                                    <option value="Cash">Cash</option>
+                                    <option value="Debit Card">Debit Card</option>
+                                    <option value="Credit Card">Credit Card</option>
+                                    <option value="PayTm">PayTm</option>
+                                </select>
+                            </div>
+
+                        </div>
+
+
+                    </div>
+
+                    <input type="hidden" class="form-control" name="appointmentAutoId" id="appointmentAutoId" value="" />
+
+                    <div class="modal-footer">
+                        <div class="form-group">
+                            <div class="col-md-1">
+                                <button type="submit" class="btn btn-primary">Submit</button>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+}
+
+@using (Html.BeginForm("SubmitCashier", "Appointment", FormMethod.Post))
+{
+    <div class="form-horizontal">
+        <div class="modal fade bootstrapmodalFeeOnly">
+            <div class="modal-dialog">
+
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button data-dismiss="modal" class="close"><span>&times;</span></button>
+                        Please Select Mode of Payment
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <div class="col-md-5">
+                                Mode of Payment
+                            </div>
+
+                            <div class="col-md-5">
+                                <select name="modeofpaymentFee" id="modeofpaymentFee">
+                                    <option value="Cash">Cash</option>
+                                    <option value="Debit Card">Debit Card</option>
+                                    <option value="Credit Card">Credit Card</option>
+                                    <option value="PayTm">PayTm</option>
+                                </select>
+                            </div>
+
+                        </div>
+
+
+                    </div>
+
+                    <input type="hidden" class="form-control" name="appointmentAutoIdFee" id="appointmentAutoIdFee" value="" />
+
+                    <div class="modal-footer">
+                        <div class="form-group">
+                            <div class="col-md-1">
+                                <button type="submit" class="btn btn-primary">Submit</button>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+}
 
 
 

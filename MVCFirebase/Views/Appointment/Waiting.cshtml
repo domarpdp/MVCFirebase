@@ -109,30 +109,34 @@
         <th>
             Status
         </th>
-        
-            @if (User.IsInRole("Chemist"))
+
+        @if (User.IsInRole("Chemist"))
+        {
+            <th>
+                Prescription
+            </th>
+        }
+        @if (User.IsInRole("Cashier"))
+        {
+            <th>
+                Fee
+            </th>
+        }
+        @if (User.IsInRole("Cashier") || User.IsInRole("Chemist"))
+        {
+            if (ViewData["DateType"].ToString() == "CurrentDate")
             {
-                <th>
-                    Prescription
-                </th>
-            }
-            @if (User.IsInRole("Cashier"))
-            {
-                <th>
-                    Fee
-                </th>
-            }
-            @if (User.IsInRole("Cashier") || User.IsInRole("Chemist"))
-            {
-                if (ViewData["DateType"].ToString() == "CurrentDate")
+                if (@TempData["inventoryon"].ToString() == "false")
                 {
-                <th>
-                    Check
-                </th>
+                    <th>
+                        Check
+                    </th>
                 }
                 
             }
-        
+
+        }
+
 
     </tr>
 
@@ -149,10 +153,7 @@
     <td>
         @Html.DisplayFor(modelItem => item.patient_mobile) <br /> @Html.DisplayFor(modelItem => item.patient_id)
     </td>
-    @*<td>
-            @Html.DisplayFor(modelItem => item.raisedDate) <br /> @Html.DisplayFor(modelItem => item.timeStamp)
-        </td>*@
-
+    
     <td>
         Doc
         <br />
@@ -174,28 +175,37 @@
     }
     @if (ViewData["DateType"].ToString() == "CurrentDate")
     {
-        <td>
-            @if (User.IsInRole("Chemist") && User.IsInRole("Cashier"))
-            {
 
-                <a class="modal-link" data-id="@item.id" data-toggle="modal" data-target=".bootstrapmodal">OK</a>
-                @*@Html.ActionLink("Ok Fee Presc", "SubmitFeePres", new { @item.id, @item.patient, @item.fee }, new { @item.id, @item.patient, @item.fee })*@
+        if (User.IsInRole("Chemist") && User.IsInRole("Cashier"))
+        {
+            if (@TempData["inventoryon"].ToString() == "false")
+            {
+                <td>
+                    <a class="modal-link" data-id="@item.id" data-toggle="modal" data-target=".bootstrapmodal">OK</a>
+                </td>
             }
-            else if (User.IsInRole("Chemist"))
+        }
+        else if (User.IsInRole("Chemist"))
+        {
+            if (@TempData["inventoryon"].ToString() == "false")
             {
                 using (@Html.BeginForm("SubmitChemist", "Appointment", FormMethod.Post))
                 {
-                    <input type="hidden" class="form-control" name="appid" id="appd" value="@item.id" />
-                    <input type="submit" class="form-control" value="OK" style="width:80px" />
+                    <td>
+                        <input type="hidden" class="form-control" name="appid" id="appd" value="@item.id" />
+
+                        <input type="submit" class="form-control" value="OK" style="width:80px" />
+                    </td>
                 }
-
             }
-            else if (User.IsInRole("Cashier"))
-
-            {
+        }
+        else if (User.IsInRole("Cashier"))
+        {
+            <td>
                 <a class="modal-link-feeonly" data-id="@item.id" data-toggle="modal" data-target=".bootstrapmodalFeeOnly">OK</a>
-            }
-        </td>
+            </td>
+        }
+
     }
 
 </tr>

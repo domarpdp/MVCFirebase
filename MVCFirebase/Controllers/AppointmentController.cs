@@ -294,7 +294,12 @@ namespace MVCFirebase.Controllers
                             if (docSnapSettings.Exists)
                             {
                                 WhoFirst = docSnapSettings.GetValue<string>("whofirst");
+                                TempData["inventoryon"] = docSnapSettings.GetValue<bool>("inventoryon");
                             }
+                        }
+                        else
+                        {
+                            TempData["inventoryon"] = "false";
                         }
 
                         snapAppointments = await docsnapClinics.Reference.Collection("appointments").WhereGreaterThanOrEqualTo("raisedDate", SearchDateFrom).WhereLessThan("raisedDate", SearchDateTo).WhereEqualTo("status", "Completed").GetSnapshotAsync();
@@ -505,7 +510,12 @@ namespace MVCFirebase.Controllers
                             if (docSnapSettings.Exists)
                             {
                                 WhoFirst = docSnapSettings.GetValue<string>("whofirst");
+                                TempData["inventoryon"] = docSnapSettings.GetValue<bool>("inventoryon");
                             }
+                        }
+                        else
+                        {
+                            TempData["inventoryon"] = "false";
                         }
 
                         snapAppointments = await docsnapClinics.Reference.Collection("appointments").WhereGreaterThanOrEqualTo("raisedDate", SearchDateFrom).WhereLessThan("raisedDate", SearchDateTo).WhereEqualTo("status", "Completed").GetSnapshotAsync();
