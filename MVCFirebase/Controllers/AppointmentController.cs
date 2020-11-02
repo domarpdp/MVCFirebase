@@ -864,6 +864,7 @@ namespace MVCFirebase.Controllers
                     ViewData["totalfee"] = totalfee;
                     ViewData["totalfeecash"] = totalfeecash;
                     ViewData["totalfeeothers"] = totalfeeothers;
+
                     AppointmentList = AppointmentList.OrderByDescending(a => a.tokenIteger).ToList();
                     ViewBag.Message = SearchDate.Date;
                     return View(AppointmentList);
@@ -1494,43 +1495,6 @@ namespace MVCFirebase.Controllers
             }
         }
 
-        [HttpPost]
-        public async Task<ActionResult> SubmitCashier1(FormCollection collection)
-        {
-            try
-            {
-
-                string appointmentAutoId = collection["appointmentAutoIdFee"];
-
-                string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
-                Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
-                FirestoreDb db = FirestoreDb.Create("greenpaperdev");
-
-                DocumentReference docRef = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("appointments").Document(appointmentAutoId);
-                DocumentSnapshot docSnap = await docRef.GetSnapshotAsync();
-
-                if (docSnap.Exists)
-                {
-                    Dictionary<string, object> data1 = new Dictionary<string, object>
-                        {
-                            {"completiondateCashier" ,DateTime.UtcNow},
-                            {"statusCashier" ,"Completed"},
-                            {"modeofpayment",collection["modeofpaymentFee"]}
-                        };
-
-
-                    await docRef.UpdateAsync(data1);
-
-                }
-                // TODO: Add delete logic here
-
-                return RedirectToAction("Waiting");
-            }
-            catch
-            {
-                return View();
-            }
-        }
 
         [HttpPost]
         public async Task<ActionResult> SubmitChemist(FormCollection collection)
@@ -1624,40 +1588,101 @@ namespace MVCFirebase.Controllers
                 return RedirectToAction("Login", "Home");
             }
         }
+
+
         [HttpPost]
-        public async Task<ActionResult> SubmitChemist1(FormCollection collection)
+        public async Task<ActionResult> SubmitChemistInventoryOn(FormCollection collection)
         {
-            try
+
+            if (Session["sessionid"] == null)
+            { Session["sessionid"] = "empty"; }
+
+            // check to see if your ID in the Logins table has 
+            // LoggedIn = true - if so, continue, otherwise, redirect to Login page.
+            if (await IsYourLoginStillTrue(System.Web.HttpContext.Current.User.Identity.Name.Split('-')[0], Session["sessionid"].ToString()))
             {
-
-                string appointmentAutoId = collection["appid"]; ;
-
-                string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
-                Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
-                FirestoreDb db = FirestoreDb.Create("greenpaperdev");
-
-                DocumentReference docRef = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("appointments").Document(appointmentAutoId);
-                DocumentSnapshot docSnap = await docRef.GetSnapshotAsync();
-
-                if (docSnap.Exists)
+                // check to see if your user ID is being used elsewhere under a different session ID
+                if (!await IsUserLoggedOnElsewhere(System.Web.HttpContext.Current.User.Identity.Name.Split('-')[0], Session["sessionid"].ToString()))
                 {
-                    Dictionary<string, object> data1 = new Dictionary<string, object>
+                    try
+                    {
+
+                        string appointmentAutoId = collection["appointmentAutoIdMedicine"]; 
+
+                        string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
+                        Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
+                        FirestoreDb db = FirestoreDb.Create("greenpaperdev");
+
+                        DocumentReference docRef = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("appointments").Document(appointmentAutoId);
+                        DocumentSnapshot docSnap = await docRef.GetSnapshotAsync();
+
+                        if (docSnap.Exists)
+                        {
+                            Dictionary<string, object> data1 = new Dictionary<string, object>
                         {
                             {"completiondateChemist" ,DateTime.UtcNow},
-                            {"statusChemist" ,"Completed"}
+                            {"statusChemist" ,"Completed"},
+                            {"modeofpaymentChemist",collection["modeofpaymentMedicine"]}
+
                         };
 
 
-                    await docRef.UpdateAsync(data1);
+                            await docRef.UpdateAsync(data1);
 
+                        }
+                        // TODO: Add delete logic here
+
+                        return RedirectToAction("Waiting");
+                    }
+                    catch
+                    {
+                        return RedirectToAction("Waiting");
+                    }
                 }
-                // TODO: Add delete logic here
+                else
+                {
+                    // if it is being used elsewhere, update all their 
+                    // Logins records to LoggedIn = false, except for your session ID
+                    LogEveryoneElseOut(System.Web.HttpContext.Current.User.Identity.Name.Split('-')[0], Session["sessionid"].ToString());
+                    try
+                    {
 
-                return RedirectToAction("Waiting");
+                        string appointmentAutoId = collection["appointmentAutoId"]; ;
+
+                        string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
+                        Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
+                        FirestoreDb db = FirestoreDb.Create("greenpaperdev");
+
+                        DocumentReference docRef = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("appointments").Document(appointmentAutoId);
+                        DocumentSnapshot docSnap = await docRef.GetSnapshotAsync();
+
+                        if (docSnap.Exists)
+                        {
+                            Dictionary<string, object> data1 = new Dictionary<string, object>
+                        {
+                            {"completiondateChemist" ,DateTime.UtcNow},
+                            {"statusChemist" ,"Completed"},
+                            {"modeofpaymentChemist",collection["modeofpaymentMedicine"]}
+                        };
+
+
+                            await docRef.UpdateAsync(data1);
+
+                        }
+                        // TODO: Add delete logic here
+
+                        return RedirectToAction("Waiting");
+                    }
+                    catch
+                    {
+                        return RedirectToAction("Waiting");
+                    }
+                }
             }
-            catch
+            else
             {
-                return View();
+                FormsAuthentication.SignOut();
+                return RedirectToAction("Login", "Home");
             }
         }
 
@@ -1759,46 +1784,107 @@ namespace MVCFirebase.Controllers
                 return RedirectToAction("Login", "Home");
             }
         }
+
         [HttpPost]
-        public async Task<ActionResult> CashierChemistUpdate1(FormCollection collection)
+        public async Task<ActionResult> CashierChemistUpdateInvOn(FormCollection collection)
         {
-            try
+
+            if (Session["sessionid"] == null)
+            { Session["sessionid"] = "empty"; }
+
+            // check to see if your ID in the Logins table has 
+            // LoggedIn = true - if so, continue, otherwise, redirect to Login page.
+            if (await IsYourLoginStillTrue(System.Web.HttpContext.Current.User.Identity.Name.Split('-')[0], Session["sessionid"].ToString()))
             {
-
-                string appointmentAutoId = collection["appointmentAutoId"];
-
-                string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
-                Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
-                FirestoreDb db = FirestoreDb.Create("greenpaperdev");
-
-                DocumentReference docRef = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("appointments").Document(appointmentAutoId);
-                DocumentSnapshot docSnap = await docRef.GetSnapshotAsync();
-
-                if (docSnap.Exists)
+                // check to see if your user ID is being used elsewhere under a different session ID
+                if (!await IsUserLoggedOnElsewhere(System.Web.HttpContext.Current.User.Identity.Name.Split('-')[0], Session["sessionid"].ToString()))
                 {
-                    Dictionary<string, object> data1 = new Dictionary<string, object>
+                    try
+                    {
+
+                        string appointmentAutoId = collection["appId"];
+
+                        string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
+                        Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
+                        FirestoreDb db = FirestoreDb.Create("greenpaperdev");
+
+                        DocumentReference docRef = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("appointments").Document(appointmentAutoId);
+                        DocumentSnapshot docSnap = await docRef.GetSnapshotAsync();
+
+                        if (docSnap.Exists)
+                        {
+                            Dictionary<string, object> data1 = new Dictionary<string, object>
                         {
                             {"completiondateCashier" ,DateTime.UtcNow},
                             {"statusCashier" ,"Completed"},
                             {"completiondateChemist" ,DateTime.UtcNow},
                             {"statusChemist" ,"Completed"},
-                            {"modeofpayment",collection["modeofpayment"]}
+                            {"modeofpayment",collection["modeofpayment"]},
+                            {"modeofpaymentChemist",collection["modeofpayment"]}
                         };
 
 
-                    await docRef.UpdateAsync(data1);
+                            await docRef.UpdateAsync(data1);
 
+                        }
+                        // TODO: Add delete logic here
+
+                        return RedirectToAction("Waiting");
+                    }
+                    catch
+                    {
+                        return View();
+                    }
                 }
-                // TODO: Add delete logic here
+                else
+                {
+                    // if it is being used elsewhere, update all their 
+                    // Logins records to LoggedIn = false, except for your session ID
+                    LogEveryoneElseOut(System.Web.HttpContext.Current.User.Identity.Name.Split('-')[0], Session["sessionid"].ToString());
+                    try
+                    {
 
-                return RedirectToAction("Waiting");
+                        string appointmentAutoId = collection["appointmentAutoId"];
+
+                        string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
+                        Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
+                        FirestoreDb db = FirestoreDb.Create("greenpaperdev");
+
+                        DocumentReference docRef = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("appointments").Document(appointmentAutoId);
+                        DocumentSnapshot docSnap = await docRef.GetSnapshotAsync();
+
+                        if (docSnap.Exists)
+                        {
+                            Dictionary<string, object> data1 = new Dictionary<string, object>
+                        {
+                            {"completiondateCashier" ,DateTime.UtcNow},
+                            {"statusCashier" ,"Completed"},
+                            {"completiondateChemist" ,DateTime.UtcNow},
+                            {"statusChemist" ,"Completed"},
+                            {"modeofpayment",collection["modeofpayment"]},
+                            {"modeofpaymentChemist",collection["modeofpayment"]}
+                        };
+
+
+                            await docRef.UpdateAsync(data1);
+
+                        }
+                        // TODO: Add delete logic here
+
+                        return RedirectToAction("Waiting");
+                    }
+                    catch
+                    {
+                        return View();
+                    }
+                }
             }
-            catch
+            else
             {
-                return View();
+                FormsAuthentication.SignOut();
+                return RedirectToAction("Login", "Home");
             }
         }
-
 
         public async static Task<bool> IsYourLoginStillTrue(string userId, string sid)
         {

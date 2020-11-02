@@ -82,14 +82,7 @@ namespace MVCFirebase.Controllers
 
 
             TempData["medicine"] = medicineList;
-            if(totalprice == 0)
-            {
-                TempData["TotalPrice"] = 0;
-            }
-            else
-            {
-                TempData["TotalPrice"] = totalprice;
-            }
+            
             
             QuerySnapshot snapSettings = await db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("settings").Limit(1).GetSnapshotAsync();
             if (snapSettings.Count > 0)
@@ -124,9 +117,20 @@ namespace MVCFirebase.Controllers
             DocumentReference docRef = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("appointments").Document(id);
             DocumentSnapshot docSnap = await docRef.GetSnapshotAsync();
 
-            TempData["days"] = docSnap.GetValue<string>("days");
+            totalprice = totalprice + Convert.ToInt32(docSnap.GetValue<string>("fee"));
 
-            
+            if (totalprice == 0)
+            {
+                TempData["TotalPrice"] = 0;
+            }
+            else
+            {
+                TempData["TotalPrice"] = totalprice;
+            }
+
+            TempData["days"] = docSnap.GetValue<string>("days");
+            TempData["fee"] = docSnap.GetValue<string>("fee");
+
 
             if (docSnap.GetValue<Timestamp>("raisedDate").ToDateTime().Date < DateTime.Now.Date)
             {
@@ -136,6 +140,24 @@ namespace MVCFirebase.Controllers
             {
                 ViewData["DateType"] = "CurrentDate";
             }
+
+            try {
+                if (docSnap.GetValue<string>("statusChemist") == "Completed")
+                {
+                    ViewData["FromPage"] = "Completed";
+                }
+                else
+                {
+                    ViewData["FromPage"] = "Waiting";
+                }
+            }
+            catch 
+            {
+                ViewData["FromPage"] = "Waiting";
+            }
+            
+
+            
 
             TempData.Keep();
 
