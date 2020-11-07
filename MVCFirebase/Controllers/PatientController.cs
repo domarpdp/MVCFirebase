@@ -520,7 +520,7 @@ namespace MVCFirebase.Controllers
                     Patient patient = new Patient();
                     patient.city = clinic.cliniccity;
                     //patient.appointment_date = DateTime.Now;
-                    patient.tokenNumber = await getLatestToken(DateTime.Now.ToString("MM/dd/yyyy"));
+                    //patient.tokenNumber = await getLatestToken(DateTime.Now.ToString("MM/dd/yyyy"));
 
                     QuerySnapshot snapUsersDoctors = await docSnapClinicCity.Reference.Collection("user").WhereArrayContains("user_roles","Doctor").GetSnapshotAsync();
                     foreach (DocumentSnapshot docsnapUsers in snapUsersDoctors)
@@ -551,7 +551,7 @@ namespace MVCFirebase.Controllers
                     Patient patient = new Patient();
                     patient.city = clinic.cliniccity;
                     //patient.appointment_date = DateTime.Now;
-                    patient.tokenNumber = await getLatestToken(DateTime.Now.ToString("MM/dd/yyyy"));
+                    //patient.tokenNumber = await getLatestToken(DateTime.Now.ToString("MM/dd/yyyy"));
 
                     QuerySnapshot snapUsersDoctors = await docSnapClinicCity.Reference.Collection("user").WhereArrayContains("user_roles", "Doctor").GetSnapshotAsync();
                     foreach (DocumentSnapshot docsnapUsers in snapUsersDoctors)
@@ -722,16 +722,9 @@ namespace MVCFirebase.Controllers
                                 ViewBag.Message = "Patient " + patient.patient_name + " having Mobile number " + patient.patient_mobile_number + " already exists. ";
                             }
                             #endregion Code to checkduplicacy of patient on the basis of name and mobile number
-                            Query QrefUsers = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("users").WhereEqualTo("patient_name", patient.patient_name).WhereEqualTo("patient_mobile_number", patient.patient_mobile_number);
-                            QuerySnapshot snapUsers = await QrefUsers.GetSnapshotAsync();
-                            if (snapUsers.Count > 0)
-                            {
-                                ViewBag.Message = "Patient " + patient.patient_name + " having Mobile number " + patient.patient_mobile_number + " already exists. ";
-                            }
-
-                            #region Code to generate new patient UID and update in paltientLastId collection
                             else
                             {
+                                #region Code to generate new patient UID and update in paltientLastId collection
                                 Query QrefPatientLastId = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("patientLastId").Limit(1);
                                 QuerySnapshot snapPatientLastId = await QrefPatientLastId.GetSnapshotAsync();
                                 if (snapPatientLastId.Count > 0)

@@ -27,7 +27,22 @@
         var d = new Date($.now());
         var formattedDate = (d.getMonth() + 1) + "/" + d.getDate() + "/" + d.getFullYear() + " " + d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds();
         $("#appointment_date").val(formattedDate);
-
+        $.ajax({
+            //base address/controller/Action
+            url: '/Patient/getLatestToken',
+            type: 'POST',
+            data: {
+                //Passing Input parameter
+                futureAppointmentDate: formattedDate
+            },
+            success: function (result) {
+                //alert(result);
+                $('#tokenNumber').val(result);
+            },
+            error: function () {
+                //alert("error");
+            }
+        });
         $("#city").autocomplete({
             source: function (request, response) {
                 $.ajax({
