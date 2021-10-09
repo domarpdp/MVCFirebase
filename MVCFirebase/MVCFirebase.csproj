@@ -317,8 +317,7 @@
     <Content Include="Views\Inventory\Create.cshtml" />
     <Content Include="Views\Home\Report.cshtml" />
     <Content Include="Views\Image\Delete.cshtml" />
-    <Content Include="Views\Home\patientterm.cshtml" />
-    <Content Include="Views\Home\patientprivacy.cshtml" />
+    <Content Include="Views\Home\PatientTerm.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
