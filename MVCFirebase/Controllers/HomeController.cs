@@ -35,6 +35,16 @@ namespace MVCFirebase.Controllers
             return View();
         }
         [AllowAnonymous]
+        public ActionResult patientterm()
+        {
+            return View();
+        }
+        [AllowAnonymous]
+        public ActionResult patientprivacy()
+        {
+            return View();
+        }
+        [AllowAnonymous]
         public ActionResult Report()
         {
             return View();
