@@ -212,6 +212,7 @@
     <Compile Include="Controllers\AppointmentController.cs" />
     <Compile Include="Controllers\ClinicController.cs" />
     <Compile Include="Controllers\ClinicSettingController.cs" />
+    <Compile Include="Controllers\CRMController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ImageController.cs" />
     <Compile Include="Controllers\InventoryController.cs" />
@@ -228,6 +229,7 @@
     <Compile Include="Models\city.cs" />
     <Compile Include="Models\Clinic.cs" />
     <Compile Include="Models\ClinicSettings.cs" />
+    <Compile Include="Models\CRM.cs" />
     <Compile Include="Models\GlobalSessionVariables.cs" />
     <Compile Include="Models\ImageModel.cs" />
     <Compile Include="Models\ImageViewModel.cs" />
@@ -319,6 +321,9 @@
     <Content Include="Views\Image\Delete.cshtml" />
     <Content Include="Views\Home\patientprivacy.cshtml" />
     <Content Include="Views\Home\patientterm.cshtml" />
+    <Content Include="Views\CRM\Index.cshtml" />
+    <Content Include="Views\CRM\Create.cshtml" />
+    <Content Include="Views\CRM\Edit.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

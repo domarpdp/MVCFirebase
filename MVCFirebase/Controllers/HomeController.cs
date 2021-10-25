@@ -82,7 +82,8 @@ namespace MVCFirebase.Controllers
                         if (docsnap.Exists)
                         {
                             GlobalSessionVariables.UserRoles = "SuperAdmin";
-                            FormsAuthentication.SetAuthCookie(superuser.UserName, superuser.RememberMe);
+                            FormsAuthentication.SetAuthCookie(superuser.UserName + "-" + superuser.UserName, superuser.RememberMe);
+                            
                             return RedirectToAction("Index");
                         }
                         else
@@ -93,11 +94,6 @@ namespace MVCFirebase.Controllers
 
 
                     }
-                }
-                else if (user.mobile_number == "administrator" && user.password == "jAy@4231")
-                {
-                    FormsAuthentication.SetAuthCookie("Admin", user.RememberMe);
-                    return RedirectToAction("Index");
                 }
                 else
                 {

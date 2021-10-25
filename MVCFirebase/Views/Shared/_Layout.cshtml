@@ -33,6 +33,11 @@
                         <li>@Html.ActionLink("Clinics", "Index", "Clinic")</li>
                         <li>@Html.ActionLink("SuperUsers", "Index", "SuperUser")</li>
                     }
+                    @if (User.IsInRole("Salesman"))
+                    {
+                        <li>@Html.ActionLink("CRM", "Index", "CRM")</li>
+                        
+                    }
 
                     @if (User.IsInRole("Receptionist"))
                     {
