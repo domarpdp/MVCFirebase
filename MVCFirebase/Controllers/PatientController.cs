@@ -2325,7 +2325,7 @@ namespace MVCFirebase.Controllers
                 string[] assignedtokens = docsnapTokenNumber.GetValue<string[]>("assigned_tokens");
 
                 
-                if (assignedtokens != null)
+                if (assignedtokens != null && assignedtokens.Count()!=0)
                 {
                     int[] assignedtokensInt = Array.ConvertAll(assignedtokens, int.Parse);
 
