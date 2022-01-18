@@ -44,9 +44,9 @@
                 @Html.ValidationSummary(true, "", new { @class = "text-danger" })
                 <div class="form-group">
                     @*@Html.LabelFor(model => model.clinicmobilenumber, htmlAttributes: new { @class = "control-label col-md-2" })*@
-                    <label class = "control-label col-md-2">Clinic Phone Number</label>
+                    <label class = "control-label col-md-2">Clinic Code</label>
                     <div class="col-md-10">
-                        @Html.EditorFor(model => model.clinicmobilenumber, new { htmlAttributes = new { @class = "form-control", placeholder = "Clinic Mobile Number" } })
+                        @Html.EditorFor(model => model.clinicmobilenumber, new { htmlAttributes = new { @class = "form-control", placeholder = "Clinic Code" } })
                         @Html.ValidationMessageFor(model => model.clinicmobilenumber, "", new { @class = "text-danger" })
                     </div>
                 </div>
@@ -54,7 +54,7 @@
                     @*@Html.LabelFor(model => model.mobile_number, htmlAttributes: new { @class = "control-label col-md-2" })*@
                     <label class="control-label col-md-2">User Phone Number</label>
                     <div class="col-md-10">
-                        @Html.EditorFor(model => model.mobile_number, new { htmlAttributes = new { @class = "form-control", placeholder = "UserId" } })
+                        @Html.EditorFor(model => model.mobile_number, new { htmlAttributes = new { @class = "form-control", placeholder = "User Phone Number" } })
                         @Html.ValidationMessageFor(model => model.mobile_number, "", new { @class = "text-danger" })
                     </div>
                 </div>

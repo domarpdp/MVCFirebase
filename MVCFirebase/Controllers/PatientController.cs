@@ -173,7 +173,19 @@ namespace MVCFirebase.Controllers
                             user.Value = docsnapUsers.Id;
                             if (docsnapUsers.Exists)
                             {
-                                UserList.Add(user);
+                                try 
+                                {
+                                    if (docsnapUsers.GetValue<bool>("user_deactivated") == false)
+                                    {
+                                        UserList.Add(user);
+                                    }
+                                }
+                                catch
+                                {
+                                    UserList.Add(user);
+                                }
+                                
+                                
                             }
                         }
                         ViewBag.USERS = UserList;
@@ -297,7 +309,17 @@ namespace MVCFirebase.Controllers
                             user.Value = docsnapUsers.Id;
                             if (docsnapUsers.Exists)
                             {
-                                UserList.Add(user);
+                                try
+                                {
+                                    if (docsnapUsers.GetValue<bool>("user_deactivated") == false)
+                                    {
+                                        UserList.Add(user);
+                                    }
+                                }
+                                catch
+                                {
+                                    UserList.Add(user);
+                                }
                             }
                         }
                         ViewBag.USERS = UserList;
@@ -530,7 +552,17 @@ namespace MVCFirebase.Controllers
                         user.Value = docsnapUsers.Id;
                         if (docsnapUsers.Exists)
                         {
-                            UserList.Add(user); 
+                            try
+                            {
+                                if (docsnapUsers.GetValue<bool>("user_deactivated") == false)
+                                {
+                                    UserList.Add(user);
+                                }
+                            }
+                            catch
+                            {
+                                UserList.Add(user);
+                            }
                         }
                     }
                     ViewBag.USERS = UserList;
@@ -561,7 +593,17 @@ namespace MVCFirebase.Controllers
                         user.Value = docsnapUsers.Id;
                         if (docsnapUsers.Exists)
                         {
-                            UserList.Add(user);
+                            try
+                            {
+                                if (docsnapUsers.GetValue<bool>("user_deactivated") == false)
+                                {
+                                    UserList.Add(user);
+                                }
+                            }
+                            catch
+                            {
+                                UserList.Add(user);
+                            }
                         }
                     }
                     ViewBag.USERS = UserList;
@@ -680,7 +722,17 @@ namespace MVCFirebase.Controllers
                 user.Value = docsnapUsers.Id;
                 if (docsnapUsers.Exists)
                 {
-                    UserList.Add(user);
+                    try
+                    {
+                        if (docsnapUsers.GetValue<bool>("user_deactivated") == false)
+                        {
+                            UserList.Add(user);
+                        }
+                    }
+                    catch
+                    {
+                        UserList.Add(user);
+                    }
                 }
             }
             ViewBag.USERS = UserList;
@@ -851,7 +903,9 @@ namespace MVCFirebase.Controllers
                                     {"status" ,"Waiting"},
                                     {"timeStamp" ,DateTime.UtcNow},
                                     {"token" ,patient.tokenNumber},
-                                    {"refertodoctor" ,patient.refer_to_doctor}
+                                    {"refertodoctor" ,patient.refer_to_doctor},
+                                    {"updatedAt" ,DateTime.UtcNow}
+                                    
                                 };
                                         await colAppountments.Document().SetAsync(dataAppointment);
                                         #endregion Code to create new appointment id for today
@@ -1052,7 +1106,8 @@ namespace MVCFirebase.Controllers
                                     {"status" ,"Waiting"},
                                     {"timeStamp" ,DateTime.UtcNow},
                                     {"token" ,patient.tokenNumber},
-                                    {"refertodoctor" ,patient.refer_to_doctor}
+                                    {"refertodoctor" ,patient.refer_to_doctor},
+                                    {"updatedAt" ,DateTime.UtcNow}
                                 };
                                         await colAppountments.Document().SetAsync(dataAppointment);
                                         #endregion Code to create new appointment id for today
@@ -1220,7 +1275,17 @@ namespace MVCFirebase.Controllers
                         user.Value = docsnapUsers.Id;
                         if (docsnapUsers.Exists)
                         {
-                            UserList.Add(user);
+                            try
+                            {
+                                if (docsnapUsers.GetValue<bool>("user_deactivated") == false)
+                                {
+                                    UserList.Add(user);
+                                }
+                            }
+                            catch
+                            {
+                                UserList.Add(user);
+                            }
                         }
                     }
                     ViewBag.USERS = UserList;
@@ -1253,7 +1318,17 @@ namespace MVCFirebase.Controllers
                         user.Value = docsnapUsers.Id;
                         if (docsnapUsers.Exists)
                         {
-                            UserList.Add(user);
+                            try
+                            {
+                                if (docsnapUsers.GetValue<bool>("user_deactivated") == false)
+                                {
+                                    UserList.Add(user);
+                                }
+                            }
+                            catch
+                            {
+                                UserList.Add(user);
+                            }
                         }
                     }
                     ViewBag.USERS = UserList;
@@ -1375,7 +1450,17 @@ namespace MVCFirebase.Controllers
                 user.Value = docsnapUsers.Id;
                 if (docsnapUsers.Exists)
                 {
-                    UserList.Add(user);
+                    try
+                    {
+                        if (docsnapUsers.GetValue<bool>("user_deactivated") == false)
+                        {
+                            UserList.Add(user);
+                        }
+                    }
+                    catch
+                    {
+                        UserList.Add(user);
+                    }
                 }
             }
             ViewBag.USERS = UserList;
@@ -1739,7 +1824,8 @@ namespace MVCFirebase.Controllers
                                     {"status" ,"Completed"},
                                     {"timeStamp" ,DateTime.UtcNow},
                                     {"token" ,token},
-                                    {"refertodoctor" ,referto}
+                                    {"refertodoctor" ,referto},
+                                    {"updatedAt" ,DateTime.UtcNow}
                                 };
                                 await colAppountments.Document().SetAsync(dataAppointment);
                             }
@@ -1772,7 +1858,8 @@ namespace MVCFirebase.Controllers
                                     {"status" ,"Waiting"},
                                     {"timeStamp" ,DateTime.UtcNow},
                                     {"token" ,token},
-                                    {"refertodoctor" ,referto}
+                                    {"refertodoctor" ,referto},
+                                    {"updatedAt" ,DateTime.UtcNow}
                                 };
                                 await colAppountments.Document().SetAsync(dataAppointment);
                             }
@@ -1919,7 +2006,8 @@ namespace MVCFirebase.Controllers
                                     {"status" ,"Completed"},
                                     {"timeStamp" ,DateTime.UtcNow},
                                     {"token" ,token},
-                                    {"refertodoctor" ,referto}
+                                    {"refertodoctor" ,referto},
+                                    {"updatedAt" ,DateTime.UtcNow}
                                 };
                                 await colAppountments.Document().SetAsync(dataAppointment);
                             }
@@ -1951,7 +2039,8 @@ namespace MVCFirebase.Controllers
                                     {"status" ,"Waiting"},
                                     {"timeStamp" ,DateTime.UtcNow},
                                     {"token" ,token},
-                                    {"refertodoctor" ,referto}
+                                    {"refertodoctor" ,referto},
+                                    {"updatedAt" ,DateTime.UtcNow}
                                 };
                                 await colAppountments.Document().SetAsync(dataAppointment);
                             }
@@ -2099,7 +2188,7 @@ namespace MVCFirebase.Controllers
                 string[] assignedtokens = docsnapTokenNumber.GetValue<string[]>("assigned_tokens");
 
 
-                if (assignedtokens != null)
+                if (assignedtokens != null && assignedtokens.Count()!= 0)
                 {
                     int[] assignedtokensInt = Array.ConvertAll(assignedtokens, int.Parse);
 
@@ -2136,13 +2225,19 @@ namespace MVCFirebase.Controllers
                 lastTokenNumberReturned = (Convert.ToInt32(lastTokenNumber) + 1).ToString();
             }
 
+            try {
+                if (Convert.ToInt32(token) < Convert.ToInt32(lastTokenNumberReturned))
+                {
+                    ViewBag.Message = "Token Number " + token + " is already assigned.";
 
-
-            if (Convert.ToInt32(token) < Convert.ToInt32(lastTokenNumberReturned))
+                }
+            }
+            catch (Exception ex)
             {
-                ViewBag.Message = "Token Number " + token + " is already assigned.";
 
             }
+
+            
             if (Convert.ToInt32(token) < 1)
             {
                 ViewBag.Message = "Token Number can not be negative.";
@@ -2206,7 +2301,7 @@ namespace MVCFirebase.Controllers
 
                     string[] assignedtokens = docsnapTokenNumber.GetValue<string[]>("assigned_tokens");
                     List<string> assignedtokenList = new List<string>();
-                    if (assignedtokens != null)
+                    if (assignedtokens != null && assignedtokens.Count() != 0)
                     {
                         for (int i = 0; i < assignedtokens.Length; i++)
                         {

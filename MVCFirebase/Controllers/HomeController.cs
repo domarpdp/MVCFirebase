@@ -105,7 +105,8 @@ namespace MVCFirebase.Controllers
                 //DocumentReference docref = db.Collection("clinics").Document("");
                 //DocumentSnapshot docsnap = await docref.GetSnapshotAsync();
 
-                Query Qref = db.Collection("clinics").WhereEqualTo("clinicmobilenumber", user.clinicmobilenumber).Limit(1);
+                //Query Qref = db.Collection("clinics").WhereEqualTo("clinicmobilenumber", user.clinicmobilenumber).Limit(1);
+                Query Qref = db.Collection("clinics").WhereEqualTo("clinic_code", user.clinicmobilenumber).Limit(1);
                 QuerySnapshot snapClinic = await Qref.GetSnapshotAsync();
 
                 if (snapClinic.Count > 0)
