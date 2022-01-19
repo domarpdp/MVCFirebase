@@ -903,7 +903,9 @@ namespace MVCFirebase.Controllers
                                     {"status" ,"Waiting"},
                                     {"timeStamp" ,DateTime.UtcNow},
                                     {"token" ,patient.tokenNumber},
-                                    {"refertodoctor" ,patient.refer_to_doctor},
+                                    {"referTo" ,patient.refer_to_doctor},
+                                    {"doctor" ,patient.refer_to_doctor},
+                                    {"receptionist" ,patient.refer_to_doctor},
                                     {"updatedAt" ,DateTime.UtcNow}
                                     
                                 };
@@ -1106,7 +1108,9 @@ namespace MVCFirebase.Controllers
                                     {"status" ,"Waiting"},
                                     {"timeStamp" ,DateTime.UtcNow},
                                     {"token" ,patient.tokenNumber},
-                                    {"refertodoctor" ,patient.refer_to_doctor},
+                                    {"referTo" ,patient.refer_to_doctor},
+                                    {"doctor" ,patient.refer_to_doctor},
+                                    {"receptionist" ,patient.refer_to_doctor},
                                     {"updatedAt" ,DateTime.UtcNow}
                                 };
                                         await colAppountments.Document().SetAsync(dataAppointment);
@@ -1824,7 +1828,9 @@ namespace MVCFirebase.Controllers
                                     {"status" ,"Completed"},
                                     {"timeStamp" ,DateTime.UtcNow},
                                     {"token" ,token},
-                                    {"refertodoctor" ,referto},
+                                    {"referTo" ,referto},
+                                    {"doctor" ,referto},
+                                    {"receptionist" ,referto},
                                     {"updatedAt" ,DateTime.UtcNow}
                                 };
                                 await colAppountments.Document().SetAsync(dataAppointment);
@@ -1858,7 +1864,9 @@ namespace MVCFirebase.Controllers
                                     {"status" ,"Waiting"},
                                     {"timeStamp" ,DateTime.UtcNow},
                                     {"token" ,token},
-                                    {"refertodoctor" ,referto},
+                                    {"referTo" ,referto},
+                                    {"doctor" ,referto},
+                                    {"receptionist" ,referto},
                                     {"updatedAt" ,DateTime.UtcNow}
                                 };
                                 await colAppountments.Document().SetAsync(dataAppointment);
@@ -2006,7 +2014,9 @@ namespace MVCFirebase.Controllers
                                     {"status" ,"Completed"},
                                     {"timeStamp" ,DateTime.UtcNow},
                                     {"token" ,token},
-                                    {"refertodoctor" ,referto},
+                                    {"referTo" ,referto},
+                                    {"doctor" ,referto},
+                                    {"receptionist" ,referto},
                                     {"updatedAt" ,DateTime.UtcNow}
                                 };
                                 await colAppountments.Document().SetAsync(dataAppointment);
@@ -2039,7 +2049,9 @@ namespace MVCFirebase.Controllers
                                     {"status" ,"Waiting"},
                                     {"timeStamp" ,DateTime.UtcNow},
                                     {"token" ,token},
-                                    {"refertodoctor" ,referto},
+                                    {"referTo" ,referto},
+                                    {"doctor" ,referto},
+                                    {"receptionist" ,referto},
                                     {"updatedAt" ,DateTime.UtcNow}
                                 };
                                 await colAppountments.Document().SetAsync(dataAppointment);
