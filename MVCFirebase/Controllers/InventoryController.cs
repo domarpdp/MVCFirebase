@@ -134,36 +134,110 @@ namespace MVCFirebase.Controllers
         }
 
         // GET: Inventory/Edit/5
-        public ActionResult Edit(int id)
+        public async Task<ActionResult> Edit(string id)
         {
-            return View();
+            string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
+            Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
+            FirestoreDb db = FirestoreDb.Create("greenpaperdev");
+
+
+            DocumentReference docRef = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("inventory").Document(id);
+            DocumentSnapshot docsnapInventory = await docRef.GetSnapshotAsync();
+            Inventory inventory = new Inventory();
+            //Inventory inventory = docsnapInventory.ConvertTo<Inventory>();
+
+            inventory.shortname = docsnapInventory.GetValue<string>("shortname");
+            inventory.quantitypurchased = docsnapInventory.GetValue<int>("quantitypurchased");
+            inventory.quantitygiven = docsnapInventory.GetValue<int>("quantitygiven");
+            inventory.quantitybalance = docsnapInventory.GetValue<int>("quantitybalance");
+            inventory.quantitymin = docsnapInventory.GetValue<int>("quantitymin");
+            inventory.medicinename = docsnapInventory.GetValue<string>("medicinename");
+            inventory.unitmrp = docsnapInventory.GetValue<string>("unitmrp");
+            inventory.dateadded = docsnapInventory.GetValue<DateTime>("dateadded").ToString();
+            inventory.expirydate = docsnapInventory.GetValue<DateTime>("expirydate").ToString();
+            inventory.purchasedunitprice = docsnapInventory.GetValue<string>("purchasedunitprice");
+            inventory.vendorname = docsnapInventory.GetValue<string>("vendorname");
+            inventory.vendormobilenumber = docsnapInventory.GetValue<string>("vendormobilenumber");
+
+
+            inventory.id = docsnapInventory.Id;
+
+
+
+            return View(inventory);
         }
 
         // POST: Inventory/Edit/5
         [HttpPost]
-        public ActionResult Edit(int id, FormCollection collection)
+        public async Task<ActionResult> Edit(string id, Inventory inventory)
         {
             try
             {
-                // TODO: Add update logic here
+                string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
+                Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
+                FirestoreDb db = FirestoreDb.Create("greenpaperdev");
 
-                return RedirectToAction("Index");
+                try
+                {
+                    if (ModelState.IsValid)
+                    {
+                        DocumentReference docRef = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("inventory").Document(id);
+                        DocumentSnapshot docSnap = await docRef.GetSnapshotAsync();
+
+
+                        Dictionary<string, object> data1 = new Dictionary<string, object>
+                        {
+                            {"shortname" ,inventory.shortname.ToLower()},
+                            {"quantitypurchased" ,inventory.quantitypurchased},
+                            {"quantitymin" ,inventory.quantitymin},
+                            {"medicinename" ,inventory.medicinename.ToLower()},
+                            {"unitmrp" ,inventory.unitmrp.ToString()},
+                            {"dateadded" ,DateTime.SpecifyKind(Convert.ToDateTime(inventory.dateadded), DateTimeKind.Utc)},
+                            {"expirydate" ,DateTime.SpecifyKind(Convert.ToDateTime(inventory.expirydate), DateTimeKind.Utc)},
+                            {"purchasedunitprice" ,inventory.purchasedunitprice.ToString()},
+                            {"vendorname",inventory.vendorname.ToLower()},
+                            {"vendormobilenumber" ,inventory.vendormobilenumber},
+                            {"quantitygiven" ,0},
+                            {"quantitybalance" ,inventory.quantitypurchased}
+                        };
+                        if (docSnap.Exists)
+                        {
+                            await docRef.UpdateAsync(data1);
+                        }
+
+                        return RedirectToAction("Index");
+                    }
+                    else
+                    {
+
+                        return View(inventory);
+                    }
+
+
+                }
+                catch
+                {
+                    return View(inventory);
+                }
+
+                
             }
             catch
             {
-                return View();
+                return View(inventory);
             }
         }
 
         // GET: Inventory/Delete/5
-        public ActionResult Delete(int id)
+        public ActionResult Delete(string id)
         {
-            return View();
+            //return View();
+            return RedirectToAction("Index");
         }
 
         // POST: Inventory/Delete/5
         [HttpPost]
-        public ActionResult Delete(int id, FormCollection collection)
+        public ActionResult Delete(string id, FormCollection collection)
         {
             try
             {

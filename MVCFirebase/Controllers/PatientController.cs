@@ -790,9 +790,9 @@ namespace MVCFirebase.Controllers
                                     DocumentSnapshot docSnap = await docRef.GetSnapshotAsync();
 
                                     Dictionary<string, object> dataPatientLastId = new Dictionary<string, object>
-                            {
-                                {"id" ,patientLastId}
-                            };
+                                    {
+                                        {"id" ,patientLastId}
+                                    };
 
                                     if (docSnap.Exists)
                                     {
@@ -805,21 +805,25 @@ namespace MVCFirebase.Controllers
                                 CollectionReference col1 = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("patientList");
 
                                 Dictionary<string, object> data1 = new Dictionary<string, object>
-                        {
-                            {"patient_name" ,patient.patient_name.ToLower()},
-                            {"age" ,patient.age},
-                            {"care_of" ,patient.care_of},
-                            {"city" ,patient.city},
-                            {"creation_date" ,DateTime.UtcNow},
-                            {"disease" ,patient.disease},
-                            {"gender" ,patient.gender},
-                            {"severity" ,patient.severity},
-                            {"patient_id" ,patientLastId},
-                            {"patient_mobile_number",patient.patient_mobile_number},
-                            {"refer_by" ,patient.refer_by},
-                            {"refer_to_doctor" ,patient.refer_to_doctor},
-                            {"search_text" ,patient.patient_name+patient.patient_mobile_number+patientLastId}
-                        };
+                                {
+                                    {"id" ,DateTime.Now.ToString("yyyyMMddHHmmssffff")},
+                                    { "patient_name" ,patient.patient_name.ToLower()},
+                                    {"age" ,patient.age},
+                                    {"care_of" ,patient.care_of},
+                                    {"city" ,patient.city},
+                                    {"creation_date" ,DateTime.UtcNow},
+                                    {"disease" ,patient.disease},
+                                    {"gender" ,patient.gender},
+                                    {"severity" ,patient.severity},
+                                    {"patient_id" ,patientLastId},
+                                    {"patient_mobile_number",patient.patient_mobile_number},
+                                    {"refer_by" ,patient.refer_by},
+                                    {"refer_to_doctor" ,patient.refer_to_doctor},
+                                    {"isCreated" ,true},
+                                    {"isSynced" ,true},
+                                    {"updatedAt" ,DateTime.UtcNow},
+                                    {"search_text" ,patient.patient_name+patient.patient_mobile_number+patientLastId}
+                                };
                                 await col1.Document().SetAsync(data1);
                                 #endregion Code to create new Patient
                                 #region Code to get newly created patient's auto id
@@ -906,7 +910,10 @@ namespace MVCFirebase.Controllers
                                     {"referTo" ,patient.refer_to_doctor},
                                     {"doctor" ,patient.refer_to_doctor},
                                     {"receptionist" ,patient.refer_to_doctor},
+                                    {"isCreated" ,true},
+                                    {"isSynced" ,true},
                                     {"updatedAt" ,DateTime.UtcNow}
+
                                     
                                 };
                                         await colAppountments.Document().SetAsync(dataAppointment);
@@ -1011,6 +1018,7 @@ namespace MVCFirebase.Controllers
 
                                 Dictionary<string, object> data1 = new Dictionary<string, object>
                         {
+                            {"id" ,DateTime.Now.ToString("yyyyMMddHHmmssffff")},
                             {"patient_name" ,patient.patient_name.ToLower()},
                             {"age" ,patient.age},
                             {"care_of" ,patient.care_of},
@@ -1023,6 +1031,9 @@ namespace MVCFirebase.Controllers
                             {"patient_mobile_number",patient.patient_mobile_number},
                             {"refer_by" ,patient.refer_by},
                             {"refer_to_doctor" ,patient.refer_to_doctor},
+                            {"isCreated" ,true},
+                            {"isSynced" ,true},
+                            {"updatedAt" ,DateTime.UtcNow},
                             {"search_text" ,patient.patient_name+patient.patient_mobile_number+patientLastId}
                         };
                                 await col1.Document().SetAsync(data1);
@@ -1111,6 +1122,8 @@ namespace MVCFirebase.Controllers
                                     {"referTo" ,patient.refer_to_doctor},
                                     {"doctor" ,patient.refer_to_doctor},
                                     {"receptionist" ,patient.refer_to_doctor},
+                                    {"isCreated" ,true},
+                                    {"isSynced" ,true},
                                     {"updatedAt" ,DateTime.UtcNow}
                                 };
                                         await colAppountments.Document().SetAsync(dataAppointment);
@@ -1510,6 +1523,9 @@ namespace MVCFirebase.Controllers
                             {"patient_mobile_number",patient.patient_mobile_number},
                             {"refer_by" ,patient.refer_by},
                             {"refer_to_doctor" ,patient.refer_to_doctor},
+                            {"isCreated" ,true},
+                            {"isSynced" ,true},
+                            {"updatedAt" ,DateTime.UtcNow},
                             {"search_text" ,patient.patient_name+patient.patient_mobile_number+patient.patient_id}
                         };
 
@@ -1565,6 +1581,9 @@ namespace MVCFirebase.Controllers
                             {"patient_mobile_number",patient.patient_mobile_number},
                             {"refer_by" ,patient.refer_by},
                             {"refer_to_doctor" ,patient.refer_to_doctor},
+                            {"isCreated" ,true},
+                            {"isSynced" ,true},
+                            {"updatedAt" ,DateTime.UtcNow},
                             {"search_text" ,patient.patient_name+patient.patient_mobile_number+patient.patient_id}
                         };
 
@@ -1831,7 +1850,10 @@ namespace MVCFirebase.Controllers
                                     {"referTo" ,referto},
                                     {"doctor" ,referto},
                                     {"receptionist" ,referto},
+                                    {"isCreated" ,true},
+                                    {"isSynced" ,true},
                                     {"updatedAt" ,DateTime.UtcNow}
+
                                 };
                                 await colAppountments.Document().SetAsync(dataAppointment);
                             }
@@ -1867,7 +1889,10 @@ namespace MVCFirebase.Controllers
                                     {"referTo" ,referto},
                                     {"doctor" ,referto},
                                     {"receptionist" ,referto},
+                                    {"isCreated" ,true},
+                                    {"isSynced" ,true},
                                     {"updatedAt" ,DateTime.UtcNow}
+
                                 };
                                 await colAppountments.Document().SetAsync(dataAppointment);
                             }
@@ -2017,7 +2042,10 @@ namespace MVCFirebase.Controllers
                                     {"referTo" ,referto},
                                     {"doctor" ,referto},
                                     {"receptionist" ,referto},
+                                    {"isCreated" ,true},
+                                    {"isSynced" ,true},
                                     {"updatedAt" ,DateTime.UtcNow}
+
                                 };
                                 await colAppountments.Document().SetAsync(dataAppointment);
                             }
@@ -2052,7 +2080,10 @@ namespace MVCFirebase.Controllers
                                     {"referTo" ,referto},
                                     {"doctor" ,referto},
                                     {"receptionist" ,referto},
+                                    {"isCreated" ,true},
+                                    {"isSynced" ,true},
                                     {"updatedAt" ,DateTime.UtcNow}
+
                                 };
                                 await colAppountments.Document().SetAsync(dataAppointment);
                             }

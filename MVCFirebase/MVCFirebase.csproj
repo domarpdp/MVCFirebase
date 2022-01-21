@@ -324,6 +324,7 @@
     <Content Include="Views\CRM\Index.cshtml" />
     <Content Include="Views\CRM\Create.cshtml" />
     <Content Include="Views\CRM\Edit.cshtml" />
+    <Content Include="Views\Inventory\Edit.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
