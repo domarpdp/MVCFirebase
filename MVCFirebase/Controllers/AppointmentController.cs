@@ -109,7 +109,7 @@ namespace MVCFirebase.Controllers
                     }
                     AppointmentList = AppointmentList.OrderByDescending(a => a.tokenIteger).ToList();
                     ViewBag.Message = SearchDate.Date;
-                    Thread.Sleep(100);
+                    Thread.Sleep(1000);
                     return View(AppointmentList);
 
 
@@ -195,7 +195,7 @@ namespace MVCFirebase.Controllers
                     }
                     AppointmentList = AppointmentList.OrderByDescending(a => a.tokenIteger).ToList();
                     ViewBag.Message = SearchDate.Date;
-                    Thread.Sleep(100);
+                    Thread.Sleep(1000);
                     return View(AppointmentList);
 
                 }
@@ -462,7 +462,7 @@ namespace MVCFirebase.Controllers
                     {
                         ViewData["DateType"] = "CurrentDate";
                     }
-                    Thread.Sleep(100);
+                    Thread.Sleep(1000);
                     return View(AppointmentList);
                 }
                 else
@@ -676,7 +676,7 @@ namespace MVCFirebase.Controllers
                     {
                         ViewData["DateType"] = "CurrentDate";
                     }
-                    Thread.Sleep(100);
+                    Thread.Sleep(1000);
                     return View(AppointmentList);
                 }
             }
@@ -872,7 +872,7 @@ namespace MVCFirebase.Controllers
 
                     AppointmentList = AppointmentList.OrderByDescending(a => a.tokenIteger).ToList();
                     ViewBag.Message = SearchDate.Date;
-                    Thread.Sleep(100);
+                    Thread.Sleep(1000);
                     return View(AppointmentList);
                 }
                 else
@@ -1044,7 +1044,7 @@ namespace MVCFirebase.Controllers
                     ViewData["totalfeeothers"] = totalfeeothers;
                     AppointmentList = AppointmentList.OrderByDescending(a => a.tokenIteger).ToList();
                     ViewBag.Message = SearchDate.Date;
-                    Thread.Sleep(100);
+                    Thread.Sleep(1000);
                     return View(AppointmentList);
                 }
             }
