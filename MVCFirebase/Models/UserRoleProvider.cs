@@ -45,8 +45,20 @@ namespace MVCFirebase.Models
         }
         public override string[] GetRolesForUser(string username)
         {
-
-            return GlobalSessionVariables.UserRoles.Split(',');
+            string[] webapiuser = { "user" };
+            string[] webapiadmin = { "admin" };
+            if (username == "WEBAPIUSER") {
+                return webapiuser;
+            }
+            else if (username == "WEBAPIADMIN")
+            {
+                return webapiadmin;
+            }
+            else
+            {
+                return GlobalSessionVariables.UserRoles.Split(',');
+            }
+            
             //using (ExportExcelEntities context = new ExportExcelEntities())
             //{
             //    var userRoles = (from user in context.Users

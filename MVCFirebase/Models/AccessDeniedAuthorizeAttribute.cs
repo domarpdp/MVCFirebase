@@ -6,7 +6,7 @@ using System.Web.Mvc;
 
 namespace MVCFirebase.Models
 {
-    public class AccessDeniedAuthorizeAttribute : AuthorizeAttribute
+    public class AccessDeniedAuthorizeAttribute : System.Web.Mvc.AuthorizeAttribute
     {
         public override void OnAuthorization(AuthorizationContext filterContext)
         {

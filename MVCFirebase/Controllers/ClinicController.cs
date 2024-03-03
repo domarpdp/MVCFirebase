@@ -29,6 +29,7 @@ namespace MVCFirebase.Controllers
             foreach (DocumentSnapshot docsnap in snap)
             {
                 Clinic clinic = docsnap.ConvertTo<Clinic>();
+                clinic.id = docsnap.Id;
                 if (docsnap.Exists)
                 {
                     ClinicList.Add(clinic);
@@ -40,9 +41,10 @@ namespace MVCFirebase.Controllers
 
         [Authorize]
         // GET: Clinic/Details/5
-        public ActionResult Details(int id)
+        public ActionResult Details(string id)
         {
-            return View();
+            //return View();
+            return RedirectToAction("Index");
         }
 
         // GET: Clinic/Create
@@ -71,15 +73,16 @@ namespace MVCFirebase.Controllers
 
         // GET: Clinic/Edit/5
         [Authorize]
-        public ActionResult Edit(int id)
+        public ActionResult Edit(string id)
         {
-            return View();
+            //return View();
+            return RedirectToAction("Index");
         }
 
         // POST: Clinic/Edit/5
         [HttpPost]
         [Authorize]
-        public ActionResult Edit(int id, FormCollection collection)
+        public ActionResult Edit(string id, FormCollection collection)
         {
             try
             {
@@ -95,9 +98,10 @@ namespace MVCFirebase.Controllers
 
         // GET: Clinic/Delete/5
         [Authorize]
-        public ActionResult Delete(int id)
+        public ActionResult Delete(string id)
         {
-            return View();
+            //return View();
+            return RedirectToAction("Index");
         }
 
         // POST: Clinic/Delete/5
