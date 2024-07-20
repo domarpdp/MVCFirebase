@@ -27,7 +27,7 @@ namespace MVCFirebase.Controllers
             return Ok("Hello :" + identity.Name);
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "admin")]
         [HttpGet]
         [Route("api/Data/authorize")]
         public IHttpActionResult GetForAdmin()

@@ -47,6 +47,7 @@ namespace MVCFirebase.Models
         {
             string[] webapiuser = { "user" };
             string[] webapiadmin = { "admin" };
+            string[] emptystring = { };
             if (username == "WEBAPIUSER") {
                 return webapiuser;
             }
@@ -56,7 +57,15 @@ namespace MVCFirebase.Models
             }
             else
             {
-                return GlobalSessionVariables.UserRoles.Split(',');
+                if (HttpContext.Current.Session != null && HttpContext.Current.Session["UserRoles"] != null)
+                {
+                    return GlobalSessionVariables.UserRoles.Split(',');
+                }
+                else
+                {
+                    return emptystring;
+                }
+                
             }
             
             //using (ExportExcelEntities context = new ExportExcelEntities())

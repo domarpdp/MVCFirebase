@@ -8,6 +8,8 @@ using System.Web;
 
 namespace MVCFirebase
 {
+
+    //Class is used to verify oauthowin token 
     public class MyAuthorizationServerProvider :OAuthAuthorizationServerProvider
     {
         public override async Task ValidateClientAuthentication(OAuthValidateClientAuthenticationContext context)

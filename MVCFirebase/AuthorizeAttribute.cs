@@ -6,6 +6,8 @@ using System.Web.Http.Controllers;
 
 namespace MVCFirebase
 {
+
+    //Class is used for OauthOwin token
     public class AuthorizeAttribute : System.Web.Http.AuthorizeAttribute
     {
         protected override void HandleUnauthorizedRequest(HttpActionContext actionContext)

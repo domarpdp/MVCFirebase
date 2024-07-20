@@ -16,7 +16,7 @@ using System.Net;
 using System.Data;
 
 namespace MVCFirebase.Controllers
-{[Authorize]
+{
     public class HomeController : Controller
     {
         [AllowAnonymous]
@@ -215,14 +215,14 @@ namespace MVCFirebase.Controllers
         }
 
         [HttpPost]
-        [Authorize]
+
         public ActionResult Logout()
         {
             FormsAuthentication.SignOut();
             Session.Abandon();
             return RedirectToAction("Login");
         }
-        [Authorize]
+
         public async Task<ActionResult> About()
         {
             
