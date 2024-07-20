@@ -283,7 +283,16 @@ namespace MVCFirebase.Controllers
 
                             for (int i = 0; i < sdr.FieldCount; i++)
                             {
-                                dictionary.Add(sdr.GetName(i), sdr.GetValue(i));
+                                if (sdr.GetName(i) == "isPrescription" || sdr.GetName(i) == "isCreated" || sdr.GetName(i) == "isSynced" || sdr.GetName(i) == "isDeleted")
+                                {
+                                    // Convert 1 or 0 to boolean true or false
+                                    bool fieldValue = Convert.ToInt32(sdr.GetValue(i)) == 1;
+                                    dictionary.Add(sdr.GetName(i), fieldValue);
+                                }
+                                else
+                                {
+                                    dictionary.Add(sdr.GetName(i), sdr.GetValue(i));
+                                }
                             }
 
                             dynamicDt.Add(row);

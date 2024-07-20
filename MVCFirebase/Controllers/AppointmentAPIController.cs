@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Google.Cloud.Firestore;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Net.Http.Headers;
 using Microsoft.Owin.Security;
@@ -15,6 +16,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Results;
 
@@ -66,7 +68,7 @@ namespace MVCFirebase.Controllers
 
                             for (int i = 0; i < sdr.FieldCount; i++)
                             {
-                                if (sdr.GetName(i) == "bill_sms" || sdr.GetName(i) == "reminder_sms" || sdr.GetName(i) == "isCreated" || sdr.GetName(i) == "isSynced")
+                                if (sdr.GetName(i) == "bill_sms" || sdr.GetName(i) == "reminder_sms" || sdr.GetName(i) == "isCreated" || sdr.GetName(i) == "isSynced" || sdr.GetName(i) == "request_by_patient")
                                 {
                                     // Convert 1 or 0 to boolean true or false
                                     bool fieldValue = Convert.ToInt32(sdr.GetValue(i)) == 1;
@@ -136,7 +138,16 @@ namespace MVCFirebase.Controllers
 
                             for (int i = 0; i < sdr.FieldCount; i++)
                             {
-                                dictionary.Add(sdr.GetName(i), sdr.GetValue(i));
+                                if (sdr.GetName(i) == "bill_sms" || sdr.GetName(i) == "reminder_sms" || sdr.GetName(i) == "isCreated" || sdr.GetName(i) == "isSynced" || sdr.GetName(i) == "request_by_patient")
+                                {
+                                    // Convert 1 or 0 to boolean true or false
+                                    bool fieldValue = Convert.ToInt32(sdr.GetValue(i)) == 1;
+                                    dictionary.Add(sdr.GetName(i), fieldValue);
+                                }
+                                else
+                                {
+                                    dictionary.Add(sdr.GetName(i), sdr.GetValue(i));
+                                }
                             }
 
                             dynamicDt.Add(row);
@@ -166,7 +177,7 @@ namespace MVCFirebase.Controllers
         [JwtAuthorize(Roles = "user")]
         [HttpPost]
         [Route("api/AppointmentAPI/CreateAppointment")]
-        public GenericAPIResult CreateAppointment([FromBody] AppointmentAPI Obj)
+        public async Task<GenericAPIResult> CreateAppointment([FromBody] AppointmentAPI Obj)
         {
             GenericAPIResult result = new GenericAPIResult();
             var dynamicDt = new List<dynamic>();
@@ -435,7 +446,45 @@ namespace MVCFirebase.Controllers
 
                 }
 
+                #region Code to update Firebase Listener
 
+                string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
+                Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
+                FirestoreDb db = FirestoreDb.Create("greenpaperdev");
+
+
+                try
+                {
+                    Query Qref = db.Collection("clinics").WhereEqualTo("clinic_code", Obj.clinicCode).Limit(1);
+                    QuerySnapshot snapClinic = await Qref.GetSnapshotAsync();
+
+                    if (snapClinic.Count > 0)
+                    {
+                        DocumentSnapshot docSnapClinic = snapClinic.Documents[0];
+                        Clinic clinic = docSnapClinic.ConvertTo<Clinic>();
+
+                        CollectionReference col1 = db.Collection("clinics").Document(docSnapClinic.Id).Collection("WebAPIResponse");
+
+                        Dictionary<string, object> data1 = new Dictionary<string, object>
+                        {
+                            {"CollectionName" ,"Appointment" },
+                            {"UpdatedAt" ,DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc)},
+                        };
+
+                        await col1.Document().SetAsync(data1);
+                    }
+
+
+
+                }
+                catch (Exception ex)
+                {
+                    msg = ex.Message;
+                    statuscode = "201";
+                    errorcode = "true";
+                }
+
+                #endregion
             }
 
             result.message = msg;
@@ -450,7 +499,7 @@ namespace MVCFirebase.Controllers
         [JwtAuthorize(Roles = "user")]
         [HttpPost]
         [Route("api/AppointmentAPI/UpdateAppointment")]
-        public GenericAPIResult UpdateAppointment([FromBody] AppointmentAPI Obj)
+        public async Task<GenericAPIResult> UpdateAppointment([FromBody] AppointmentAPI Obj)
         {
             GenericAPIResult result = new GenericAPIResult();
             var dynamicDt = new List<dynamic>();
@@ -634,7 +683,45 @@ namespace MVCFirebase.Controllers
 
                 }
 
+                #region Code to update Firebase Listener
 
+                string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
+                Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
+                FirestoreDb db = FirestoreDb.Create("greenpaperdev");
+
+
+                try
+                {
+                    Query Qref = db.Collection("clinics").WhereEqualTo("clinic_code", Obj.clinicCode).Limit(1);
+                    QuerySnapshot snapClinic = await Qref.GetSnapshotAsync();
+
+                    if (snapClinic.Count > 0)
+                    {
+                        DocumentSnapshot docSnapClinic = snapClinic.Documents[0];
+                        Clinic clinic = docSnapClinic.ConvertTo<Clinic>();
+
+                        CollectionReference col1 = db.Collection("clinics").Document(docSnapClinic.Id).Collection("WebAPIResponse");
+
+                        Dictionary<string, object> data1 = new Dictionary<string, object>
+                        {
+                            {"CollectionName" ,"Appointment" },
+                            {"UpdatedAt" ,DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc)},
+                        };
+
+                        await col1.Document().SetAsync(data1);
+                    }
+
+
+
+                }
+                catch (Exception ex)
+                {
+                    msg = ex.Message;
+                    statuscode = "201";
+                    errorcode = "true";
+                }
+
+                #endregion
             }
 
             result.message = msg;

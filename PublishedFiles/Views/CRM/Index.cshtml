@@ -1,0 +1,101 @@
+﻿@model PagedList.IPagedList<MVCFirebase.Models.CRM>
+@using PagedList.Mvc;
+<link href="~/Content/PagedList.css" rel="stylesheet" type="text/css" />
+
+@{
+    ViewBag.Title = "Index";
+}
+
+
+<h2>Index</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+@using (Html.BeginForm())
+{
+    <p>
+        Find by name: @Html.TextBox("SearchString")
+        <input type="submit" value="Search" />
+    </p>
+}
+<table class="table">
+    <tr>
+        <th>
+            Refered By
+        </th>
+        <th>
+            @Html.ActionLink("Clinic Type", "Index", new { sortOrder = ViewBag.ClinicTypeSortParm })
+        </th>
+        <th>
+            @*@Html.DisplayNameFor(model => model.nextmeetingdate)*@
+            @Html.ActionLink("Appointment Date", "Index", new { sortOrder = ViewBag.DateSortParm })
+        </th>
+        
+        <th>
+            City
+        </th>
+        
+        
+        <th>
+            Clinic Name
+        </th>
+        <th>
+            Doctor Name
+        </th>
+        <th>
+            Contact
+        </th>
+        <th>
+            Comments
+        </th>
+        <th>
+            @Html.ActionLink("Status", "Index", new { sortOrder = ViewBag.statusSortParm })
+        </th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.referedby)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.clinictype)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.nextmeetingdate)
+            </td>
+            
+            <td>
+                @Html.DisplayFor(modelItem => item.city)
+            </td>
+            
+            <td>
+                @Html.DisplayFor(modelItem => item.clinicname)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.doctorname)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.contact)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.comments)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.status)
+            </td>
+            <td>
+                @Html.ActionLink("Edit", "Edit", new { id = item.Id })
+            </td>
+        </tr>
+    }
+
+</table>
+<br />
+Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+
+@Html.PagedListPager(Model, page => Url.Action("Index",
+    new { page, sortOrder = ViewBag.CurrentSort, currentFilter = ViewBag.CurrentFilter }))

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Google.Cloud.Firestore;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Net.Http.Headers;
 using Microsoft.Owin.Security;
@@ -15,6 +16,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Results;
 
@@ -140,7 +142,17 @@ namespace MVCFirebase.Controllers
 
                             for (int i = 0; i < sdr.FieldCount; i++)
                             {
-                                dictionary.Add(sdr.GetName(i), sdr.GetValue(i));
+                                if (sdr.GetName(i) == "isCreated" || sdr.GetName(i) == "isSynced" || sdr.GetName(i) == "patientAppDownloaded")
+                                {
+                                    // Convert 1 or 0 to boolean true or false
+                                    bool fieldValue = Convert.ToInt32(sdr.GetValue(i)) == 1;
+                                    dictionary.Add(sdr.GetName(i), fieldValue);
+                                }
+                                else
+                                {
+                                    dictionary.Add(sdr.GetName(i), sdr.GetValue(i));
+                                }
+                                
                             }
 
                             dynamicDt.Add(row);
@@ -302,7 +314,16 @@ namespace MVCFirebase.Controllers
 
                             for (int i = 0; i < sdr.FieldCount; i++)
                             {
-                                dictionary.Add(sdr.GetName(i), sdr.GetValue(i));
+                                if (sdr.GetName(i) == "isCreated" || sdr.GetName(i) == "isSynced" || sdr.GetName(i) == "patientAppDownloaded")
+                                {
+                                    // Convert 1 or 0 to boolean true or false
+                                    bool fieldValue = Convert.ToInt32(sdr.GetValue(i)) == 1;
+                                    dictionary.Add(sdr.GetName(i), fieldValue);
+                                }
+                                else
+                                {
+                                    dictionary.Add(sdr.GetName(i), sdr.GetValue(i));
+                                }
                             }
 
                             dynamicDt.Add(row);
@@ -469,7 +490,7 @@ namespace MVCFirebase.Controllers
         [JwtAuthorize(Roles = "user")]
         [HttpPost]
         [Route("api/PatientAPI/CreatePatient")]
-        public GenericAPIResult CreatePatient([FromBody] PatientAPI ObjPatient)
+        public async Task<GenericAPIResult> CreatePatient([FromBody] PatientAPI ObjPatient)
         {
             GenericAPIResult result = new GenericAPIResult();
             var dynamicDt = new List<dynamic>();
@@ -572,7 +593,7 @@ namespace MVCFirebase.Controllers
                                 dt.Load(sqlComm.ExecuteReader());
                                 conn.Close();
 
-                                
+
                                 string patient_id = dt.Rows[0]["patient_id"].ToString();
 
                                 patient_id = patient_id.Substring(1, 4);
@@ -599,7 +620,7 @@ namespace MVCFirebase.Controllers
                                 conn.Close();
 
                                 maxId = Convert.ToInt32(dtId.Rows[0]["Id"].ToString()) + 1;
-                                
+
 
 
                                 SqlCommand sqlCommPatientInsert = new SqlCommand("Insert into patients( " +
@@ -628,7 +649,7 @@ namespace MVCFirebase.Controllers
                                 errorcode = "false";
                             }
 
-                            
+
 
                         }
                         catch (Exception ex)
@@ -649,12 +670,178 @@ namespace MVCFirebase.Controllers
 
             }
 
+
+            #region Code to update Firebase Listener
+
+            string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
+            Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
+            FirestoreDb db = FirestoreDb.Create("greenpaperdev");
+
+
+            try
+            {
+                Query Qref = db.Collection("clinics").WhereEqualTo("clinic_code", ObjPatient.clinicCode).Limit(1);
+                QuerySnapshot snapClinic = await Qref.GetSnapshotAsync();
+
+                if (snapClinic.Count > 0)
+                {
+                    DocumentSnapshot docSnapClinic = snapClinic.Documents[0];
+                    Clinic clinic = docSnapClinic.ConvertTo<Clinic>();
+
+                    CollectionReference col1 = db.Collection("clinics").Document(docSnapClinic.Id).Collection("WebAPIResponse");
+
+                    Dictionary<string, object> data1 = new Dictionary<string, object>
+                    {
+                        {"CollectionName" ,"Patient" },
+                        {"UpdatedAt" ,DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc)},
+                    };
+
+                    await col1.Document().SetAsync(data1);
+                }
+
+                
+
+            }
+            catch (Exception ex)
+            {
+                msg = ex.Message;
+                statuscode = "201";
+                errorcode = "true";
+            }
+
+            #endregion
+
             result.message = msg;
             result.statusCode = statuscode;
             result.error = errorcode;
             result.data = dynamicDt;
 
-            return result; ;
+            return result;
+            //  return msg;
+        }
+
+
+        [JwtAuthorize(Roles = "user")]
+        [HttpPost]
+        [Route("api/PatientAPI/CreatePatient12345")]
+        public GenericAPIResult CreatePatient12345([FromBody] PatientAPI ObjPatient)
+        {
+            GenericAPIResult result = new GenericAPIResult();
+            var dynamicDt = new List<dynamic>();
+            string errorcode = "";
+            string statuscode = "";
+
+
+            string msg = "";
+
+            int maxId = 0;
+
+            if (ObjPatient is null)
+            {
+                msg = "Patient Data is Blank";
+                statuscode = "201";
+                errorcode = "true";
+            }
+            else if (ObjPatient.PatientId != 0)
+            {
+                msg = "PatientId is not Blank";
+                statuscode = "201";
+                errorcode = "true";
+
+            }
+            else if (ObjPatient.clinicCode == "" || ObjPatient.clinicCode is null)
+            {
+
+                msg = "Clinic Code is Blank";
+                statuscode = "201";
+                errorcode = "true";
+
+            }
+            else if (ObjPatient.patient_name == "" || ObjPatient.patient_name is null)
+            {
+                msg = "Patient Name is Blank";
+                statuscode = "201";
+                errorcode = "true";
+
+            }
+            else if (ObjPatient.updatedAt.ToString() == "01-01-0001 00:00:00")
+            {
+                msg = "updatedAt is invalid";
+                statuscode = "201";
+                errorcode = "true";
+
+            }
+            else if (ObjPatient.creation_date.ToString() == "01-01-0001 00:00:00")
+            {
+                msg = "creation_date is invalid";
+                statuscode = "201";
+                errorcode = "true";
+
+            }
+            else if (ObjPatient.loginAt.ToString() == "01-01-0001 00:00:00")
+            {
+                msg = "loginAt is invalid";
+                statuscode = "201";
+                errorcode = "true";
+
+            }
+            else if (ObjPatient.clinicCode != "")
+            {
+                msg = "loginAt is invalid";
+                statuscode = "201";
+                errorcode = "true";
+            }
+
+
+            #region Code to update Firebase Listener
+
+            string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
+            Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
+            FirestoreDb db = FirestoreDb.Create("greenpaperdev");
+
+
+            try
+            {
+                Query Qref = db.Collection("clinics").WhereEqualTo("clinic_code", ObjPatient.clinicCode).Limit(1);
+                QuerySnapshot snapClinic = Qref.GetSnapshotAsync().Result;
+
+                if (snapClinic.Count > 0)
+                {
+                    DocumentSnapshot docsnapClinic = snapClinic.Documents[0];
+
+                    Clinic clinic = docsnapClinic.ConvertTo<Clinic>();
+
+                    CollectionReference col1 = db.Collection("clinics").Document(docsnapClinic.Id).Collection("WebAPIResponse");
+
+                    Dictionary<string, object> data1 = new Dictionary<string, object>
+                    {
+                        {"CollectionName" ,"Patient" },
+                        {"UpdatedAt" ,DateTime.Now},
+                    };
+
+                    col1.Document().SetAsync(data1);
+
+
+                    // TODO: Add insert logic here
+                    //var result = await fireBaseClient.Child("Students").PostAsync(std);
+                }
+
+
+
+            }
+            catch
+            {
+
+            }
+
+            #endregion
+
+            result.message = msg;
+            result.statusCode = statuscode;
+            result.error = errorcode;
+            result.data = dynamicDt;
+
+            return result;
             //  return msg;
         }
 
