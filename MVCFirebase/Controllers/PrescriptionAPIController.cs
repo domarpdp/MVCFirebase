@@ -1,4 +1,5 @@
-﻿using MVCFirebase.Models;
+﻿using Google.Cloud.Firestore;
+using MVCFirebase.Models;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -7,6 +8,7 @@ using System.Data.SqlClient;
 using System.Dynamic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Hosting;
 using System.Web.Http;
@@ -33,7 +35,7 @@ namespace MVCFirebase.Controllers
         [JwtAuthorize(Roles = "user")]
         [HttpPost]
         [Route("api/PrescriptionAPI/CreatePrescription")]
-        public GenericAPIResult CreatePrescription([FromBody] PrescriptionAPI Obj)
+        public async Task<GenericAPIResult> CreatePrescription([FromBody] PrescriptionAPI Obj)
         {
             GenericAPIResult result = new GenericAPIResult();
             var dynamicDt = new List<dynamic>();
@@ -63,14 +65,6 @@ namespace MVCFirebase.Controllers
             {
 
                 msg = "clinicCode is Blank";
-                statuscode = "201";
-                errorcode = "true";
-
-            }
-            else if (Obj.timeStamp is null)
-            {
-
-                msg = "timeStamp is Blank";
                 statuscode = "201";
                 errorcode = "true";
 
@@ -120,7 +114,7 @@ namespace MVCFirebase.Controllers
                                 // Get the root path of the web application
                                 string rootPath = HostingEnvironment.MapPath("~");
 
-                                var folderPath = Path.Combine(rootPath, "Prescriptions", Obj.clinicCode, Obj.patientId);
+                                var folderPath = System.IO.Path.Combine(rootPath, "Prescriptions", Obj.clinicCode, Obj.patientId);
                                 //var folderPath = Path.Combine(rootPath, "Prescriptions");
 
                                 // Check if directory exists
@@ -156,7 +150,7 @@ namespace MVCFirebase.Controllers
 
                                 fileName = fileName + ".JPEG";
                                 
-                                var filePath = Path.Combine(folderPath, fileName);
+                                var filePath = System.IO.Path.Combine(folderPath, fileName);
 
                                 byte[] fileBytes = Convert.FromBase64String(Obj.file);
 
@@ -200,8 +194,8 @@ namespace MVCFirebase.Controllers
                                     sqlCommPatientInsert.Parameters.AddWithValue("@isCreated", Obj.isCreated ?? (object)DBNull.Value);
                                     sqlCommPatientInsert.Parameters.AddWithValue("@isSynced", Obj.isSynced ?? (object)DBNull.Value);
                                     sqlCommPatientInsert.Parameters.AddWithValue("@isDeleted", Obj.isDeleted ?? (object)DBNull.Value);
-                                    sqlCommPatientInsert.Parameters.AddWithValue("@timeStamp", Obj.timeStamp ?? (object)DBNull.Value);
-                                    sqlCommPatientInsert.Parameters.AddWithValue("@updatedAt", Obj.updatedAt ?? (object)DBNull.Value);
+                                    sqlCommPatientInsert.Parameters.AddWithValue("@timeStamp", DateTime.Now);
+                                    sqlCommPatientInsert.Parameters.AddWithValue("@updatedAt", DateTime.Now);
 
                                     conn.Open();
                                     sqlCommPatientInsert.ExecuteNonQuery();
@@ -212,6 +206,46 @@ namespace MVCFirebase.Controllers
 
                                 statuscode = "200";
                                 errorcode = "false";
+
+                                #region Code to update Firebase Listener
+
+                                string Path1 = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
+                                Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path1);
+                                FirestoreDb db = FirestoreDb.Create("greenpaperdev");
+
+
+                                try
+                                {
+                                    Query Qref = db.Collection("clinics").WhereEqualTo("clinic_code", Obj.clinicCode).Limit(1);
+                                    QuerySnapshot snapClinic = await Qref.GetSnapshotAsync();
+
+                                    if (snapClinic.Count > 0)
+                                    {
+                                        DocumentSnapshot docSnapClinic = snapClinic.Documents[0];
+                                        Clinic clinic = docSnapClinic.ConvertTo<Clinic>();
+
+                                        CollectionReference col1 = db.Collection("clinics").Document(docSnapClinic.Id).Collection("WebAPIResponse");
+
+                                        Dictionary<string, object> data1 = new Dictionary<string, object>
+                                        {
+                                            {"CollectionName" ,"Prescription" },
+                                            {"UpdatedAt" ,DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc)},
+                                        };
+
+                                        await col1.Document().SetAsync(data1);
+                                    }
+
+
+
+                                }
+                                catch (Exception ex)
+                                {
+                                    msg = ex.Message;
+                                    statuscode = "201";
+                                    errorcode = "true";
+                                }
+
+                                #endregion
 
 
 
@@ -252,10 +286,10 @@ namespace MVCFirebase.Controllers
         [HttpGet]
         [Route("api/PrescriptionAPI/GetPrescriptionsPatientWise")]
         //public GenericAPIResult GetAppointments(string cliniccode,string statussearch int pagenumber, int pagesize, DateTime date)
-        public GenericAPIResult GetPrescriptionsPatientWise(string cliniccode, string patientid)
+        public GenericAPIResult GetPrescriptionsPatientWise(string cliniccode, string patientid,DateTime updatedat)
         {
 
-
+            string strUpdatedAt = updatedat.ToString("dd-MMM-yyyy");
             List<AppointmentAPI> patients = new List<AppointmentAPI>();
             GenericAPIResult result = new GenericAPIResult();
 
@@ -269,7 +303,7 @@ namespace MVCFirebase.Controllers
                     SqlCommand sqlComm = new SqlCommand("usp_GetPrescriptionsPatientWise", conn);
                     sqlComm.Parameters.Add(new SqlParameter("@ClinicCode", cliniccode));
                     sqlComm.Parameters.Add(new SqlParameter("@PatientId", patientid));
-
+                    sqlComm.Parameters.Add(new SqlParameter("@UpdatedAt", strUpdatedAt));
 
                     sqlComm.CommandType = CommandType.StoredProcedure;
                     conn.Open();

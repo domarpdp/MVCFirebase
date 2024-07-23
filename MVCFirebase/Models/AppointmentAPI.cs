@@ -32,9 +32,9 @@ namespace MVCFirebase.Models
 
         public string patient { get; set; }
 
-        public int? bill_sms { get; set; }
+        public bool? bill_sms { get; set; }
 
-        public int? reminder_sms { get; set; }
+        public bool? reminder_sms { get; set; }
 
         public DateTime? timeStamp { get; set; }
 
@@ -61,9 +61,9 @@ namespace MVCFirebase.Models
 
         public string modeofpaymentChemist { get; set; }
 
-        public int? isCreated { get; set; }
+        public bool? isCreated { get; set; }
 
-        public int? isSynced { get; set; }
+        public bool? isSynced { get; set; }
 
         public string createdBy { get; set; }
         public string receptionist { get; set; }
@@ -74,7 +74,7 @@ namespace MVCFirebase.Models
 
         public string doctor { get; set; }
 
-        public int? request_by_patient { get; set; }
+        public bool? request_by_patient { get; set; }
 
     }
 }

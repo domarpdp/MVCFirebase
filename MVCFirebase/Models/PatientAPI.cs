@@ -63,19 +63,19 @@ namespace MVCFirebase.Models
             public string severity { get; set; }
 
 
-            public DateTime creation_date { get; set; }
+            public DateTime? creation_date { get; set; }
 
-            public DateTime updatedAt { get; set; }
+            public DateTime? updatedAt { get; set; }
 
-            public int isCreated { get; set; }
+            public bool? isCreated { get; set; }
 
-            public int isSynced { get; set; }
+            public bool? isSynced { get; set; }
 
             public string createdBy { get; set; }
 
-            public DateTime loginAt { get; set; }
+            public DateTime? loginAt { get; set; }
 
-            public int patientAppDownloaded { get; set; }
+            public bool? patientAppDownloaded { get; set; }
 
             public string dob { get; set; }
 

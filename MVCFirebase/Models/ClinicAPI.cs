@@ -61,35 +61,25 @@ namespace MVCFirebase.Models
         public string selected_plan { get; set; }
 
         public string logo { get; set; }
-        public DateTime created_on { get; set; }
+        public DateTime? created_on { get; set; }
 
-        public DateTime subscription_start_date { get; set; }
+        public DateTime? subscription_start_date { get; set; }
 
-        public DateTime subscription_end_date { get; set; }
+        public DateTime? subscription_end_date { get; set; }
 
         public string clinic_code { get; set; }
 
         public string registerd_by_number { get; set; }
 
-        public int free_trail_available { get; set; }
+        public bool? free_trail_available { get; set; }
 
-        public int free_sms_available { get; set; }
+        public bool? free_sms_available { get; set; }
 
-        public int clinic_info_completed { get; set; }
+        public bool? clinic_info_completed { get; set; }
 
-        public int is_using_free_trial { get; set; }
+        public bool? is_using_free_trial { get; set; }
 
-        public DateTime free_trial_taken_date { get; set; }
+        public DateTime? free_trial_taken_date { get; set; }
 
-
-        public int isSynced { get; set; }
-
-
-
-        public DateTime loginAt { get; set; }
-
-        public int patientAppDownloaded { get; set; }
-
-        public string dob { get; set; }
     }
 }

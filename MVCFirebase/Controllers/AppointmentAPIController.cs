@@ -30,7 +30,7 @@ namespace MVCFirebase.Controllers
         [HttpGet]
         [Route("api/AppointmentAPI/GetAppointments")]
         //public GenericAPIResult GetAppointments(string cliniccode,string statussearch int pagenumber, int pagesize, DateTime date)
-        public GenericAPIResult GetAppointments(string cliniccode, int pagenumber, int pagesize, DateTime date)
+        public GenericAPIResult GetAppointments(string cliniccode, int pagenumber, int pagesize, DateTime date, DateTime updatedat)
         {
             //if (statussearch == null)
             //{
@@ -38,6 +38,7 @@ namespace MVCFirebase.Controllers
             //}
 
             string strDate = date.ToString("dd-MMM-yyyy");
+            string strUpdatedAt = updatedat.ToString("dd-MMM-yyyy");
 
             List<AppointmentAPI> patients = new List<AppointmentAPI>();
             GenericAPIResult result = new GenericAPIResult();
@@ -53,6 +54,7 @@ namespace MVCFirebase.Controllers
                     sqlComm.Parameters.Add(new SqlParameter("@ClinicCode", cliniccode));
                     //sqlComm.Parameters.Add(new SqlParameter("@StatusSearch", statussearch));
                     sqlComm.Parameters.Add(new SqlParameter("@Date", strDate));
+                    sqlComm.Parameters.Add(new SqlParameter("@UpdatedAt", strUpdatedAt));
                     sqlComm.Parameters.Add(new SqlParameter("@PageNumber", pagenumber));
                     sqlComm.Parameters.Add(new SqlParameter("@PageSize", pagesize));
 
@@ -107,10 +109,10 @@ namespace MVCFirebase.Controllers
         [HttpGet]
         [Route("api/AppointmentAPI/GetAppointmentsPatientWise")]
         //public GenericAPIResult GetAppointments(string cliniccode,string statussearch int pagenumber, int pagesize, DateTime date)
-        public GenericAPIResult GetAppointmentsPatientWise(string cliniccode, string patientid)
+        public GenericAPIResult GetAppointmentsPatientWise(string cliniccode, string patientid, DateTime updatedat)
         {
 
-
+            string strUpdatedAt = updatedat.ToString("dd-MMM-yyyy");
             List<AppointmentAPI> patients = new List<AppointmentAPI>();
             GenericAPIResult result = new GenericAPIResult();
 
@@ -124,6 +126,7 @@ namespace MVCFirebase.Controllers
                     SqlCommand sqlComm = new SqlCommand("usp_GetAppointmentsPatientWise", conn);
                     sqlComm.Parameters.Add(new SqlParameter("@ClinicCode", cliniccode));
                     sqlComm.Parameters.Add(new SqlParameter("@PatientId", patientid));
+                    sqlComm.Parameters.Add(new SqlParameter("@UpdatedAt", strUpdatedAt));
 
 
                     sqlComm.CommandType = CommandType.StoredProcedure;
@@ -286,7 +289,7 @@ namespace MVCFirebase.Controllers
                         }
                         else
                         {
-                            string documentid = dtPatient.Rows[0]["id"].ToString();
+                            string documentidOfPatient = dtPatient.Rows[0]["id"].ToString();
 
                             DataTable dtappexist = new DataTable();
                             SqlCommand sqlCommappexist = new SqlCommand("Select * from appointments where clinicCode = '" + Obj.clinicCode + "' and patient_id = '" + Obj.patient_id + "' and CAST(raisedDate AS DATE) = '" + Obj.raisedDate.ToString("dd-MMM-yyyy") + "' and status = 'Waiting'", conn);
@@ -383,12 +386,13 @@ namespace MVCFirebase.Controllers
                                                 sqlCommPatientInsert.Parameters.AddWithValue("@ClinicId", Obj.clinic_id ?? (object)DBNull.Value);
                                                 sqlCommPatientInsert.Parameters.AddWithValue("@ClinicCode", Obj.clinicCode ?? (object)DBNull.Value);
                                                 //sqlCommPatientInsert.Parameters.AddWithValue("@Patient", Obj.patient ?? (object)DBNull.Value);
-                                                sqlCommPatientInsert.Parameters.AddWithValue("@Patient", documentid);
+                                                sqlCommPatientInsert.Parameters.AddWithValue("@Patient", documentidOfPatient);
                                                 
                                                 sqlCommPatientInsert.Parameters.AddWithValue("@BillSms", Obj.bill_sms ?? (object)DBNull.Value);
                                                 sqlCommPatientInsert.Parameters.AddWithValue("@ReminderSms", Obj.reminder_sms ?? (object)DBNull.Value);
                                                 sqlCommPatientInsert.Parameters.AddWithValue("@TimeStamp", DateTime.Now);
-                                                sqlCommPatientInsert.Parameters.AddWithValue("@UpdatedAt", Obj.updatedAt ?? (object)DBNull.Value);
+                                                //sqlCommPatientInsert.Parameters.AddWithValue("@UpdatedAt", Obj.updatedAt ?? (object)DBNull.Value);
+                                                sqlCommPatientInsert.Parameters.AddWithValue("@UpdatedAt", DateTime.Now);
                                                 sqlCommPatientInsert.Parameters.AddWithValue("@CompletionDate", Obj.completionDate ?? (object)DBNull.Value);
                                                 sqlCommPatientInsert.Parameters.AddWithValue("@CompletiondateCashier", Obj.completiondateCashier ?? (object)DBNull.Value);
                                                 sqlCommPatientInsert.Parameters.AddWithValue("@CompletiondateChemist", Obj.completiondateChemist ?? (object)DBNull.Value);
@@ -612,7 +616,11 @@ namespace MVCFirebase.Controllers
                             try
                             {
                                 using (SqlCommand sqlCommPatientInsert = new SqlCommand(
-                                "update appointments set status = @Status, statusCashier = @StatusCashier, statusChemist = @StatusChemist, bill_sms = @BillSms, reminder_sms=@ReminderSms, timeStamp= @TimeStamp, updatedAt=@UpdatedAt, completionDate=@CompletionDate, completiondateCashier=@CompletiondateCashier, completiondateChemist=@CompletiondateChemist, referTo=@ReferTo, medicineFee=@MedicineFee, medicineCost=@MedicineCost, modeofpayment=@ModeOfPayment, modeofpaymentChemist=@ModeOfPaymentChemist, isCreated=@IsCreated, isSynced=@IsSynced, receptionist=@Receptionist, chemist=@Chemist, cashier=@Cashier, doctor=@Doctor, request_by_patient=@RequestByPatient where Id = '" + Obj.Id+"'", conn))
+                                "update appointments set Days=@Days,Fee=@Fee,status = @Status, statusCashier = @StatusCashier, statusChemist = @StatusChemist, " +
+                                "bill_sms = @BillSms, reminder_sms=@ReminderSms, timeStamp= @TimeStamp, updatedAt=@UpdatedAt, completionDate=@CompletionDate, " +
+                                "completiondateCashier=@CompletiondateCashier, completiondateChemist=@CompletiondateChemist, referTo=@ReferTo, medicineFee=@MedicineFee, " +
+                                "medicineCost=@MedicineCost, modeofpayment=@ModeOfPayment, modeofpaymentChemist=@ModeOfPaymentChemist, isCreated=@IsCreated, isSynced=@IsSynced, " +
+                                "receptionist=@Receptionist, chemist=@Chemist, cashier=@Cashier, doctor=@Doctor, request_by_patient=@RequestByPatient where Id = '" + Obj.Id+"'", conn))
                                 {
                                     sqlCommPatientInsert.CommandType = CommandType.Text;
 
@@ -633,11 +641,12 @@ namespace MVCFirebase.Controllers
                                     sqlCommPatientInsert.Parameters.AddWithValue("@BillSms", Obj.bill_sms ?? (object)DBNull.Value);
                                     sqlCommPatientInsert.Parameters.AddWithValue("@ReminderSms", Obj.reminder_sms ?? (object)DBNull.Value);
                                     sqlCommPatientInsert.Parameters.AddWithValue("@TimeStamp", DateTime.Now);
-                                    sqlCommPatientInsert.Parameters.AddWithValue("@UpdatedAt", Obj.updatedAt ?? (object)DBNull.Value);
+                                    //sqlCommPatientInsert.Parameters.AddWithValue("@UpdatedAt", Obj.updatedAt ?? (object)DBNull.Value);
+                                    sqlCommPatientInsert.Parameters.AddWithValue("@UpdatedAt", DateTime.Now);
                                     sqlCommPatientInsert.Parameters.AddWithValue("@CompletionDate", Obj.completionDate ?? (object)DBNull.Value);
                                     sqlCommPatientInsert.Parameters.AddWithValue("@CompletiondateCashier", Obj.completiondateCashier ?? (object)DBNull.Value);
                                     sqlCommPatientInsert.Parameters.AddWithValue("@CompletiondateChemist", Obj.completiondateChemist ?? (object)DBNull.Value);
-                                    sqlCommPatientInsert.Parameters.AddWithValue("@RaisedDate", Obj.raisedDate);
+                                    //sqlCommPatientInsert.Parameters.AddWithValue("@RaisedDate", Obj.raisedDate);
                                     sqlCommPatientInsert.Parameters.AddWithValue("@Token", Obj.token ?? (object)DBNull.Value);
                                     sqlCommPatientInsert.Parameters.AddWithValue("@ReferTo", Obj.referTo ?? (object)DBNull.Value);
                                     sqlCommPatientInsert.Parameters.AddWithValue("@MedicineFee", Obj.medicineFee ?? (object)DBNull.Value);

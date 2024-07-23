@@ -23,12 +23,12 @@ namespace MVCFirebase.Models
         public string fee { get; set; }
         public string date { get; set; }
 
-        public int? isCreated { get; set; }
+        public bool? isCreated { get; set; }
 
-        public int? isSynced { get; set; }
-        public int? isDeleted { get; set; }
+        public bool? isSynced { get; set; }
+        public bool? isDeleted { get; set; }
 
-        public int? isPrescription { get; set; }
+        public bool? isPrescription { get; set; }
 
         public string file { get; set; }
         public string fileUrl { get; set; }

@@ -27,12 +27,12 @@ namespace MVCFirebase.Controllers
         [JwtAuthorize(Roles = "user")]
         [HttpGet]
         [Route("api/UserAPI/GetUsers")]
-        public GenericAPIResult GetUsers(string cliniccode, int pagenumber, int pagesize)
+        public GenericAPIResult GetUsers(string cliniccode, int pagenumber, int pagesize,DateTime updatedat)
         {
 
             List<UserAPI> patients = new List<UserAPI>();
             GenericAPIResult result = new GenericAPIResult();
-
+            string strUpdatedAt = updatedat.ToString("dd-MMM-yyyy");
             var dynamicDt = new List<dynamic>();
 
             try
@@ -44,6 +44,7 @@ namespace MVCFirebase.Controllers
                     sqlComm.Parameters.Add(new SqlParameter("@ClinicCode", cliniccode));
                     sqlComm.Parameters.Add(new SqlParameter("@PageNumber", pagenumber));
                     sqlComm.Parameters.Add(new SqlParameter("@PageSize", pagesize));
+                    sqlComm.Parameters.Add(new SqlParameter("@UpdatedAt", strUpdatedAt));
 
                     sqlComm.CommandType = CommandType.StoredProcedure;
                     conn.Open();
@@ -59,18 +60,27 @@ namespace MVCFirebase.Controllers
                             {
                                 if (sdr.GetName(i) == "user_roles")
                                 {
-                                    string userRolesString = sdr.GetValue(i).ToString();
-                                    dynamic row1 = new ExpandoObject();
-                                    var dictionary1 = (IDictionary<string, object>)row1;
+                                    //string userRolesString = sdr.GetValue(i).ToString();
+                                    //dynamic row1 = new ExpandoObject();
+                                    //var dictionary1 = (IDictionary<string, object>)row1;
 
+                                    //var userRoles = JsonConvert.DeserializeObject<List<string>>(userRolesString);
+
+                                    //for (int j = 0; j < userRoles.Count; j++)
+                                    //{
+                                    //    dictionary1.Add(j.ToString(), userRoles[j]);
+                                    //}
+
+                                    //dictionary.Add("user_roles", dictionary1);
+
+
+                                    string userRolesString = sdr.GetValue(i).ToString();
+
+                                    // Deserialize the JSON string to a list of strings
                                     var userRoles = JsonConvert.DeserializeObject<List<string>>(userRolesString);
 
-                                    for (int j = 0; j < userRoles.Count; j++)
-                                    {
-                                        dictionary1.Add(j.ToString(), userRoles[j]);
-                                    }
-
-                                    dictionary.Add("user_roles", dictionary1);
+                                    // Add the list of user roles to the dictionary
+                                    dictionary.Add("user_roles", userRoles.ToArray());
 
                                 }
                                 else if (sdr.GetName(i) == "stats_enable" || sdr.GetName(i) == "user_deactivated")
@@ -144,18 +154,26 @@ namespace MVCFirebase.Controllers
                             {
                                 if (sdr.GetName(i) == "user_roles")
                                 {
-                                    string userRolesString = sdr.GetValue(i).ToString();
-                                    dynamic row1 = new ExpandoObject();
-                                    var dictionary1 = (IDictionary<string, object>)row1;
+                                    //string userRolesString = sdr.GetValue(i).ToString();
+                                    //dynamic row1 = new ExpandoObject();
+                                    //var dictionary1 = (IDictionary<string, object>)row1;
 
+                                    //var userRoles = JsonConvert.DeserializeObject<List<string>>(userRolesString);
+
+                                    //for (int j = 0; j < userRoles.Count; j++)
+                                    //{
+                                    //    dictionary1.Add(j.ToString(), userRoles[j]);
+                                    //}
+
+                                    //dictionary.Add("user_roles", dictionary1);
+
+                                    string userRolesString = sdr.GetValue(i).ToString();
+
+                                    // Deserialize the JSON string to a list of strings
                                     var userRoles = JsonConvert.DeserializeObject<List<string>>(userRolesString);
 
-                                    for (int j = 0; j < userRoles.Count; j++)
-                                    {
-                                        dictionary1.Add(j.ToString(), userRoles[j]);
-                                    }
-
-                                    dictionary.Add("user_roles", dictionary1);
+                                    // Add the list of user roles to the dictionary
+                                    dictionary.Add("user_roles", userRoles.ToArray());
 
                                 }
                                 else if (sdr.GetName(i) == "stats_enable" || sdr.GetName(i) == "user_deactivated")
@@ -265,7 +283,8 @@ namespace MVCFirebase.Controllers
             }
             else 
             {
-                string userRolesJsonArrayString = Obj.GetUserRolesAsJsonArrayString();
+                //string userRolesJsonArrayString = Obj.GetUserRolesAsJsonArrayString();
+                string userRolesJsonArrayString = JsonConvert.SerializeObject(Obj.user_roles);
                 using (SqlConnection conn = new SqlConnection(constr))
                 {
                     DataTable dtCC = new DataTable();
@@ -300,10 +319,10 @@ namespace MVCFirebase.Controllers
                             {
                                 using (SqlCommand sqlCommPatientInsert = new SqlCommand(
                                             "INSERT INTO [user] (" +
-                                            "documentId, clinicId, clinicCode, email, name, password, mobile_number, user_roles, user_qualification, idproof, signature, stats_enable, creation_date, user_deactivated" +
+                                            "documentId, clinicId, clinicCode, email, name, password, mobile_number, user_roles, user_qualification, idproof, signature, stats_enable, creation_date, user_deactivated, updatedat" +
                                             ") VALUES (" +
                                             "@documentId, @clinicId, @clinicCode, @email, @name, @password, @mobile_number, @user_roles, @user_qualification, @idproof, @signature, " +
-                                            "@stats_enable, @creation_date, @user_deactivated)", conn))
+                                            "@stats_enable, @creation_date, @user_deactivated,@updatedAt)", conn))
                                 {
                                     sqlCommPatientInsert.CommandType = CommandType.Text;
 
@@ -314,13 +333,14 @@ namespace MVCFirebase.Controllers
                                     sqlCommPatientInsert.Parameters.AddWithValue("@name", Obj.name ?? (object)DBNull.Value);
                                     sqlCommPatientInsert.Parameters.AddWithValue("@password", Obj.password ?? (object)DBNull.Value);
                                     sqlCommPatientInsert.Parameters.AddWithValue("@mobile_number", Obj.mobile_number ?? (object)DBNull.Value);
-                                    sqlCommPatientInsert.Parameters.AddWithValue("@user_roles", Obj.GetUserRolesAsJsonArrayString() ?? (object)DBNull.Value);
+                                    sqlCommPatientInsert.Parameters.AddWithValue("@user_roles", userRolesJsonArrayString ?? (object)DBNull.Value);
                                     sqlCommPatientInsert.Parameters.AddWithValue("@user_qualification", Obj.user_qualification ?? (object)DBNull.Value);
                                     sqlCommPatientInsert.Parameters.AddWithValue("@idproof", Obj.idproof);
                                     sqlCommPatientInsert.Parameters.AddWithValue("@signature", Obj.signature ?? (object)DBNull.Value);
                                     sqlCommPatientInsert.Parameters.AddWithValue("@stats_enable", Obj.stats_enable ?? (object)DBNull.Value);
                                     sqlCommPatientInsert.Parameters.AddWithValue("@creation_date", DateTime.Now);
                                     sqlCommPatientInsert.Parameters.AddWithValue("@user_deactivated", Obj.user_deactivated ?? (object)DBNull.Value);
+                                    sqlCommPatientInsert.Parameters.AddWithValue("@updatedAt", DateTime.Now);
 
                                     conn.Open();
                                     sqlCommPatientInsert.ExecuteNonQuery();
@@ -431,7 +451,8 @@ namespace MVCFirebase.Controllers
             }
             else
             {
-                string userRolesJsonArrayString = Obj.GetUserRolesAsJsonArrayString();
+                //string userRolesJsonArrayString = Obj.GetUserRolesAsJsonArrayString();
+                string userRolesJsonArrayString = JsonConvert.SerializeObject(Obj.user_roles);
                 using (SqlConnection conn = new SqlConnection(constr))
                 {
                     DataTable dtCC = new DataTable();
@@ -466,7 +487,8 @@ namespace MVCFirebase.Controllers
                             {
                                 using (SqlCommand sqlCommPatientInsert = new SqlCommand(
                                             "Update [user] " +
-                                            "set email = @email, name = @name, password=@password, mobile_number=@mobile_number, user_roles=@user_roles, user_qualification=@user_qualification, idproof=@idproof, signature = @signature, stats_enable=@stats_enable, user_deactivated = @user_deactivated where UserId = '"+Obj.UserId+"'", conn))
+                                            "set email = @email, name = @name, password=@password, mobile_number=@mobile_number, user_roles=@user_roles, user_qualification=@user_qualification, idproof=@idproof, signature = @signature, " +
+                                            "updatedAt = @updatedAt,stats_enable=@stats_enable, user_deactivated = @user_deactivated where UserId = '"+Obj.UserId+"'", conn))
                                 {
                                     sqlCommPatientInsert.CommandType = CommandType.Text;
 
@@ -480,7 +502,7 @@ namespace MVCFirebase.Controllers
                                     sqlCommPatientInsert.Parameters.AddWithValue("@signature", Obj.signature ?? (object)DBNull.Value);
                                     sqlCommPatientInsert.Parameters.AddWithValue("@stats_enable", Obj.stats_enable ?? (object)DBNull.Value);
                                     sqlCommPatientInsert.Parameters.AddWithValue("@user_deactivated", Obj.user_deactivated ?? (object)DBNull.Value);
-
+                                    sqlCommPatientInsert.Parameters.AddWithValue("@updatedAt", DateTime.Now);
                                     conn.Open();
                                     sqlCommPatientInsert.ExecuteNonQuery();
                                 }
