@@ -194,8 +194,24 @@ namespace MVCFirebase.Controllers
                                     sqlCommPatientInsert.Parameters.AddWithValue("@isCreated", Obj.isCreated ?? (object)DBNull.Value);
                                     sqlCommPatientInsert.Parameters.AddWithValue("@isSynced", Obj.isSynced ?? (object)DBNull.Value);
                                     sqlCommPatientInsert.Parameters.AddWithValue("@isDeleted", Obj.isDeleted ?? (object)DBNull.Value);
-                                    sqlCommPatientInsert.Parameters.AddWithValue("@timeStamp", DateTime.Now);
-                                    sqlCommPatientInsert.Parameters.AddWithValue("@updatedAt", DateTime.Now);
+
+                                    if (Obj.timeStamp is null || Obj.timeStamp.ToString() == "")
+                                    {
+                                        sqlCommPatientInsert.Parameters.AddWithValue("@timeStamp", DateTime.Now);
+                                    }
+                                    else
+                                    {
+                                        sqlCommPatientInsert.Parameters.AddWithValue("@timeStamp", Obj.timeStamp);
+                                    }
+                                    if (Obj.updatedAt is null || Obj.updatedAt.ToString() == "")
+                                    {
+                                        sqlCommPatientInsert.Parameters.AddWithValue("@updatedAt", DateTime.Now);
+                                    }
+                                    else
+                                    {
+                                        sqlCommPatientInsert.Parameters.AddWithValue("@updatedAt", Obj.updatedAt);
+                                    }
+
 
                                     conn.Open();
                                     sqlCommPatientInsert.ExecuteNonQuery();
@@ -216,26 +232,41 @@ namespace MVCFirebase.Controllers
 
                                 try
                                 {
-                                    Query Qref = db.Collection("clinics").WhereEqualTo("clinic_code", Obj.clinicCode).Limit(1);
-                                    QuerySnapshot snapClinic = await Qref.GetSnapshotAsync();
+                                    //Query Qref = db.Collection("clinics").WhereEqualTo("clinic_code", Obj.clinicCode).Limit(1);
+                                    //QuerySnapshot snapClinic = await Qref.GetSnapshotAsync();
 
-                                    if (snapClinic.Count > 0)
+                                    //if (snapClinic.Count > 0)
+                                    //{
+                                    //    DocumentSnapshot docSnapClinic = snapClinic.Documents[0];
+                                    //    Clinic clinic = docSnapClinic.ConvertTo<Clinic>();
+
+                                    //    CollectionReference col1 = db.Collection("clinics").Document(docSnapClinic.Id).Collection("WebAPIResponse");
+
+                                    //    Dictionary<string, object> data1 = new Dictionary<string, object>
+                                    //    {
+                                    //        {"CollectionName" ,"Prescription" },
+                                    //        {"UpdatedAt" ,DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc)},
+                                    //    };
+
+                                    //    await col1.Document().SetAsync(data1);
+                                    //}
+
+                                    CollectionReference col1 = db.Collection("WebAPIResponse");
+                                    // Specify the document ID 'GP-101'
+                                    DocumentReference doc1 = col1.Document(Obj.clinicCode);
+
+                                    // Delete the document if it exists
+                                    await doc1.DeleteAsync();
+
+                                    Dictionary<string, object> data1 = new Dictionary<string, object>
                                     {
-                                        DocumentSnapshot docSnapClinic = snapClinic.Documents[0];
-                                        Clinic clinic = docSnapClinic.ConvertTo<Clinic>();
+                                        {"CollectionName" ,"Prescription Created" },
+                                        {"UpdatedAt" ,DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc)},
 
-                                        CollectionReference col1 = db.Collection("clinics").Document(docSnapClinic.Id).Collection("WebAPIResponse");
+                                    };
 
-                                        Dictionary<string, object> data1 = new Dictionary<string, object>
-                                        {
-                                            {"CollectionName" ,"Prescription" },
-                                            {"UpdatedAt" ,DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc)},
-                                        };
-
-                                        await col1.Document().SetAsync(data1);
-                                    }
-
-
+                                    // Set the data for the document with the specified ID
+                                    await doc1.SetAsync(data1);
 
                                 }
                                 catch (Exception ex)

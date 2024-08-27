@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Google.Cloud.Firestore;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Net.Http.Headers;
 using Microsoft.Owin.Security;
@@ -15,6 +16,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Results;
 
@@ -227,7 +229,7 @@ namespace MVCFirebase.Controllers
         [JwtAuthorize(Roles = "user")]
         [HttpPost]
         [Route("api/UserAPI/CreateUser")]
-        public GenericAPIResult CreateUser([FromBody] UserAPI Obj)
+        public async Task<GenericAPIResult> CreateUser([FromBody] UserAPI Obj)
         {
             GenericAPIResult result = new GenericAPIResult();
             var dynamicDt = new List<dynamic>();
@@ -338,9 +340,27 @@ namespace MVCFirebase.Controllers
                                     sqlCommPatientInsert.Parameters.AddWithValue("@idproof", Obj.idproof);
                                     sqlCommPatientInsert.Parameters.AddWithValue("@signature", Obj.signature ?? (object)DBNull.Value);
                                     sqlCommPatientInsert.Parameters.AddWithValue("@stats_enable", Obj.stats_enable ?? (object)DBNull.Value);
-                                    sqlCommPatientInsert.Parameters.AddWithValue("@creation_date", DateTime.Now);
+
+                                    if (Obj.creation_date is null || Obj.creation_date.ToString() == "")
+                                    {
+                                        sqlCommPatientInsert.Parameters.AddWithValue("@creation_date", DateTime.Now);
+                                    }
+                                    else
+                                    {
+                                        sqlCommPatientInsert.Parameters.AddWithValue("@creation_date", Obj.creation_date);
+                                    }
+
                                     sqlCommPatientInsert.Parameters.AddWithValue("@user_deactivated", Obj.user_deactivated ?? (object)DBNull.Value);
-                                    sqlCommPatientInsert.Parameters.AddWithValue("@updatedAt", DateTime.Now);
+
+                                    if (Obj.updatedAt is null || Obj.updatedAt.ToString() == "")
+                                    {
+                                        sqlCommPatientInsert.Parameters.AddWithValue("@updatedAt", DateTime.Now);
+                                    }
+                                    else
+                                    {
+                                        sqlCommPatientInsert.Parameters.AddWithValue("@updatedAt", Obj.updatedAt);
+                                    }
+
 
                                     conn.Open();
                                     sqlCommPatientInsert.ExecuteNonQuery();
@@ -371,7 +391,42 @@ namespace MVCFirebase.Controllers
 
                 }
 
+                #region Code to update Firebase Listener
 
+                string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
+                Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
+                FirestoreDb db = FirestoreDb.Create("greenpaperdev");
+
+
+                try
+                {
+
+                    CollectionReference col1 = db.Collection("WebAPIResponse");
+                    // Specify the document ID 'GP-101'
+                    DocumentReference doc1 = col1.Document(Obj.clinicCode);
+
+                    // Delete the document if it exists
+                    await doc1.DeleteAsync();
+
+                    Dictionary<string, object> data1 = new Dictionary<string, object>
+                        {
+                            {"CollectionName" ,"User Created" },
+                            {"UpdatedAt" ,DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc)},
+
+                        };
+
+                    // Set the data for the document with the specified ID
+                    await doc1.SetAsync(data1);
+
+                }
+                catch (Exception ex)
+                {
+                    msg = ex.Message;
+                    statuscode = "201";
+                    errorcode = "true";
+                }
+
+                #endregion
             }
 
             result.message = msg;
@@ -387,7 +442,7 @@ namespace MVCFirebase.Controllers
         [JwtAuthorize(Roles = "user")]
         [HttpPost]
         [Route("api/UserAPI/UpdateUser")]
-        public GenericAPIResult UpdateUser([FromBody] UserAPI Obj)
+        public async Task<GenericAPIResult> UpdateUser([FromBody] UserAPI Obj)
         {
             GenericAPIResult result = new GenericAPIResult();
             var dynamicDt = new List<dynamic>();
@@ -532,7 +587,42 @@ namespace MVCFirebase.Controllers
 
                 }
 
+                #region Code to update Firebase Listener
 
+                string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
+                Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
+                FirestoreDb db = FirestoreDb.Create("greenpaperdev");
+
+
+                try
+                {
+
+                    CollectionReference col1 = db.Collection("WebAPIResponse");
+                    // Specify the document ID 'GP-101'
+                    DocumentReference doc1 = col1.Document(Obj.clinicCode);
+
+                    // Delete the document if it exists
+                    await doc1.DeleteAsync();
+
+                    Dictionary<string, object> data1 = new Dictionary<string, object>
+                        {
+                            {"CollectionName" ,"User Updated" },
+                            {"UpdatedAt" ,DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc)},
+
+                        };
+
+                    // Set the data for the document with the specified ID
+                    await doc1.SetAsync(data1);
+
+                }
+                catch (Exception ex)
+                {
+                    msg = ex.Message;
+                    statuscode = "201";
+                    errorcode = "true";
+                }
+
+                #endregion
             }
 
             result.message = msg;

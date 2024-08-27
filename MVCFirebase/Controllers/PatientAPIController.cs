@@ -38,7 +38,7 @@ namespace MVCFirebase.Controllers
         {
             List<PatientAPI> patients = new List<PatientAPI>();
             GenericAPIResult result = new GenericAPIResult();
-            string strUpdatedAt = updatedat.ToString("dd-MMM-yyyy");
+            string strUpdatedAt = updatedat.ToString("dd-MMM-yyyy HH:mm:ss");
             var dynamicDt = new List<dynamic>();
 
             try
@@ -405,26 +405,41 @@ namespace MVCFirebase.Controllers
 
             try
             {
-                Query Qref = db.Collection("clinics").WhereEqualTo("clinic_code", ObjPatient.clinicCode).Limit(1);
-                QuerySnapshot snapClinic = await Qref.GetSnapshotAsync();
+                //Query Qref = db.Collection("clinics").WhereEqualTo("clinic_code", ObjPatient.clinicCode).Limit(1);
+                //QuerySnapshot snapClinic = await Qref.GetSnapshotAsync();
 
-                if (snapClinic.Count > 0)
-                {
-                    DocumentSnapshot docSnapClinic = snapClinic.Documents[0];
-                    Clinic clinic = docSnapClinic.ConvertTo<Clinic>();
+                //if (snapClinic.Count > 0)
+                //{
+                //    DocumentSnapshot docSnapClinic = snapClinic.Documents[0];
+                //    Clinic clinic = docSnapClinic.ConvertTo<Clinic>();
 
-                    CollectionReference col1 = db.Collection("clinics").Document(docSnapClinic.Id).Collection("WebAPIResponse");
+                //    CollectionReference col1 = db.Collection("clinics").Document(docSnapClinic.Id).Collection("WebAPIResponse");
 
-                    Dictionary<string, object> data1 = new Dictionary<string, object>
-                    {
-                        {"CollectionName" ,"Patient" },
-                        {"UpdatedAt" ,DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc)},
-                    };
+                //    Dictionary<string, object> data1 = new Dictionary<string, object>
+                //    {
+                //        {"CollectionName" ,"Patient" },
+                //        {"UpdatedAt" ,DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc)},
+                //    };
 
-                    await col1.Document().SetAsync(data1);
-                }
+                //    await col1.Document().SetAsync(data1);
+                //}
 
-                
+                CollectionReference col1 = db.Collection("WebAPIResponse");
+                // Specify the document ID 'GP-101'
+                DocumentReference doc1 = col1.Document(ObjPatient.clinicCode);
+
+                // Delete the document if it exists
+                await doc1.DeleteAsync();
+
+                Dictionary<string, object> data1 = new Dictionary<string, object>
+                        {
+                            {"CollectionName" ,"Patient Created" },
+                            {"UpdatedAt" ,DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc)},
+
+                        };
+
+                // Set the data for the document with the specified ID
+                await doc1.SetAsync(data1);
 
             }
             catch (Exception ex)
@@ -450,7 +465,7 @@ namespace MVCFirebase.Controllers
         [JwtAuthorize(Roles = "user")]
         [HttpPost]
         [Route("api/PatientAPI/UpdatePatient")]
-        public GenericAPIResult UpdatePatient([FromBody] PatientAPI ObjPatient)
+        public async Task<GenericAPIResult> UpdatePatient([FromBody] PatientAPI ObjPatient)
         {
             GenericAPIResult result = new GenericAPIResult();
             var dynamicDt = new List<dynamic>();
@@ -594,6 +609,43 @@ namespace MVCFirebase.Controllers
 
             //return JsonConvert.SerializeObject(msg);
             //  return msg;
+
+            #region Code to update Firebase Listener
+
+            string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
+            Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
+            FirestoreDb db = FirestoreDb.Create("greenpaperdev");
+
+
+            try
+            {
+
+                CollectionReference col1 = db.Collection("WebAPIResponse");
+                // Specify the document ID 'GP-101'
+                DocumentReference doc1 = col1.Document(ObjPatient.clinicCode);
+
+                // Delete the document if it exists
+                await doc1.DeleteAsync();
+
+                Dictionary<string, object> data1 = new Dictionary<string, object>
+                        {
+                            {"CollectionName" ,"Patient Updated" },
+                            {"UpdatedAt" ,DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc)},
+
+                        };
+
+                // Set the data for the document with the specified ID
+                await doc1.SetAsync(data1);
+
+            }
+            catch (Exception ex)
+            {
+                msg = ex.Message;
+                statuscode = "201";
+                errorcode = "true";
+            }
+
+            #endregion
 
             result.message = msg;
             result.statusCode = statuscode;
