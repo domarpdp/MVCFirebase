@@ -79,8 +79,10 @@ namespace MVCFirebase.Models
 
             public string dob { get; set; }
 
+            public int Count { get; set; }
 
 
-        
+
+
     }
 }

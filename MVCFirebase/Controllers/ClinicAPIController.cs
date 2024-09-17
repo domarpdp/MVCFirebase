@@ -23,6 +23,9 @@ namespace MVCFirebase.Controllers
     public class ClinicAPIController : ApiController
     {
         string constr = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
+        static DateTime utcTime = DateTime.UtcNow;
+        static TimeZoneInfo istZone = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
+        DateTime istTime = TimeZoneInfo.ConvertTimeFromUtc(utcTime, istZone);
 
         [JwtAuthorize(Roles = "user")]
         [HttpGet]
@@ -311,7 +314,7 @@ namespace MVCFirebase.Controllers
                             sqlCommPatientInsert.Parameters.AddWithValue("@logo", Obj.logo ?? (object)DBNull.Value);
                             if (Obj.created_on is null || Obj.created_on.ToString() == "")
                             {
-                                sqlCommPatientInsert.Parameters.AddWithValue("@created_on", DateTime.Now);
+                                sqlCommPatientInsert.Parameters.AddWithValue("@created_on", istTime);
                             }
                             else
                             {

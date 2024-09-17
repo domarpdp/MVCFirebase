@@ -25,6 +25,9 @@ namespace MVCFirebase.Controllers
     public class AppointmentAPIController : ApiController
     {
         string constr = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
+        static DateTime utcTime = DateTime.UtcNow;
+        static TimeZoneInfo istZone = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
+        DateTime istTime = TimeZoneInfo.ConvertTimeFromUtc(utcTime, istZone);
 
         [JwtAuthorize(Roles = "user")]
         [HttpGet]
@@ -392,7 +395,7 @@ namespace MVCFirebase.Controllers
                                                 sqlCommPatientInsert.Parameters.AddWithValue("@ReminderSms", Obj.reminder_sms ?? (object)DBNull.Value);
                                                 if (Obj.timeStamp is null || Obj.timeStamp.ToString() == "")
                                                 {
-                                                    sqlCommPatientInsert.Parameters.AddWithValue("@TimeStamp", DateTime.Now);
+                                                    sqlCommPatientInsert.Parameters.AddWithValue("@TimeStamp", istTime);
                                                 }
                                                 else
                                                 {
@@ -400,7 +403,7 @@ namespace MVCFirebase.Controllers
                                                 }
                                                 if (Obj.updatedAt is null || Obj.updatedAt.ToString() == "")
                                                 {
-                                                    sqlCommPatientInsert.Parameters.AddWithValue("@UpdatedAt", DateTime.Now);
+                                                    sqlCommPatientInsert.Parameters.AddWithValue("@UpdatedAt", istTime);
                                                 }
                                                 else
                                                 {
@@ -431,11 +434,47 @@ namespace MVCFirebase.Controllers
                                                 sqlCommPatientInsert.ExecuteNonQuery();
                                             }
 
-                                            msg = "Appointment Successfully Created";
+                                            #region Code to update Firebase Listener
+
+                                            string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
+                                            Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
+                                            FirestoreDb db = FirestoreDb.Create("greenpaperdev");
 
 
-                                            statuscode = "200";
-                                            errorcode = "false";
+                                            try
+                                            {
+                                                CollectionReference col1 = db.Collection("WebAPIResponse");
+                                                // Specify the document ID 'GP-101'
+                                                DocumentReference doc1 = col1.Document(Obj.clinic_id);
+
+                                                // Delete the document if it exists
+                                                await doc1.DeleteAsync();
+
+                                                Dictionary<string, object> data1 = new Dictionary<string, object>
+                                                {
+                                                    {"CollectionName" ,"Appointment" },
+                                                    {"UpdatedAt" ,DateTime.SpecifyKind(DateTime.Now.AddHours(-5).AddMinutes(-30), DateTimeKind.Utc)},
+
+                                                };
+
+                                                // Set the data for the document with the specified ID
+                                                await doc1.SetAsync(data1);
+
+                                                msg = "Appointment Successfully Created";
+                                                statuscode = "200";
+                                                errorcode = "false";
+
+                                            }
+                                            catch (Exception ex)
+                                            {
+                                                msg = ex.Message;
+                                                statuscode = "201";
+                                                errorcode = "true";
+                                            }
+
+                                            #endregion
+
+
                                         }
 
 
@@ -465,64 +504,7 @@ namespace MVCFirebase.Controllers
 
                 }
 
-                #region Code to update Firebase Listener
 
-                string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
-                Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
-                FirestoreDb db = FirestoreDb.Create("greenpaperdev");
-
-
-                try
-                {
-                    //Query Qref = db.Collection("clinics").WhereEqualTo("clinic_code", Obj.clinicCode).Limit(1);
-                    //QuerySnapshot snapClinic = await Qref.GetSnapshotAsync();
-
-                    //if (snapClinic.Count > 0)
-                    //{
-                    //    DocumentSnapshot docSnapClinic = snapClinic.Documents[0];
-                    //    Clinic clinic = docSnapClinic.ConvertTo<Clinic>();
-
-
-
-                    //    CollectionReference col1 = db.Collection("clinics").Document(docSnapClinic.Id).Collection("WebAPIResponse");
-
-                    //    Dictionary<string, object> data1 = new Dictionary<string, object>
-                    //    {
-                    //        {"CollectionName" ,"Appointment" },
-                    //        {"UpdatedAt" ,DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc)},
-                    //    };
-
-                    //    await col1.Document().SetAsync(data1);
-
-
-                    //}
-
-                    CollectionReference col1 = db.Collection("WebAPIResponse");
-                    // Specify the document ID 'GP-101'
-                    DocumentReference doc1 = col1.Document(Obj.clinicCode);
-
-                    // Delete the document if it exists
-                    await doc1.DeleteAsync();
-
-                    Dictionary<string, object> data1 = new Dictionary<string, object>
-                        {
-                            {"CollectionName" ,"Appointment Created" },
-                            {"UpdatedAt" ,DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc)},
-
-                        };
-
-                    // Set the data for the document with the specified ID
-                    await doc1.SetAsync(data1);
-
-                }
-                catch (Exception ex)
-                {
-                    msg = ex.Message;
-                    statuscode = "201";
-                    errorcode = "true";
-                }
-
-                #endregion
             }
 
             result.message = msg;
@@ -674,9 +656,9 @@ namespace MVCFirebase.Controllers
 
                                     sqlCommPatientInsert.Parameters.AddWithValue("@BillSms", Obj.bill_sms ?? (object)DBNull.Value);
                                     sqlCommPatientInsert.Parameters.AddWithValue("@ReminderSms", Obj.reminder_sms ?? (object)DBNull.Value);
-                                    sqlCommPatientInsert.Parameters.AddWithValue("@TimeStamp", DateTime.Now);
+                                    sqlCommPatientInsert.Parameters.AddWithValue("@TimeStamp", istTime);
                                     //sqlCommPatientInsert.Parameters.AddWithValue("@UpdatedAt", Obj.updatedAt ?? (object)DBNull.Value);
-                                    sqlCommPatientInsert.Parameters.AddWithValue("@UpdatedAt", DateTime.Now);
+                                    sqlCommPatientInsert.Parameters.AddWithValue("@UpdatedAt", istTime);
                                     sqlCommPatientInsert.Parameters.AddWithValue("@CompletionDate", Obj.completionDate ?? (object)DBNull.Value);
                                     sqlCommPatientInsert.Parameters.AddWithValue("@CompletiondateCashier", Obj.completiondateCashier ?? (object)DBNull.Value);
                                     sqlCommPatientInsert.Parameters.AddWithValue("@CompletiondateChemist", Obj.completiondateChemist ?? (object)DBNull.Value);
@@ -700,12 +682,45 @@ namespace MVCFirebase.Controllers
                                     sqlCommPatientInsert.ExecuteNonQuery();
                                 }
 
-                                msg = "Appointment Successfully Updated.";
+                                #region Code to update Firebase Listener
+
+                                string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
+                                Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
+                                FirestoreDb db = FirestoreDb.Create("greenpaperdev");
 
 
-                                statuscode = "200";
-                                errorcode = "false";
+                                try
+                                {
+                                    CollectionReference col1 = db.Collection("WebAPIResponse");
+                                    // Specify the document ID 'GP-101'
+                                    DocumentReference doc1 = col1.Document(Obj.clinic_id);
 
+                                    // Delete the document if it exists
+                                    await doc1.DeleteAsync();
+
+                                    Dictionary<string, object> data1 = new Dictionary<string, object>
+                                    {
+                                        {"CollectionName" ,"Appointment" },
+                                        {"UpdatedAt" ,DateTime.SpecifyKind(DateTime.Now.AddHours(-5).AddMinutes(-30), DateTimeKind.Utc)},
+
+                                    };
+
+                                    // Set the data for the document with the specified ID
+                                    await doc1.SetAsync(data1);
+
+                                    msg = "Appointment Successfully Updated.";
+                                    statuscode = "200";
+                                    errorcode = "false";
+
+                                }
+                                catch (Exception ex)
+                                {
+                                    msg = ex.Message;
+                                    statuscode = "201";
+                                    errorcode = "true";
+                                }
+
+                                #endregion
                             }
                             catch (Exception ex)
                             {
@@ -718,68 +733,9 @@ namespace MVCFirebase.Controllers
                             {
                                 conn.Close();
                             }
-
-
                         }
                     }
-
-
                 }
-
-                #region Code to update Firebase Listener
-
-                string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
-                Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
-                FirestoreDb db = FirestoreDb.Create("greenpaperdev");
-
-
-                try
-                {
-                    //Query Qref = db.Collection("clinics").WhereEqualTo("clinic_code", Obj.clinicCode).Limit(1);
-                    //QuerySnapshot snapClinic = await Qref.GetSnapshotAsync();
-
-                    //if (snapClinic.Count > 0)
-                    //{
-                    //    DocumentSnapshot docSnapClinic = snapClinic.Documents[0];
-                    //    Clinic clinic = docSnapClinic.ConvertTo<Clinic>();
-
-                    //    CollectionReference col1 = db.Collection("clinics").Document(docSnapClinic.Id).Collection("WebAPIResponse");
-
-                    //    Dictionary<string, object> data1 = new Dictionary<string, object>
-                    //    {
-                    //        {"CollectionName" ,"Appointment" },
-                    //        {"UpdatedAt" ,DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc)},
-                    //    };
-
-                    //    await col1.Document().SetAsync(data1);
-                    //}
-
-                    CollectionReference col1 = db.Collection("WebAPIResponse");
-                    // Specify the document ID 'GP-101'
-                    DocumentReference doc1 = col1.Document(Obj.clinicCode);
-
-                    // Delete the document if it exists
-                    await doc1.DeleteAsync();
-
-                    Dictionary<string, object> data1 = new Dictionary<string, object>
-                        {
-                            {"CollectionName" ,"Appointment Updated" },
-                            {"UpdatedAt" ,DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc)},
-
-                        };
-
-                    // Set the data for the document with the specified ID
-                    await doc1.SetAsync(data1);
-
-                }
-                catch (Exception ex)
-                {
-                    msg = ex.Message;
-                    statuscode = "201";
-                    errorcode = "true";
-                }
-
-                #endregion
             }
 
             result.message = msg;

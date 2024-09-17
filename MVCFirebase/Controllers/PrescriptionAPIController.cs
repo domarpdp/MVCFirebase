@@ -31,6 +31,9 @@ namespace MVCFirebase.Controllers
         //}
 
         string constr = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
+        static DateTime utcTime = DateTime.UtcNow;
+        static TimeZoneInfo istZone = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
+        DateTime istTime = TimeZoneInfo.ConvertTimeFromUtc(utcTime, istZone);
 
         [JwtAuthorize(Roles = "user")]
         [HttpPost]
@@ -65,6 +68,14 @@ namespace MVCFirebase.Controllers
             {
 
                 msg = "clinicCode is Blank";
+                statuscode = "201";
+                errorcode = "true";
+
+            }
+            else if (Obj.clinicId == "" || Obj.clinicId is null)
+            {
+
+                msg = "clinicId is Blank";
                 statuscode = "201";
                 errorcode = "true";
 
@@ -197,7 +208,7 @@ namespace MVCFirebase.Controllers
 
                                     if (Obj.timeStamp is null || Obj.timeStamp.ToString() == "")
                                     {
-                                        sqlCommPatientInsert.Parameters.AddWithValue("@timeStamp", DateTime.Now);
+                                        sqlCommPatientInsert.Parameters.AddWithValue("@timeStamp", istTime);
                                     }
                                     else
                                     {
@@ -205,7 +216,7 @@ namespace MVCFirebase.Controllers
                                     }
                                     if (Obj.updatedAt is null || Obj.updatedAt.ToString() == "")
                                     {
-                                        sqlCommPatientInsert.Parameters.AddWithValue("@updatedAt", DateTime.Now);
+                                        sqlCommPatientInsert.Parameters.AddWithValue("@updatedAt", istTime);
                                     }
                                     else
                                     {
@@ -217,11 +228,6 @@ namespace MVCFirebase.Controllers
                                     sqlCommPatientInsert.ExecuteNonQuery();
                                 }
 
-                                msg = "Prescription Successfully Created";
-
-
-                                statuscode = "200";
-                                errorcode = "false";
 
                                 #region Code to update Firebase Listener
 
@@ -232,41 +238,27 @@ namespace MVCFirebase.Controllers
 
                                 try
                                 {
-                                    //Query Qref = db.Collection("clinics").WhereEqualTo("clinic_code", Obj.clinicCode).Limit(1);
-                                    //QuerySnapshot snapClinic = await Qref.GetSnapshotAsync();
-
-                                    //if (snapClinic.Count > 0)
-                                    //{
-                                    //    DocumentSnapshot docSnapClinic = snapClinic.Documents[0];
-                                    //    Clinic clinic = docSnapClinic.ConvertTo<Clinic>();
-
-                                    //    CollectionReference col1 = db.Collection("clinics").Document(docSnapClinic.Id).Collection("WebAPIResponse");
-
-                                    //    Dictionary<string, object> data1 = new Dictionary<string, object>
-                                    //    {
-                                    //        {"CollectionName" ,"Prescription" },
-                                    //        {"UpdatedAt" ,DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc)},
-                                    //    };
-
-                                    //    await col1.Document().SetAsync(data1);
-                                    //}
 
                                     CollectionReference col1 = db.Collection("WebAPIResponse");
                                     // Specify the document ID 'GP-101'
-                                    DocumentReference doc1 = col1.Document(Obj.clinicCode);
+                                    DocumentReference doc1 = col1.Document(Obj.clinicId);
 
                                     // Delete the document if it exists
                                     await doc1.DeleteAsync();
 
                                     Dictionary<string, object> data1 = new Dictionary<string, object>
                                     {
-                                        {"CollectionName" ,"Prescription Created" },
-                                        {"UpdatedAt" ,DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc)},
+                                        {"CollectionName" ,"Prescription" },
+                                        {"UpdatedAt" ,DateTime.SpecifyKind(DateTime.Now.AddHours(-5).AddMinutes(-30), DateTimeKind.Utc)},
 
                                     };
 
                                     // Set the data for the document with the specified ID
                                     await doc1.SetAsync(data1);
+
+                                    msg = "Prescription Successfully Created";
+                                    statuscode = "200";
+                                    errorcode = "false";
 
                                 }
                                 catch (Exception ex)

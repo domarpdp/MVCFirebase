@@ -29,6 +29,9 @@ namespace MVCFirebase.Controllers
     {
 
         string constr = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
+        static DateTime utcTime = DateTime.UtcNow;
+        static TimeZoneInfo istZone = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
+        DateTime istTime = TimeZoneInfo.ConvertTimeFromUtc(utcTime, istZone);
 
 
         [JwtAuthorize(Roles = "user")]
@@ -99,7 +102,46 @@ namespace MVCFirebase.Controllers
 
         }
 
+        [JwtAuthorize(Roles = "user")]
+        [HttpGet]
+        [Route("api/PatientAPI/GetPatientsCount")]
+        public GenericAPIResult GetPatientsCount(string cliniccode)
+        {
 
+            GenericAPIResult result = new GenericAPIResult();
+
+            try
+            {
+
+                using (SqlConnection conn = new SqlConnection(constr))
+                {
+                    SqlCommand sqlComm = new SqlCommand("usp_GetPatientsCount", conn);
+                    sqlComm.Parameters.Add(new SqlParameter("@ClinicCode", cliniccode));
+                    sqlComm.CommandType = CommandType.StoredProcedure;
+                    conn.Open();
+
+                    // Execute the command and get the count
+                    int count = (int)sqlComm.ExecuteScalar();
+
+                    result.message = "Patients Count fetched Successfully";
+                    result.statusCode = "200";
+                    result.error = "false";
+                    result.data = new List<dynamic> { new { Count = count } };
+
+                    conn.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                result.message = ex.Message;
+                result.statusCode = "201";
+                result.error = "true";
+                result.data = null;
+            }
+
+            return result;
+
+        }
 
         [JwtAuthorize(Roles = "user")]
         [HttpGet]
@@ -201,6 +243,14 @@ namespace MVCFirebase.Controllers
             {
 
                 msg = "Clinic Code is Blank";
+                statuscode = "201";
+                errorcode = "true";
+
+            }
+            else if (ObjPatient.clinicId == "" || ObjPatient.clinicId is null)
+            {
+
+                msg = "clinicId is Blank";
                 statuscode = "201";
                 errorcode = "true";
 
@@ -342,7 +392,7 @@ namespace MVCFirebase.Controllers
                                     sqlCommPatientInsert.Parameters.AddWithValue("@severity", ObjPatient.severity ?? (object)DBNull.Value);
                                     if (ObjPatient.creation_date is null || ObjPatient.creation_date.ToString() == "")
                                     {
-                                        sqlCommPatientInsert.Parameters.AddWithValue("@creation_date", DateTime.Now);
+                                        sqlCommPatientInsert.Parameters.AddWithValue("@creation_date", istTime);
                                     }
                                     else
                                     {
@@ -350,7 +400,7 @@ namespace MVCFirebase.Controllers
                                     }
                                     if (ObjPatient.updatedAt is null || ObjPatient.updatedAt.ToString() == "")
                                     {
-                                        sqlCommPatientInsert.Parameters.AddWithValue("@updatedAt", DateTime.Now);
+                                        sqlCommPatientInsert.Parameters.AddWithValue("@updatedAt", istTime);
                                     }
                                     else
                                     {
@@ -367,11 +417,47 @@ namespace MVCFirebase.Controllers
                                     sqlCommPatientInsert.ExecuteNonQuery();
                                 }
 
-                                msg = "Patient Successfully Created";
 
 
-                                statuscode = "200";
-                                errorcode = "false";
+                                #region Code to update Firebase Listener
+
+                                string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
+                                Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
+                                FirestoreDb db = FirestoreDb.Create("greenpaperdev");
+
+
+                                try
+                                {
+                                    CollectionReference col1 = db.Collection("WebAPIResponse");
+                                    // Specify the document ID 'GP-101'
+                                    DocumentReference doc1 = col1.Document(ObjPatient.clinicId);
+
+                                    // Delete the document if it exists
+                                    await doc1.DeleteAsync();
+
+                                    Dictionary<string, object> data1 = new Dictionary<string, object>
+                                    {
+                                        {"CollectionName" ,"Patient" },
+                                        {"UpdatedAt" ,DateTime.SpecifyKind(DateTime.Now.AddHours(-5).AddMinutes(-30), DateTimeKind.Utc)},
+
+                                    };
+
+                                    // Set the data for the document with the specified ID
+                                    await doc1.SetAsync(data1);
+
+                                    msg = "Patient Successfully Created";
+                                    statuscode = "200";
+                                    errorcode = "false";
+
+                                }
+                                catch (Exception ex)
+                                {
+                                    msg = ex.Message;
+                                    statuscode = "201";
+                                    errorcode = "true";
+                                }
+
+                                #endregion
                             }
 
 
@@ -396,60 +482,7 @@ namespace MVCFirebase.Controllers
             }
 
 
-            #region Code to update Firebase Listener
 
-            string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
-            Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
-            FirestoreDb db = FirestoreDb.Create("greenpaperdev");
-
-
-            try
-            {
-                //Query Qref = db.Collection("clinics").WhereEqualTo("clinic_code", ObjPatient.clinicCode).Limit(1);
-                //QuerySnapshot snapClinic = await Qref.GetSnapshotAsync();
-
-                //if (snapClinic.Count > 0)
-                //{
-                //    DocumentSnapshot docSnapClinic = snapClinic.Documents[0];
-                //    Clinic clinic = docSnapClinic.ConvertTo<Clinic>();
-
-                //    CollectionReference col1 = db.Collection("clinics").Document(docSnapClinic.Id).Collection("WebAPIResponse");
-
-                //    Dictionary<string, object> data1 = new Dictionary<string, object>
-                //    {
-                //        {"CollectionName" ,"Patient" },
-                //        {"UpdatedAt" ,DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc)},
-                //    };
-
-                //    await col1.Document().SetAsync(data1);
-                //}
-
-                CollectionReference col1 = db.Collection("WebAPIResponse");
-                // Specify the document ID 'GP-101'
-                DocumentReference doc1 = col1.Document(ObjPatient.clinicCode);
-
-                // Delete the document if it exists
-                await doc1.DeleteAsync();
-
-                Dictionary<string, object> data1 = new Dictionary<string, object>
-                        {
-                            {"CollectionName" ,"Patient Created" },
-                            {"UpdatedAt" ,DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc)},
-
-                        };
-
-                // Set the data for the document with the specified ID
-                await doc1.SetAsync(data1);
-
-            }
-            catch (Exception ex)
-            {
-                msg = ex.Message;
-                statuscode = "201";
-                errorcode = "true";
-            }
-
-            #endregion
 
             result.message = msg;
             result.statusCode = statuscode;
@@ -490,6 +523,12 @@ namespace MVCFirebase.Controllers
             else if (ObjPatient.clinicCode == "" || ObjPatient.clinicCode is null)
             {
                 msg = "Clinic Code is Blank";
+                statuscode = "201";
+                errorcode = "true";
+            }
+            else if (ObjPatient.clinicId == "" || ObjPatient.clinicId is null)
+            {
+                msg = "ClinicId is Blank";
                 statuscode = "201";
                 errorcode = "true";
             }
@@ -563,7 +602,7 @@ namespace MVCFirebase.Controllers
                                     sqlCommPatientInsert.Parameters.AddWithValue("@refer_to_doctor", ObjPatient.refer_to_doctor ?? (object)DBNull.Value);
                                     sqlCommPatientInsert.Parameters.AddWithValue("@city", ObjPatient.city ?? (object)DBNull.Value);
                                     sqlCommPatientInsert.Parameters.AddWithValue("@severity", ObjPatient.severity ?? (object)DBNull.Value);
-                                    sqlCommPatientInsert.Parameters.AddWithValue("@updatedAt", DateTime.Now);
+                                    sqlCommPatientInsert.Parameters.AddWithValue("@updatedAt", istTime);
                                     sqlCommPatientInsert.Parameters.AddWithValue("@isCreated", ObjPatient.isCreated ?? (object)DBNull.Value);
                                     sqlCommPatientInsert.Parameters.AddWithValue("@isSynced", ObjPatient.isSynced ?? (object)DBNull.Value);
                                     sqlCommPatientInsert.Parameters.AddWithValue("@loginAt", ObjPatient.loginAt ?? (object)DBNull.Value);
@@ -573,20 +612,46 @@ namespace MVCFirebase.Controllers
                                     sqlCommPatientInsert.ExecuteNonQuery();
                                 }
 
-                                //SqlCommand sqlCommPatientUpdate = new SqlCommand("Update patients set search_text = '" + ObjPatient.search_text + "', care_of = '" + ObjPatient.care_of + "'," +
-                                //    "patient_name = '" + ObjPatient.patient_name + "', gender = '" + ObjPatient.gender + "', age = '" + ObjPatient.age + "'," +
-                                //    " patient_mobile_number = '" + ObjPatient.patient_mobile_number + "', refer_by = '" + ObjPatient.refer_by + "', disease = '" + ObjPatient.disease + "', refer_to_doctor = '" + ObjPatient.refer_to_doctor + "'," +
-                                //    " city = '" + ObjPatient.city + "', severity = '" + ObjPatient.severity + "', updatedAt = '" + DateTime.Now.ToString("dd-MMM-yyyy HH:mm:ss") + "', isCreated = '" + ObjPatient.isCreated + "', isSynced = '" + ObjPatient.isSynced + "', createdBy = '" + ObjPatient.createdBy + "', " +
-                                //    //"loginAt = '" + Convert.ToDateTime(ObjPatient.loginAt) + "', patientAppDownloaded = '" + ObjPatient.patientAppDownloaded + "', dob = '" + Convert.ToDateTime(ObjPatient.dob) + "'", conn);
-                                //    "loginAt = '" + ObjPatient.loginAt + "', patientAppDownloaded = '" + ObjPatient.patientAppDownloaded + "' where PatientId = '" + ObjPatient.PatientId + "' and Cliniccode = '" + ObjPatient.clinicCode + "'", conn);
-                                //sqlCommPatientUpdate.CommandType = CommandType.Text;
-                                //conn.Open();
+                                #region Code to update Firebase Listener
 
-                                //sqlCommPatientUpdate.ExecuteNonQuery();
+                                string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
+                                Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
+                                FirestoreDb db = FirestoreDb.Create("greenpaperdev");
 
-                                msg = "Patient Successfully Updated";
-                                statuscode = "200";
-                                errorcode = "false";
+
+                                try
+                                {
+
+                                    CollectionReference col1 = db.Collection("WebAPIResponse");
+                                    // Specify the document ID 'GP-101'
+                                    DocumentReference doc1 = col1.Document(ObjPatient.clinicId);
+
+                                    // Delete the document if it exists
+                                    await doc1.DeleteAsync();
+
+                                    Dictionary<string, object> data1 = new Dictionary<string, object>
+                                    {
+                                        {"CollectionName" ,"Patient" },
+                                        {"UpdatedAt" ,DateTime.SpecifyKind(DateTime.Now.AddHours(-5).AddMinutes(-30), DateTimeKind.Utc)},
+
+                                    };
+
+                                    // Set the data for the document with the specified ID
+                                    await doc1.SetAsync(data1);
+
+                                    msg = "Patient Successfully Updated";
+                                    statuscode = "200";
+                                    errorcode = "false";
+
+                                }
+                                catch (Exception ex)
+                                {
+                                    msg = ex.Message;
+                                    statuscode = "201";
+                                    errorcode = "true";
+                                }
+
+                                #endregion
                             }
 
 
@@ -607,45 +672,7 @@ namespace MVCFirebase.Controllers
             }
 
 
-            //return JsonConvert.SerializeObject(msg);
-            //  return msg;
 
-            #region Code to update Firebase Listener
-
-            string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
-            Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
-            FirestoreDb db = FirestoreDb.Create("greenpaperdev");
-
-
-            try
-            {
-
-                CollectionReference col1 = db.Collection("WebAPIResponse");
-                // Specify the document ID 'GP-101'
-                DocumentReference doc1 = col1.Document(ObjPatient.clinicCode);
-
-                // Delete the document if it exists
-                await doc1.DeleteAsync();
-
-                Dictionary<string, object> data1 = new Dictionary<string, object>
-                        {
-                            {"CollectionName" ,"Patient Updated" },
-                            {"UpdatedAt" ,DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc)},
-
-                        };
-
-                // Set the data for the document with the specified ID
-                await doc1.SetAsync(data1);
-
-            }
-            catch (Exception ex)
-            {
-                msg = ex.Message;
-                statuscode = "201";
-                errorcode = "true";
-            }
-
-            #endregion
 
             result.message = msg;
             result.statusCode = statuscode;

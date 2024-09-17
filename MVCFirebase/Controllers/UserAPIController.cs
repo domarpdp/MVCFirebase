@@ -25,6 +25,9 @@ namespace MVCFirebase.Controllers
     public class UserAPIController : ApiController
     {
         string constr = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
+        static DateTime utcTime = DateTime.UtcNow;
+        static TimeZoneInfo istZone = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
+        DateTime istTime = TimeZoneInfo.ConvertTimeFromUtc(utcTime, istZone);
 
         [JwtAuthorize(Roles = "user")]
         [HttpGet]
@@ -255,6 +258,14 @@ namespace MVCFirebase.Controllers
                 errorcode = "true";
 
             }
+            else if (Obj.clinicid == "" || Obj.clinicid is null)
+            {
+
+                msg = "clinicid is Blank";
+                statuscode = "201";
+                errorcode = "true";
+
+            }
             else if (Obj.name == "" || Obj.name is null)
             {
                 msg = "Name is Blank";
@@ -337,13 +348,13 @@ namespace MVCFirebase.Controllers
                                     sqlCommPatientInsert.Parameters.AddWithValue("@mobile_number", Obj.mobile_number ?? (object)DBNull.Value);
                                     sqlCommPatientInsert.Parameters.AddWithValue("@user_roles", userRolesJsonArrayString ?? (object)DBNull.Value);
                                     sqlCommPatientInsert.Parameters.AddWithValue("@user_qualification", Obj.user_qualification ?? (object)DBNull.Value);
-                                    sqlCommPatientInsert.Parameters.AddWithValue("@idproof", Obj.idproof);
+                                    sqlCommPatientInsert.Parameters.AddWithValue("@idproof", Obj.idproof ?? (object)DBNull.Value);
                                     sqlCommPatientInsert.Parameters.AddWithValue("@signature", Obj.signature ?? (object)DBNull.Value);
                                     sqlCommPatientInsert.Parameters.AddWithValue("@stats_enable", Obj.stats_enable ?? (object)DBNull.Value);
 
                                     if (Obj.creation_date is null || Obj.creation_date.ToString() == "")
                                     {
-                                        sqlCommPatientInsert.Parameters.AddWithValue("@creation_date", DateTime.Now);
+                                        sqlCommPatientInsert.Parameters.AddWithValue("@creation_date", istTime);
                                     }
                                     else
                                     {
@@ -354,7 +365,7 @@ namespace MVCFirebase.Controllers
 
                                     if (Obj.updatedAt is null || Obj.updatedAt.ToString() == "")
                                     {
-                                        sqlCommPatientInsert.Parameters.AddWithValue("@updatedAt", DateTime.Now);
+                                        sqlCommPatientInsert.Parameters.AddWithValue("@updatedAt", istTime);
                                     }
                                     else
                                     {
@@ -366,11 +377,50 @@ namespace MVCFirebase.Controllers
                                     sqlCommPatientInsert.ExecuteNonQuery();
                                 }
 
-                                msg = "User Successfully Created";
+
+                                #region Code to update Firebase Listener
+
+                                string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
+                                Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
+                                FirestoreDb db = FirestoreDb.Create("greenpaperdev");
 
 
-                                statuscode = "200";
-                                errorcode = "false";
+                                try
+                                {
+
+                                    CollectionReference col1 = db.Collection("WebAPIResponse");
+                                    // Specify the document ID 'GP-101'
+                                    DocumentReference doc1 = col1.Document(Obj.clinicid);
+
+                                    // Delete the document if it exists
+                                    await doc1.DeleteAsync();
+
+                                    Dictionary<string, object> data1 = new Dictionary<string, object>
+                                    {
+                                        {"CollectionName" ,"User" },
+                                        {"UpdatedAt" ,DateTime.SpecifyKind(DateTime.Now.AddHours(-5).AddMinutes(-30), DateTimeKind.Utc)},
+
+                                    };
+
+                                    // Set the data for the document with the specified ID
+                                    await doc1.SetAsync(data1);
+
+                                    msg = "User Successfully Created";
+                                    statuscode = "200";
+                                    errorcode = "false";
+
+                                }
+                                catch (Exception ex)
+                                {
+                                    msg = ex.Message;
+                                    statuscode = "201";
+                                    errorcode = "true";
+                                }
+
+                                #endregion
+
+
+
                             }
 
 
@@ -391,42 +441,7 @@ namespace MVCFirebase.Controllers
 
                 }
 
-                #region Code to update Firebase Listener
 
-                string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
-                Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
-                FirestoreDb db = FirestoreDb.Create("greenpaperdev");
-
-
-                try
-                {
-
-                    CollectionReference col1 = db.Collection("WebAPIResponse");
-                    // Specify the document ID 'GP-101'
-                    DocumentReference doc1 = col1.Document(Obj.clinicCode);
-
-                    // Delete the document if it exists
-                    await doc1.DeleteAsync();
-
-                    Dictionary<string, object> data1 = new Dictionary<string, object>
-                        {
-                            {"CollectionName" ,"User Created" },
-                            {"UpdatedAt" ,DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc)},
-
-                        };
-
-                    // Set the data for the document with the specified ID
-                    await doc1.SetAsync(data1);
-
-                }
-                catch (Exception ex)
-                {
-                    msg = ex.Message;
-                    statuscode = "201";
-                    errorcode = "true";
-                }
-
-                #endregion
             }
 
             result.message = msg;
@@ -472,6 +487,14 @@ namespace MVCFirebase.Controllers
             {
 
                 msg = "Clinic Code is Blank";
+                statuscode = "201";
+                errorcode = "true";
+
+            }
+            else if (Obj.clinicid == "" || Obj.clinicid is null)
+            {
+
+                msg = "clinicid is Blank";
                 statuscode = "201";
                 errorcode = "true";
 
@@ -553,20 +576,56 @@ namespace MVCFirebase.Controllers
                                     sqlCommPatientInsert.Parameters.AddWithValue("@mobile_number", Obj.mobile_number ?? (object)DBNull.Value);
                                     sqlCommPatientInsert.Parameters.AddWithValue("@user_roles", userRolesJsonArrayString ?? (object)DBNull.Value);
                                     sqlCommPatientInsert.Parameters.AddWithValue("@user_qualification", Obj.user_qualification ?? (object)DBNull.Value);
-                                    sqlCommPatientInsert.Parameters.AddWithValue("@idproof", Obj.idproof);
+                                    sqlCommPatientInsert.Parameters.AddWithValue("@idproof", Obj.idproof ?? (object)DBNull.Value);
                                     sqlCommPatientInsert.Parameters.AddWithValue("@signature", Obj.signature ?? (object)DBNull.Value);
                                     sqlCommPatientInsert.Parameters.AddWithValue("@stats_enable", Obj.stats_enable ?? (object)DBNull.Value);
                                     sqlCommPatientInsert.Parameters.AddWithValue("@user_deactivated", Obj.user_deactivated ?? (object)DBNull.Value);
-                                    sqlCommPatientInsert.Parameters.AddWithValue("@updatedAt", DateTime.Now);
+                                    sqlCommPatientInsert.Parameters.AddWithValue("@updatedAt", istTime);
                                     conn.Open();
                                     sqlCommPatientInsert.ExecuteNonQuery();
                                 }
 
-                                msg = "User Successfully updated.";
+                                #region Code to update Firebase Listener
+
+                                string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
+                                Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
+                                FirestoreDb db = FirestoreDb.Create("greenpaperdev");
 
 
-                                statuscode = "200";
-                                errorcode = "false";
+                                try
+                                {
+
+                                    CollectionReference col1 = db.Collection("WebAPIResponse");
+                                    // Specify the document ID 'GP-101'
+                                    DocumentReference doc1 = col1.Document(Obj.clinicid);
+
+                                    // Delete the document if it exists
+                                    await doc1.DeleteAsync();
+
+                                    Dictionary<string, object> data1 = new Dictionary<string, object>
+                                    {
+                                        {"CollectionName" ,"User" },
+                                        {"UpdatedAt" ,DateTime.SpecifyKind(DateTime.Now.AddHours(-5).AddMinutes(-30), DateTimeKind.Utc)},
+
+                                    };
+
+                                    // Set the data for the document with the specified ID
+                                    await doc1.SetAsync(data1);
+
+                                    msg = "User Successfully updated.";
+                                    statuscode = "200";
+                                    errorcode = "false";
+
+                                }
+                                catch (Exception ex)
+                                {
+                                    msg = ex.Message;
+                                    statuscode = "201";
+                                    errorcode = "true";
+                                }
+
+                                #endregion
+
                             }
 
 
@@ -587,42 +646,162 @@ namespace MVCFirebase.Controllers
 
                 }
 
-                #region Code to update Firebase Listener
 
-                string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
-                Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
-                FirestoreDb db = FirestoreDb.Create("greenpaperdev");
+            }
 
+            result.message = msg;
+            result.statusCode = statuscode;
+            result.error = errorcode;
+            result.data = dynamicDt;
 
-                try
+            return result; ;
+            //  return msg;
+        }
+
+        [JwtAuthorize(Roles = "user")]
+        [HttpPost]
+        [Route("api/UserAPI/LoginSQLServer")]
+        public GenericAPIResult LoginSQLServer([FromBody] UserAPI Obj)
+        {
+            List<UserAPI> patients = new List<UserAPI>();
+            GenericAPIResult result = new GenericAPIResult();
+            var dynamicDt = new List<dynamic>();
+            string errorcode = "";
+            string statuscode = "";
+            string msg = "";
+
+            if (Obj is null)
+            {
+                msg = "User Data is Blank";
+                statuscode = "201";
+                errorcode = "true";
+            }
+            else if (Obj.clinicCode == "" || Obj.clinicCode is null)
+            {
+
+                msg = "Clinic Code is Blank";
+                statuscode = "201";
+                errorcode = "true";
+
+            }
+            else if (Obj.mobile_number == "" || Obj.mobile_number is null)
+            {
+                msg = "Mobile Number is Blank";
+                statuscode = "201";
+                errorcode = "true";
+
+            }
+            else
+            {
+
+                using (SqlConnection conn = new SqlConnection(constr))
                 {
+                    DataTable dtCC = new DataTable();
+                    SqlCommand sqlCommCC = new SqlCommand("Select * from clinics where clinic_code = '" + Obj.clinicCode + "'", conn);
+                    sqlCommCC.CommandType = CommandType.Text;
+                    conn.Open();
 
-                    CollectionReference col1 = db.Collection("WebAPIResponse");
-                    // Specify the document ID 'GP-101'
-                    DocumentReference doc1 = col1.Document(Obj.clinicCode);
-
-                    // Delete the document if it exists
-                    await doc1.DeleteAsync();
-
-                    Dictionary<string, object> data1 = new Dictionary<string, object>
+                    dtCC.Load(sqlCommCC.ExecuteReader());
+                    conn.Close();
+                    if (dtCC.Rows.Count == 0)
+                    {
+                        msg = "Clinic Code " + Obj.clinicCode + " does not exists.";
+                        statuscode = "201";
+                        errorcode = "true";
+                    }
+                    else
+                    {
+                        try
                         {
-                            {"CollectionName" ,"User Updated" },
-                            {"UpdatedAt" ,DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc)},
+                            using (SqlCommand sqlCommPatientInsert = new SqlCommand(
+                                        "Select count(*) from [user] where mobile_number = @mobile_number and cliniccode = @clinicCode and password = @password ", conn))
+                            {
+                                sqlCommPatientInsert.CommandType = CommandType.Text;
 
-                        };
+                                sqlCommPatientInsert.Parameters.AddWithValue("@mobile_number", Obj.mobile_number ?? (object)DBNull.Value);
+                                sqlCommPatientInsert.Parameters.AddWithValue("@clinicCode", Obj.clinicCode ?? (object)DBNull.Value);
+                                sqlCommPatientInsert.Parameters.AddWithValue("@password", Obj.password ?? (object)DBNull.Value);
 
-                    // Set the data for the document with the specified ID
-                    await doc1.SetAsync(data1);
+                                conn.Open();
+                                int count = (int)sqlCommPatientInsert.ExecuteScalar();
+                                conn.Close();
+                                if (count > 0)
+                                {
+
+                                    SqlCommand sqlComm = new SqlCommand("usp_GetUserBySearchString", conn);
+                                    sqlComm.Parameters.Add(new SqlParameter("@ClinicCode", Obj.clinicCode));
+                                    sqlComm.Parameters.Add(new SqlParameter("@SearchString", Obj.mobile_number));
+
+
+                                    sqlComm.CommandType = CommandType.StoredProcedure;
+                                    conn.Open();
+
+                                    using (SqlDataReader sdr = sqlComm.ExecuteReader())
+                                    {
+                                        while (sdr.Read())
+                                        {
+                                            dynamic row = new ExpandoObject();
+                                            var dictionary = (IDictionary<string, object>)row;
+
+                                            for (int i = 0; i < sdr.FieldCount; i++)
+                                            {
+                                                if (sdr.GetName(i) == "user_roles")
+                                                {
+                                                    string userRolesString = sdr.GetValue(i).ToString();
+
+                                                    // Deserialize the JSON string to a list of strings
+                                                    var userRoles = JsonConvert.DeserializeObject<List<string>>(userRolesString);
+
+                                                    // Add the list of user roles to the dictionary
+                                                    dictionary.Add("user_roles", userRoles.ToArray());
+
+                                                }
+                                                else if (sdr.GetName(i) == "stats_enable" || sdr.GetName(i) == "user_deactivated")
+                                                {
+                                                    // Convert 1 or 0 to boolean true or false
+                                                    bool fieldValue = Convert.ToInt32(sdr.GetValue(i)) == 1;
+                                                    dictionary.Add(sdr.GetName(i), fieldValue);
+                                                }
+                                                else
+                                                {
+                                                    dictionary.Add(sdr.GetName(i), sdr.GetValue(i));
+                                                }
+
+                                            }
+
+                                            dynamicDt.Add(row);
+                                        }
+
+                                    }
+
+                                    msg = "User logged in Successfully";
+                                    statuscode = "200";
+                                    errorcode = "false";
+                                }
+                                else
+                                {
+                                    msg = "You are not authenticated for this app.";
+                                    statuscode = "201";
+                                    errorcode = "true";
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            msg = ex.Message;
+                            statuscode = "201";
+                            errorcode = "true";
+
+                        }
+                        finally
+                        {
+                            conn.Close();
+                        }
+                    }
 
                 }
-                catch (Exception ex)
-                {
-                    msg = ex.Message;
-                    statuscode = "201";
-                    errorcode = "true";
-                }
 
-                #endregion
+
             }
 
             result.message = msg;
