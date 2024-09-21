@@ -403,7 +403,9 @@
     <Compile Include="Models\Medicine.cs" />
     <Compile Include="Models\Patient.cs" />
     <Compile Include="Models\PatientAPI.cs" />
+    <Compile Include="Models\Prescription.cs" />
     <Compile Include="Models\PrescriptionAPI.cs" />
+    <Compile Include="Models\Report.cs" />
     <Compile Include="Models\SuperUser.cs" />
     <Compile Include="Models\SuperUserClinicSettings.cs" />
     <Compile Include="Models\TokenValidationHelper.cs" />
@@ -425,6 +427,7 @@
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
+    <Content Include="Images\Downloading.gif" />
     <Content Include="Images\logo copy.png" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />

@@ -151,7 +151,7 @@ namespace MVCFirebase.Controllers
                                 GlobalSessionVariables.UserRoles = string.Join(",", userForRoles.user_roles); 
 
                                 
-                                FormsAuthentication.SetAuthCookie(userLoggedIn.mobile_number + "-" + userLoggedIn.name, user.RememberMe);
+                                FormsAuthentication.SetAuthCookie(userLoggedIn.mobile_number + "-" + userLoggedIn.name + "-" + string.Join(",", userForRoles.user_roles) + "-" + clinic.clinicmobilenumber + "-" + docsnapClinic.Id, user.RememberMe);
                                 //if(User.IsInRole("Receptionist"))
                                 if(userForRoles.user_roles.Contains("Receptionist"))
                                 {

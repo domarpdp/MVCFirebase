@@ -8,6 +8,20 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-ui-timepicker-addon/1.6.3/jquery-ui-timepicker-addon.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-ui-timepicker-addon/1.6.3/jquery-ui-timepicker-addon.min.css" />
+<style>
+    .downloadBackground {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 98vw;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: transparent;
+        z-index: 9999;
+    }
+</style>
 <script>
     jQuery(function ($) {
         //$("#search").change(function () {
@@ -80,6 +94,7 @@
         {
             @*@Html.TextBox("search", "", new { onkeyup = "MyFunction();" }) <input type="submit" value="search" />*@
             @Html.TextBox("search") <input type="submit" value="search" />
+            <button type="button" id="ajaxButton">Download Patients</button>
         }
     </p>
 
@@ -144,6 +159,7 @@
         }
 
     </table>
+
     @using (Html.BeginForm("CreateFutureAppointment", "Patient", FormMethod.Post))
     {
         <div class="form-horizontal">
@@ -180,7 +196,7 @@
                                 <div class="col-md-5">
                                     @Html.Label("ReferTo", "Refer To:")
                                 </div>
-                                
+
                                 <div class="col-md-5">
                                     @Html.DropDownList("referto", (IEnumerable<SelectListItem>)ViewBag.USERS, new { @class = "select2_demo_4 form-control" })
                                 </div>
@@ -205,14 +221,49 @@
 
     }
 </div>
+
+<div id="loader" class="downloadBackground" style="display:none;">
+    <img src="~/Images/Downloading.gif" />
+</div>
+
+
 @Scripts.Render("~/bundles/jquery")
 @Scripts.Render("~/bundles/bootstrap")
 @if (@TempData["Message"] != null)
 {
-<script type="text/javascript">
+    <script type="text/javascript">
             $(function () {
                 alert("@TempData["Message"]")
             });
-</script>
+    </script>
+
 }
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script type="text/javascript">
+        $(document).ready(function ()
+        {
+            $('#ajaxButton').click(function () {
+                var searchValue = $('#search').val(); // Capture the input value
+                $('#loader').show();
+                $.ajax({
+                    url: '@Url.Action("DownloadPatientData", "Patient")',
+                    type: 'POST',
+                    data: {},
+                    success: function (response) {
+                        // Hide the loader
+                        $('#loader').hide();
+                        // Handle success, update the UI accordingly
+                        alert('Method called successfully!');
+                    },
+                    error: function (error) {
+
+                        // Hide the loader
+                        $('#loader').hide();
+                        // Handle error
+                        alert('Error occurred');
+                    }
+                });
+            });
+        });
+</script>
 

@@ -22,5 +22,8 @@ namespace MVCFirebase.Models
 
         [FirestoreProperty]
         public string id { get; set; }
+
+        [FirestoreProperty]
+        public string clinic_code { get; set; }
     }
 }

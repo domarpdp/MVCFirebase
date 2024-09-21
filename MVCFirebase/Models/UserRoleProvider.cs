@@ -57,9 +57,16 @@ namespace MVCFirebase.Models
             }
             else
             {
-                if (HttpContext.Current.Session != null && HttpContext.Current.Session["UserRoles"] != null)
+                
+                if (HttpContext.Current.Session != null)//&& HttpContext.Current.Session["UserRoles"] != null
                 {
-                    return GlobalSessionVariables.UserRoles.Split(',');
+                    
+                    GlobalSessionVariables.ClinicMobileNumber = username.Split('-')[3];
+                    GlobalSessionVariables.ClinicDocumentAutoId = username.Split('-')[4];
+                    GlobalSessionVariables.UserRoles = username.Split('-')[2];
+
+                    return username.Split('-')[2].Split(',');
+                    //return GlobalSessionVariables.UserRoles.Split(',');
                 }
                 else
                 {

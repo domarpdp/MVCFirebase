@@ -9,6 +9,7 @@ using System.Web.Mvc;
 using System.Web.Security;
 using System.IO;
 using Newtonsoft.Json;
+using System.Text;
 
 namespace MVCFirebase.Controllers
 {
@@ -2602,6 +2603,159 @@ namespace MVCFirebase.Controllers
                 cityList = JsonConvert.DeserializeObject<List<city>>(json);
                 cityList = cityList.Where(a => a.name.StartsWith(city.ToLower())).ToList();
                 return Json(cityList);
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> DownloadPatientData()
+        {
+            // Call your specific method here
+            string ClinicMobileNumber = GlobalSessionVariables.ClinicMobileNumber;
+            string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
+            Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
+            FirestoreDb db = FirestoreDb.Create("greenpaperdev");
+
+            List<Patient> PatientList = new List<Patient>();
+
+            Query Qref = db.Collection("clinics").WhereEqualTo("clinicmobilenumber", ClinicMobileNumber);
+            QuerySnapshot snap = await Qref.GetSnapshotAsync();
+            foreach (DocumentSnapshot docsnap in snap)
+            {
+                Clinic clinic = docsnap.ConvertTo<Clinic>();
+                string ClinicCode = clinic.clinic_code;
+
+
+
+                #region Download Prescriptions
+                QuerySnapshot snap2 = await docsnap.Reference.Collection("patientList").OrderByDescending("patient_id").GetSnapshotAsync();
+                if (snap2.Count > 0)
+                {
+                    foreach (DocumentSnapshot docsnap2 in snap2)
+                    {
+                        Patient patient = docsnap2.ConvertTo<Patient>();
+                        patient.id = docsnap2.Id;
+                        string PatientId = patient.patient_id;
+                        // Path to the user's document folder
+                        string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+
+
+                        if (docsnap2.Exists)
+                        {
+                            #region Download Reports
+                            QuerySnapshot snapReports = await docsnap.Reference.Collection("reports").WhereEqualTo("patientId", docsnap2.Id).GetSnapshotAsync();
+                            foreach (DocumentSnapshot docsnapReports in snapReports)
+                            {
+                                Report report = docsnapReports.ConvertTo<Report>();
+
+
+                                if (docsnapReports.Exists)
+                                {
+                                    string base64StringReport = docsnapReports.GetValue<string>("file");
+                                    byte[] fileBytesReport = Convert.FromBase64String(base64StringReport);
+                                    string strReportFileName = report.timeStamp.ToString("dd-MMM-yyyy_hh-mm-ss");
+                                    // Create a file path
+                                    string fileNameReport = $"Report_{strReportFileName}.png";
+                                    string filePathReport = System.IO.Path.Combine(docPath + "\\" + ClinicCode + "\\" + PatientId + "_" + patient.patient_mobile_number + "\\Reports", fileNameReport);
+
+                                    // Ensure the directory exists
+                                    if (!System.IO.Directory.Exists(docPath + "\\" + ClinicCode + "\\" + PatientId + "_" + patient.patient_mobile_number + "\\Reports"))
+                                    {
+                                        System.IO.Directory.CreateDirectory(docPath + "\\" + ClinicCode + "\\" + PatientId + "_" + patient.patient_mobile_number + "\\Reports");
+                                    }
+                                    System.IO.File.WriteAllBytes(filePathReport, fileBytesReport);
+                                }
+                            }
+
+                            #endregion
+
+                            #region Patient text file create
+                            string fileNamePAT = $"Patient_{patient.patient_id}.txt";
+                            string filePathPAT = System.IO.Path.Combine(docPath + "\\" + ClinicCode + "\\" + PatientId + "_" + patient.patient_mobile_number, fileNamePAT);
+
+                            // Ensure the directory exists
+                            if (!System.IO.Directory.Exists(docPath + "\\" + ClinicCode + "\\" + PatientId + "_" + patient.patient_mobile_number))
+                            {
+                                System.IO.Directory.CreateDirectory(docPath + "\\" + ClinicCode + "\\" + PatientId + "_" + patient.patient_mobile_number);
+                            }
+
+                            // Prepare data to be written (customize as needed)
+                            StringBuilder fileContent = new StringBuilder();
+
+                            fileContent.AppendLine($"Name: {patient.patient_name}");
+                            fileContent.AppendLine($"Age: {patient.age}");
+                            fileContent.AppendLine($"Creation Date: {patient.creation_date}");
+                            fileContent.AppendLine($"City: {patient.city}");
+                            fileContent.AppendLine($"Mobile Number: {patient.patient_mobile_number}");
+                            fileContent.AppendLine($"Patient Id: {patient.patient_id}");
+
+
+                            // Write data to file
+
+                            System.IO.File.WriteAllText(filePathPAT, fileContent.ToString());
+
+                            #endregion
+
+                            #region Download Prescriptions
+                            patient.clinic_name = clinic.clinicname;
+
+
+
+                            //PatientList.Add(patient);
+                            QuerySnapshot snapPres = await docsnap2.Reference.Collection("prescriptions").GetSnapshotAsync();
+                            if (snapPres.Count > 0)
+                            {
+                                foreach (DocumentSnapshot docsnapPres in snapPres)
+                                {
+                                    
+                                    
+                                    if (docsnapPres.Exists)
+                                    {
+                                        Prescription prescription = docsnapPres.ConvertTo<Prescription>();
+                                        // Assuming there's a field "file" that contains the base64 string
+                                        string base64String = docsnapPres.GetValue<string>("file");
+
+                                        if (!string.IsNullOrEmpty(base64String))
+                                        {
+                                            try {
+                                                // Convert base64 string to bytes
+                                                byte[] fileBytes = Convert.FromBase64String(base64String);
+                                                string strFileName = prescription.timeStamp.ToString("dd-MMM-yyyy_hh-mm-ss");
+                                                // Create a file path
+                                                string fileName = $"Prescription_{strFileName}.png"; // Change the extension as per file type
+                                                string filePath = System.IO.Path.Combine(docPath + "\\" + ClinicCode + "\\" + PatientId + "_" + patient.patient_mobile_number + "\\Prescriptions", fileName);
+
+                                                if (!System.IO.Directory.Exists(docPath + "\\" + ClinicCode + "\\" + PatientId + "_" + patient.patient_mobile_number + "\\Prescriptions"))
+                                                {
+                                                    System.IO.Directory.CreateDirectory(docPath + "\\" + ClinicCode + "\\" + PatientId + "_" + patient.patient_mobile_number + "\\Prescriptions");
+                                                }
+
+                                                // Write the file to the user's Documents folder
+                                                System.IO.File.WriteAllBytes(filePath, fileBytes);
+                                            }
+                                            catch (Exception ex)
+                                            {
+                                                string msg = ex.Message;
+                                            }
+
+
+
+                                        }
+
+                                    }
+                                }
+                            }
+
+                            #endregion
+
+                        }
+                    }
+                }
+
+                #endregion Download Prescriptions
+            }
+
+
+            return Json(new { success = true });
+            //return View(PatientList);
         }
     }
 }
