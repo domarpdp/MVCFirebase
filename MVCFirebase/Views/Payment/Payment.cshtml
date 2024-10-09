@@ -1,0 +1,78 @@
+﻿@{ Layout = null;}
+@{
+    ViewBag.Title = "Razorpay Payment";
+}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+    .card * {
+        font-size: 40px;
+    }
+
+    .card-header {
+        margin-bottom: 100px;
+    }
+
+
+    .card input.form-control {
+        height: 70px;
+        line-height: 90px;
+        padding: 20px;
+    }
+
+    .card .card-title {
+        font-weight: 600;
+    }
+</style>
+<div class="container">
+    <div class="row vh-100 d-flex justify-content-center align-items-center">
+        <div class="card p-5">
+            <div class="card-header bg-transparent">
+                <p class="">Clinic Code: @ViewBag.ClinicCode</p>
+                <p class="">Order Type: @ViewBag.OrderType</p>
+                <p class="">Plan Id: @ViewBag.PlanId</p>
+                <p class="">Order Amount: @ViewBag.OrderAmount</p>
+                <p class="">Key: @ViewBag.Key</p>
+                <p class="">Order Id: @ViewBag.OrderId</p>
+
+            </div>
+            <div class="card-header mb-2">
+                <h2 class="card-title">Proceed with Payment</h2>
+            </div>
+            <div class="card-body">
+                <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+                <button class="btn btn-success mt-2" id="rzp-button">Pay with Razorpay</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var options = {
+        "key": "@ViewBag.Key", // Enter the Key ID generated from the Dashboard
+        //"amount": "@ViewBag.OrderAmount * 100", // Amount in paise
+        "currency": "INR",
+        "name": "Green Paper Technology",
+        "description": "Test Transaction",
+        "order_id": "@ViewBag.OrderId", // Order ID
+        "clinicCode": "@ViewBag.ClinicCode",
+        "orderType": "@ViewBag.OrderType",
+        "orderAmount": "@ViewBag.OrderAmount",
+        "plan_id":"@ViewBag.PlanId",
+        "handler": function (response) {
+            window.location.href = "/Payment/PaymentSuccess?payment_id=" + response.razorpay_payment_id + "&order_id=" + response.razorpay_order_id + "&signature=" + response.razorpay_signature + "&clinicCode=" + options.clinicCode + "&orderType=" + options.orderType + "&orderAmount=" + options.orderAmount + "&plan_id=" + options.plan_id;
+        },
+        "prefill": {
+            "name": "Customer Name",
+            "email": "customer@example.com",
+            "contact": "9999999999"
+        }
+    };
+    var rzp1 = new Razorpay(options);
+
+    document.getElementById('rzp-button').onclick = function(e){
+        rzp1.open();
+        e.preventDefault();
+    }
+</script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>

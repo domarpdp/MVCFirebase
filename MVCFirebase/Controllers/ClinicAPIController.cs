@@ -375,5 +375,168 @@ namespace MVCFirebase.Controllers
 
         }
 
+
+        [JwtAuthorize(Roles = "user")]
+        [HttpPost]
+        [Route("api/ClinicAPI/UpdateClinic")]
+        public GenericAPIResult UpdateClinic([FromBody] ClinicAPI Obj)
+        {
+            GenericAPIResult result = new GenericAPIResult();
+            var dynamicDt = new List<dynamic>();
+            string errorcode = "";
+            string statuscode = "";
+
+
+            string msg = "";
+
+            int maxId = 0;
+
+            if (Obj is null)
+            {
+                msg = "Clinic Data is Blank";
+                statuscode = "201";
+                errorcode = "true";
+            }
+            else if (Obj.Id == 0)
+            {
+                msg = "Id is Blank";
+                statuscode = "201";
+                errorcode = "true";
+            }
+            else if (Obj.clinic_code == "")
+            {
+                msg = "Clinic Code is Blank";
+                statuscode = "201";
+                errorcode = "true";
+            }
+            else if (Obj.clinicname == "")
+            {
+                msg = "clinicname is Blank";
+                statuscode = "201";
+                errorcode = "true";
+
+            }
+            else if (Obj.clinicaddress == "")
+            {
+                msg = "clinicaddress is Blank";
+                statuscode = "201";
+                errorcode = "true";
+
+            }
+            else if (Obj.clinicstate == "")
+            {
+                msg = "clinicstate is Blank";
+                statuscode = "201";
+                errorcode = "true";
+
+            }
+            else if (Obj.cliniccity == "")
+            {
+                msg = "cliniccity is Blank";
+                statuscode = "201";
+                errorcode = "true";
+
+            }
+            else if (Obj.clinicemail == "")
+            {
+                msg = "clinicemail is Blank";
+                statuscode = "201";
+                errorcode = "true";
+
+            }
+            else if (Obj.clinicwebsite == "")
+            {
+                msg = "clinicwebsite is Blank";
+                statuscode = "201";
+                errorcode = "true";
+
+            }
+            else if (Obj.clinicmobilenumber == "")
+            {
+
+                msg = "clinicmobilenumber is Blank";
+                statuscode = "201";
+                errorcode = "true";
+
+            }
+            else
+            {
+                using (SqlConnection conn = new SqlConnection(constr))
+                {
+                    try
+                    {
+
+                        using (SqlCommand sqlCommPatientInsert = new SqlCommand(
+                        " Update clinics set clinicname = @clinicname, clinicaddress = @clinicaddress, clinicsector = @clinicsector, clinicstate = @clinicstate, cliniccity = @cliniccity," +
+                        " clinicmobilenumber = @clinicmobilenumber, mobilenumber = @mobilenumber, name = @name, email=@email, clinicemail = @clinicemail, clinicwebsite=@clinicwebsite, clinicstreet = @clinicstreet, " +
+                        "clinicpincode=@clinicpincode, clinicadvertisement=@clinicadvertisement, logo=@logo where Id = '"+Obj.Id+"'", conn))
+                        {
+                            sqlCommPatientInsert.CommandType = CommandType.Text;
+
+                            
+                            sqlCommPatientInsert.Parameters.AddWithValue("@clinicname", Obj.clinicname ?? (object)DBNull.Value);
+                            sqlCommPatientInsert.Parameters.AddWithValue("@clinicaddress", Obj.clinicaddress ?? (object)DBNull.Value);
+                            sqlCommPatientInsert.Parameters.AddWithValue("@clinicsector", Obj.clinicsector ?? (object)DBNull.Value);
+                            sqlCommPatientInsert.Parameters.AddWithValue("@clinicstate", Obj.clinicstate ?? (object)DBNull.Value);
+                            sqlCommPatientInsert.Parameters.AddWithValue("@cliniccity", Obj.cliniccity ?? (object)DBNull.Value);
+                            sqlCommPatientInsert.Parameters.AddWithValue("@clinicmobilenumber", Obj.clinicmobilenumber ?? (object)DBNull.Value);
+                            sqlCommPatientInsert.Parameters.AddWithValue("@mobilenumber", Obj.mobilenumber ?? (object)DBNull.Value);
+                            sqlCommPatientInsert.Parameters.AddWithValue("@name", Obj.name ?? (object)DBNull.Value);
+                            sqlCommPatientInsert.Parameters.AddWithValue("@email", Obj.email ?? (object)DBNull.Value);
+                            sqlCommPatientInsert.Parameters.AddWithValue("@idproof", Obj.idproof ?? (object)DBNull.Value);
+                            sqlCommPatientInsert.Parameters.AddWithValue("@clinicemail", Obj.clinicemail ?? (object)DBNull.Value);
+                            sqlCommPatientInsert.Parameters.AddWithValue("@clinicwebsite", Obj.clinicwebsite ?? (object)DBNull.Value);
+                            sqlCommPatientInsert.Parameters.AddWithValue("@clinicstreet", Obj.clinicstreet ?? (object)DBNull.Value);
+                            sqlCommPatientInsert.Parameters.AddWithValue("@clinicpincode", Obj.clinicpincode ?? (object)DBNull.Value);
+                            sqlCommPatientInsert.Parameters.AddWithValue("@clinicadvertisement", Obj.clinicadvertisement ?? (object)DBNull.Value);
+                            //sqlCommPatientInsert.Parameters.AddWithValue("@selectidproofimage", Obj.selectidproofimage ?? (object)DBNull.Value);
+                            //sqlCommPatientInsert.Parameters.AddWithValue("@userId", Obj.userId ?? (object)DBNull.Value);
+                            //sqlCommPatientInsert.Parameters.AddWithValue("@selected_plan", Obj.selected_plan ?? (object)DBNull.Value);
+                            sqlCommPatientInsert.Parameters.AddWithValue("@logo", Obj.logo ?? (object)DBNull.Value);
+                            //sqlCommPatientInsert.Parameters.AddWithValue("@subscription_start_date", Obj.subscription_start_date ?? (object)DBNull.Value);
+                            //sqlCommPatientInsert.Parameters.AddWithValue("@subscription_end_date", Obj.subscription_end_date ?? (object)DBNull.Value);
+                            //sqlCommPatientInsert.Parameters.AddWithValue("@registerd_by_number", Obj.registerd_by_number ?? (object)DBNull.Value);
+                            //sqlCommPatientInsert.Parameters.AddWithValue("@free_trail_available", Obj.free_trail_available ?? (object)DBNull.Value);
+                            //sqlCommPatientInsert.Parameters.AddWithValue("@free_sms_available", Obj.free_sms_available ?? (object)DBNull.Value);
+                            //sqlCommPatientInsert.Parameters.AddWithValue("@clinic_info_completed", Obj.clinic_info_completed ?? (object)DBNull.Value);
+                            //sqlCommPatientInsert.Parameters.AddWithValue("@is_using_free_trial", Obj.is_using_free_trial ?? (object)DBNull.Value);
+                            //sqlCommPatientInsert.Parameters.AddWithValue("@free_trial_taken_date", Obj.free_trial_taken_date ?? (object)DBNull.Value);
+
+
+                            conn.Open();
+                            sqlCommPatientInsert.ExecuteNonQuery();
+                        }
+
+
+                        msg = "Clinic Successfully Updated";
+
+
+                        statuscode = "200";
+                        errorcode = "false";
+
+                    }
+                    catch (Exception ex)
+                    {
+                        msg = ex.Message;
+                        statuscode = "201";
+                        errorcode = "true";
+
+                    }
+                    finally
+                    {
+                        conn.Close();
+                    }
+
+                }
+            }
+
+            result.message = msg;
+            result.statusCode = statuscode;
+            result.error = errorcode;
+            result.data = dynamicDt;
+            return result; ;
+
+        }
+
     }
 }
