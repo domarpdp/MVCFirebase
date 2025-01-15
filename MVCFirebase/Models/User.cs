@@ -15,6 +15,10 @@ namespace MVCFirebase.Models
         public string clinicmobilenumber { get; set; }
 
         [FirestoreProperty]
+        [Display(Name = "Clinic Code:")]
+        public string cliniccode { get; set; }
+
+        [FirestoreProperty]
         [Display(Name = "Mobile Number:")]
         [Required(ErrorMessage = "Required.")]
         [RegularExpression(@"^([0-9]{10})$", ErrorMessage = "Invalid Mobile Number.")]

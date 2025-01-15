@@ -25,7 +25,32 @@
 <script type="text/javascript">
     $(function () {
         var d = new Date($.now());
-        var formattedDate = (d.getMonth() + 1) + "/" + d.getDate() + "/" + d.getFullYear() + " " + d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds();
+        //var formattedDate = (d.getMonth() + 1) + "/" + d.getDate() + "/" + d.getFullYear() + " " + d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds();
+
+        var d = new Date($.now());
+        //var formattedDate = (d.getMonth() + 1) + "/" + d.getDate() + "/" + d.getFullYear() + " " + d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds();
+
+        var d = new Date($.now());
+
+        // Array of month names
+        var monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+        // Get the components of the date
+        var day = d.getDate();
+        var month = monthNames[d.getMonth()]; // Get the month name from the array
+        var year = d.getFullYear();
+        var hours = d.getHours();
+        var minutes = d.getMinutes();
+        var seconds = d.getSeconds();
+
+        // Add leading zero to day, hours, minutes, and seconds if needed
+        day = day < 10 ? "0" + day : day;
+        hours = hours < 10 ? "0" + hours : hours;
+        minutes = minutes < 10 ? "0" + minutes : minutes;
+        seconds = seconds < 10 ? "0" + seconds : seconds;
+
+        // Format the date as dd-MMM-yyyy HH:mm:ss
+        var formattedDate = day + "-" + month + "-" + year + " " + hours + ":" + minutes + ":" + seconds;
         $("#appointment_date").val(formattedDate);
         $.ajax({
             //base address/controller/Action
@@ -109,7 +134,8 @@
             $('#lblTokenNumber').hide();
         }
         $("#appointment_date").datetimepicker({
-            minDate: 0
+            dateFormat: 'dd-M-yy', // Set the date format
+            minDate: 0 // Disallow past dates
         }).attr('readonly', 'readonly').change(function () {
             $('#tokenNumber').html('');
             var selection1 = $('#appointment_date').val();

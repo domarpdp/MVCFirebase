@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using System.Web.Security;
 
 namespace MVCFirebase.Controllers
 {
@@ -14,6 +15,22 @@ namespace MVCFirebase.Controllers
         // GET: Image
         public async Task<ActionResult> Index(string id,string patient)
         {
+
+            var authCookie = Request.Cookies[FormsAuthentication.FormsCookieName];
+            string savedString = "";
+            string ClinicMobileNumber = "";
+            string ClinicFirebaseDocumentId = "";
+            if (authCookie != null)
+            {
+                var ticket = FormsAuthentication.Decrypt(authCookie.Value);
+                if (ticket != null)
+                {
+                    savedString = ticket.Name; // Get the stored string
+                    ClinicMobileNumber = savedString.Split('|')[3];
+                    ClinicFirebaseDocumentId = savedString.Split('|')[4];
+                }
+            }
+
             ImageModel _objuserloginmodel = new ImageModel();
             ViewBag.SelectedId = 0;
             TempData["SelectedId"] = 0;
@@ -30,7 +47,7 @@ namespace MVCFirebase.Controllers
             int i = 1;
 
 
-            Query QrefPrescriptions = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("patientList").Document(patient).Collection("prescriptions").OrderByDescending("timeStamp");
+            Query QrefPrescriptions = db.Collection("clinics").Document(ClinicFirebaseDocumentId).Collection("patientList").Document(patient).Collection("prescriptions").OrderByDescending("timeStamp");
             
 
             QuerySnapshot snapPres = await QrefPrescriptions.GetSnapshotAsync();
@@ -58,7 +75,7 @@ namespace MVCFirebase.Controllers
             decimal totalprice = 0;
 
             List<Medicine> medicineList = new List<Medicine>();
-            Query QrefMedicines = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("appointments").Document(id).Collection("medicines");
+            Query QrefMedicines = db.Collection("clinics").Document(ClinicFirebaseDocumentId).Collection("appointments").Document(id).Collection("medicines");
             QuerySnapshot snapMedicines = await QrefMedicines.GetSnapshotAsync();
 
             if (snapMedicines.Count > 0)
@@ -84,7 +101,7 @@ namespace MVCFirebase.Controllers
             TempData["medicine"] = medicineList;
             
             
-            QuerySnapshot snapSettings = await db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("settings").Limit(1).GetSnapshotAsync();
+            QuerySnapshot snapSettings = await db.Collection("clinics").Document(ClinicFirebaseDocumentId).Collection("settings").Limit(1).GetSnapshotAsync();
             if (snapSettings.Count > 0)
             {
                 DocumentSnapshot docSnapSettings = snapSettings.Documents[0];
@@ -114,7 +131,7 @@ namespace MVCFirebase.Controllers
                 }
             }
 
-            DocumentReference docRef = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("appointments").Document(id);
+            DocumentReference docRef = db.Collection("clinics").Document(ClinicFirebaseDocumentId).Collection("appointments").Document(id);
             DocumentSnapshot docSnap = await docRef.GetSnapshotAsync();
 
             totalprice = totalprice + Convert.ToInt32(docSnap.GetValue<string>("fee"));
@@ -169,20 +186,35 @@ namespace MVCFirebase.Controllers
         [HttpPost]
         public async Task<ActionResult> GetNextOrPrevImage(ImageViewModel SelectedImage, string ButtonType)
         {
+            var authCookie = Request.Cookies[FormsAuthentication.FormsCookieName];
+            string savedString = "";
+            string ClinicMobileNumber = "";
+            string ClinicFirebaseDocumentId = "";
+            if (authCookie != null)
+            {
+                var ticket = FormsAuthentication.Decrypt(authCookie.Value);
+                if (ticket != null)
+                {
+                    savedString = ticket.Name; // Get the stored string
+                    ClinicMobileNumber = savedString.Split('|')[3];
+                    ClinicFirebaseDocumentId = savedString.Split('|')[4];
+                }
+            }
+
             ImageModel _objuserloginmodel = new ImageModel();
             string patientAutoId = TempData["patientAutoId"].ToString();
             //List<ImageViewModel> GetList = _objuserloginmodel.GetList();
 
             List<ImageViewModel> GetList = new List<ImageViewModel>();
 
-            string ClinicMobileNumber = GlobalSessionVariables.ClinicMobileNumber;
+            
             string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
             Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
             FirestoreDb db = FirestoreDb.Create("greenpaperdev");
             int i = 1;
             
 
-            Query QrefPrescriptions = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("patientList").Document(patientAutoId).Collection("prescriptions").OrderByDescending("timeStamp");
+            Query QrefPrescriptions = db.Collection("clinics").Document(ClinicFirebaseDocumentId).Collection("patientList").Document(patientAutoId).Collection("prescriptions").OrderByDescending("timeStamp");
             QuerySnapshot snapPres = await QrefPrescriptions.GetSnapshotAsync();
             if (snapPres.Count > 0)
             {
@@ -224,6 +256,20 @@ namespace MVCFirebase.Controllers
         [HttpPost]
         public async Task<ActionResult> Submit()
         {
+            var authCookie = Request.Cookies[FormsAuthentication.FormsCookieName];
+            string savedString = "";
+            string ClinicMobileNumber = "";
+            string ClinicFirebaseDocumentId = "";
+            if (authCookie != null)
+            {
+                var ticket = FormsAuthentication.Decrypt(authCookie.Value);
+                if (ticket != null)
+                {
+                    savedString = ticket.Name; // Get the stored string
+                    ClinicMobileNumber = savedString.Split('|')[3];
+                    ClinicFirebaseDocumentId = savedString.Split('|')[4];
+                }
+            }
             try
             {
                 string patientAutoId = TempData["patientAutoId"].ToString();
@@ -233,7 +279,7 @@ namespace MVCFirebase.Controllers
                 Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
                 FirestoreDb db = FirestoreDb.Create("greenpaperdev");
 
-                DocumentReference docRef = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("appointments").Document(appointmentAutoId);
+                DocumentReference docRef = db.Collection("clinics").Document(ClinicFirebaseDocumentId).Collection("appointments").Document(appointmentAutoId);
                 DocumentSnapshot docSnap = await docRef.GetSnapshotAsync();
 
                 if (docSnap.Exists)
@@ -260,7 +306,22 @@ namespace MVCFirebase.Controllers
 
         public async Task<ActionResult> MedicineDetail(string query)
         {
-            string ClinicMobileNumber = GlobalSessionVariables.ClinicMobileNumber;
+            var authCookie = Request.Cookies[FormsAuthentication.FormsCookieName];
+            string savedString = "";
+            string ClinicMobileNumber = "";
+            string ClinicFirebaseDocumentId = "";
+            if (authCookie != null)
+            {
+                var ticket = FormsAuthentication.Decrypt(authCookie.Value);
+                if (ticket != null)
+                {
+                    savedString = ticket.Name; // Get the stored string
+                    ClinicMobileNumber = savedString.Split('|')[3];
+                    ClinicFirebaseDocumentId = savedString.Split('|')[4];
+                }
+            }
+
+            //string ClinicMobileNumber = GlobalSessionVariables.ClinicMobileNumber;
             string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
             Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
             FirestoreDb db = FirestoreDb.Create("greenpaperdev");
@@ -295,11 +356,26 @@ namespace MVCFirebase.Controllers
         [HttpPost]
         public async Task<JsonResult> AutoComplete(string prefix)//I think that the id that you are passing here needs to be the search term. You may not have to change anything here, but you do in the $.ajax() call
         {
+            var authCookie = Request.Cookies[FormsAuthentication.FormsCookieName];
+            string savedString = "";
+            string ClinicMobileNumber = "";
+            string ClinicFirebaseDocumentId = "";
+            if (authCookie != null)
+            {
+                var ticket = FormsAuthentication.Decrypt(authCookie.Value);
+                if (ticket != null)
+                {
+                    savedString = ticket.Name; // Get the stored string
+                    ClinicMobileNumber = savedString.Split('|')[3];
+                    ClinicFirebaseDocumentId = savedString.Split('|')[4];
+                }
+            }
+
             List<autocomplete> autocompleteList = new List<autocomplete>();
             try
             {//prefix = Request.QueryString["term"];
 
-                string ClinicMobileNumber = GlobalSessionVariables.ClinicMobileNumber;
+                //string ClinicMobileNumber = GlobalSessionVariables.ClinicMobileNumber;
                 string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
                 Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
                 FirestoreDb db = FirestoreDb.Create("greenpaperdev");

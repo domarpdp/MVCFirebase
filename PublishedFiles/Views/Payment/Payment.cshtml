@@ -28,6 +28,12 @@
         <div class="card p-5">
             <div class="card-header bg-transparent">
                 <p class="">Clinic Code: @ViewBag.ClinicCode</p>
+                <p class="">Order Type: @ViewBag.OrderType</p>
+                <p class="">Plan Id: @ViewBag.PlanId</p>
+                <p class="">Order Amount: @ViewBag.OrderAmount</p>
+                <p class="">Key: @ViewBag.Key</p>
+                <p class="">Order Id: @ViewBag.OrderId</p>
+
             </div>
             <div class="card-header mb-2">
                 <h2 class="card-title">Proceed with Payment</h2>
@@ -42,16 +48,17 @@
 <script>
     var options = {
         "key": "@ViewBag.Key", // Enter the Key ID generated from the Dashboard
-        "amount": "@ViewBag.Amount * 100", // Amount in paise
+        //"amount": "@ViewBag.OrderAmount * 100", // Amount in paise
         "currency": "INR",
-        "name": "Your Company Name",
+        "name": "Green Paper Technology",
         "description": "Test Transaction",
         "order_id": "@ViewBag.OrderId", // Order ID
         "clinicCode": "@ViewBag.ClinicCode",
         "orderType": "@ViewBag.OrderType",
         "orderAmount": "@ViewBag.OrderAmount",
+        "plan_id":"@ViewBag.PlanId",
         "handler": function (response) {
-            window.location.href = "/Payment/PaymentSuccess?payment_id=" + response.razorpay_payment_id + "&order_id=" + response.razorpay_order_id + "&signature=" + response.razorpay_signature + "&clinicCode=" + options.clinicCode + "&orderType=" + options.orderType + "&orderAmount=" + options.orderAmount;
+            window.location.href = "/Payment/PaymentSuccess?payment_id=" + response.razorpay_payment_id + "&order_id=" + response.razorpay_order_id + "&signature=" + response.razorpay_signature + "&clinicCode=" + options.clinicCode + "&orderType=" + options.orderType + "&orderAmount=" + options.orderAmount + "&plan_id=" + options.plan_id;
         },
         "prefill": {
             "name": "Customer Name",

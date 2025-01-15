@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using System.Web.Security;
 
 namespace MVCFirebase.Controllers
 {
@@ -17,7 +18,22 @@ namespace MVCFirebase.Controllers
         
         public async Task<ActionResult> Index()
         {
-            string ClinicMobileNumber = GlobalSessionVariables.ClinicMobileNumber;
+            var authCookie = Request.Cookies[FormsAuthentication.FormsCookieName];
+            string savedString = "";
+            string ClinicMobileNumber = "";
+            string ClinicFirebaseDocumentId = "";
+            if (authCookie != null)
+            {
+                var ticket = FormsAuthentication.Decrypt(authCookie.Value);
+                if (ticket != null)
+                {
+                    savedString = ticket.Name; // Get the stored string
+                    ClinicMobileNumber = savedString.Split('|')[3];
+                    ClinicFirebaseDocumentId = savedString.Split('|')[4];
+                }
+            }
+
+            //string ClinicMobileNumber = GlobalSessionVariables.ClinicMobileNumber;
            
             string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
             Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
@@ -83,6 +99,21 @@ namespace MVCFirebase.Controllers
         [HttpPost]
         public async Task<ActionResult> Create(Inventory inventory)
         {
+            var authCookie = Request.Cookies[FormsAuthentication.FormsCookieName];
+            string savedString = "";
+            string ClinicMobileNumber = "";
+            string ClinicFirebaseDocumentId = "";
+            if (authCookie != null)
+            {
+                var ticket = FormsAuthentication.Decrypt(authCookie.Value);
+                if (ticket != null)
+                {
+                    savedString = ticket.Name; // Get the stored string
+                    ClinicMobileNumber = savedString.Split('|')[3];
+                    ClinicFirebaseDocumentId = savedString.Split('|')[4];
+                }
+            }
+
             try
             {
                 if (ModelState.IsValid)
@@ -94,7 +125,7 @@ namespace MVCFirebase.Controllers
 
 
                     //CollectionReference col1 = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("patientList").Document("test");
-                    CollectionReference col1 = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("inventory");
+                    CollectionReference col1 = db.Collection("clinics").Document(ClinicFirebaseDocumentId).Collection("inventory");
 
 
                     Dictionary<string, object> data1 = new Dictionary<string, object>
@@ -136,12 +167,27 @@ namespace MVCFirebase.Controllers
         // GET: Inventory/Edit/5
         public async Task<ActionResult> Edit(string id)
         {
+            var authCookie = Request.Cookies[FormsAuthentication.FormsCookieName];
+            string savedString = "";
+            string ClinicMobileNumber = "";
+            string ClinicFirebaseDocumentId = "";
+            if (authCookie != null)
+            {
+                var ticket = FormsAuthentication.Decrypt(authCookie.Value);
+                if (ticket != null)
+                {
+                    savedString = ticket.Name; // Get the stored string
+                    ClinicMobileNumber = savedString.Split('|')[3];
+                    ClinicFirebaseDocumentId = savedString.Split('|')[4];
+                }
+            }
+
             string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
             Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
             FirestoreDb db = FirestoreDb.Create("greenpaperdev");
 
 
-            DocumentReference docRef = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("inventory").Document(id);
+            DocumentReference docRef = db.Collection("clinics").Document(ClinicFirebaseDocumentId).Collection("inventory").Document(id);
             DocumentSnapshot docsnapInventory = await docRef.GetSnapshotAsync();
             Inventory inventory = new Inventory();
             //Inventory inventory = docsnapInventory.ConvertTo<Inventory>();
@@ -171,6 +217,21 @@ namespace MVCFirebase.Controllers
         [HttpPost]
         public async Task<ActionResult> Edit(string id, Inventory inventory)
         {
+            var authCookie = Request.Cookies[FormsAuthentication.FormsCookieName];
+            string savedString = "";
+            string ClinicMobileNumber = "";
+            string ClinicFirebaseDocumentId = "";
+            if (authCookie != null)
+            {
+                var ticket = FormsAuthentication.Decrypt(authCookie.Value);
+                if (ticket != null)
+                {
+                    savedString = ticket.Name; // Get the stored string
+                    ClinicMobileNumber = savedString.Split('|')[3];
+                    ClinicFirebaseDocumentId = savedString.Split('|')[4];
+                }
+            }
+
             try
             {
                 string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
@@ -181,7 +242,7 @@ namespace MVCFirebase.Controllers
                 {
                     if (ModelState.IsValid)
                     {
-                        DocumentReference docRef = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("inventory").Document(id);
+                        DocumentReference docRef = db.Collection("clinics").Document(ClinicFirebaseDocumentId).Collection("inventory").Document(id);
                         DocumentSnapshot docSnap = await docRef.GetSnapshotAsync();
 
 
@@ -276,6 +337,23 @@ namespace MVCFirebase.Controllers
         [HttpPost]
         public async Task<ActionResult> AddMedicine(FormCollection collection)
         {
+            
+
+            var authCookie = Request.Cookies[FormsAuthentication.FormsCookieName];
+            string savedString = "";
+            string ClinicMobileNumber = "";
+            string ClinicFirebaseDocumentId = "";
+            if (authCookie != null)
+            {
+                var ticket = FormsAuthentication.Decrypt(authCookie.Value);
+                if (ticket != null)
+                {
+                    savedString = ticket.Name; // Get the stored string
+                    ClinicMobileNumber = savedString.Split('|')[3];
+                    ClinicFirebaseDocumentId = savedString.Split('|')[4];
+                }
+            }
+
             try
             {
                 string appautoid = collection["appointmentAutoId"];
@@ -289,7 +367,7 @@ namespace MVCFirebase.Controllers
 
 
                 //CollectionReference col1 = db.Collection("clinics").Document("ly0N6C9cO0crz0s6LMUi").Collection("appointments").Document(appautoid).Collection("medicines");
-                CollectionReference col1 = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("appointments").Document(appautoid).Collection("medicines");
+                CollectionReference col1 = db.Collection("clinics").Document(ClinicFirebaseDocumentId).Collection("appointments").Document(appautoid).Collection("medicines");
 
                 Dictionary<string, object> data1 = new Dictionary<string, object>
                     {
@@ -302,7 +380,7 @@ namespace MVCFirebase.Controllers
                 await col1.Document().SetAsync(data1);
 
 
-                DocumentReference docRef = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("inventory").Document(inventoryautoid);
+                DocumentReference docRef = db.Collection("clinics").Document(ClinicFirebaseDocumentId).Collection("inventory").Document(inventoryautoid);
                 DocumentSnapshot docSnap = await docRef.GetSnapshotAsync();
 
                 int updatedQuantityBalance = Convert.ToInt32(quantitybalance) - Convert.ToInt32(collection["Quantity"]);
@@ -352,6 +430,21 @@ namespace MVCFirebase.Controllers
         [HttpPost]
         public async Task<ActionResult> DeleteMedicine(string id,string appointmentid,string patientid,string quantity,string inventoryid)
         {
+            var authCookie = Request.Cookies[FormsAuthentication.FormsCookieName];
+            string savedString = "";
+            string ClinicMobileNumber = "";
+            string ClinicFirebaseDocumentId = "";
+            if (authCookie != null)
+            {
+                var ticket = FormsAuthentication.Decrypt(authCookie.Value);
+                if (ticket != null)
+                {
+                    savedString = ticket.Name; // Get the stored string
+                    ClinicMobileNumber = savedString.Split('|')[3];
+                    ClinicFirebaseDocumentId = savedString.Split('|')[4];
+                }
+            }
+
             try
             {
                 string appautoid = appointmentid;
@@ -362,10 +455,10 @@ namespace MVCFirebase.Controllers
                 FirestoreDb db = FirestoreDb.Create("greenpaperdev");
 
                 //CollectionReference col1 = db.Collection("clinics").Document("ly0N6C9cO0crz0s6LMUi").Collection("appointments").Document(appautoid).Collection("medicines");
-                DocumentReference docRef = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("appointments").Document(appautoid).Collection("medicines").Document(medicineId);
+                DocumentReference docRef = db.Collection("clinics").Document(ClinicFirebaseDocumentId).Collection("appointments").Document(appautoid).Collection("medicines").Document(medicineId);
                 await docRef.DeleteAsync();
 
-                DocumentReference docRefInventory = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("inventory").Document(inventoryid);
+                DocumentReference docRefInventory = db.Collection("clinics").Document(ClinicFirebaseDocumentId).Collection("inventory").Document(inventoryid);
                 DocumentSnapshot docSnapInventory = await docRefInventory.GetSnapshotAsync();
 
                 int updatedQuantityBalance = docSnapInventory.GetValue<int>("quantitybalance") + Convert.ToInt32(quantity);

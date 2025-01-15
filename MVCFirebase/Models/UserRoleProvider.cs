@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
@@ -45,49 +46,93 @@ namespace MVCFirebase.Models
         }
         public override string[] GetRolesForUser(string username)
         {
+
             string[] webapiuser = { "user" };
             string[] webapiadmin = { "admin" };
             string[] emptystring = { };
-            if (username == "WEBAPIUSER") {
-                return webapiuser;
+            //string logFilePath = HttpContext.Current.Server.MapPath("~/App_Data/RoleLogs.txt"); // Adjust the path as needed
+            string[] roles;
+
+            if (username == "WEBAPIUSER")
+            {
+                roles = webapiuser;
+
             }
             else if (username == "WEBAPIADMIN")
             {
-                return webapiadmin;
+                roles = webapiadmin;
+
             }
             else
             {
-                
-                if (HttpContext.Current.Session != null)//&& HttpContext.Current.Session["UserRoles"] != null
-                {
-                    
-                    GlobalSessionVariables.ClinicMobileNumber = username.Split('-')[3];
-                    GlobalSessionVariables.ClinicDocumentAutoId = username.Split('-')[4];
-                    GlobalSessionVariables.UserRoles = username.Split('-')[2];
 
-                    return username.Split('-')[2].Split(',');
-                    //return GlobalSessionVariables.UserRoles.Split(',');
-                }
-                else
+                if (string.IsNullOrEmpty(username) || !username.Contains('|'))
                 {
-                    return emptystring;
+                    return new string[] { }; // Return empty array if username is invalid
                 }
-                
+
+                try
+                {
+                    roles = username.Split('|')[2].Split('_');
+                    return roles;
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine("Error in GetRolesForUser: " + ex.Message);
+                    return new string[] { }; // Return empty roles on error
+                }
+
+
+                //if (HttpContext.Current.Session != null)//&& HttpContext.Current.Session["UserRoles"] != null
+                //{
+                //    //GlobalSessionVariables.ClinicMobileNumber = username.Split('|')[3];
+                //    //GlobalSessionVariables.ClinicDocumentAutoId = username.Split('|')[4];
+                //    //GlobalSessionVariables.ClinicCode = username.Split('|')[5];
+                //    //GlobalSessionVariables.UserRoles = username.Split('|')[2];
+
+                //    roles = username.Split('|')[2].Split('_');
+
+
+                //    //return GlobalSessionVariables.UserRoles.Split(',');
+                //}
+                //else
+                //{
+
+                //    roles = emptystring;
+
+                //}
+
             }
-            
-            //using (ExportExcelEntities context = new ExportExcelEntities())
-            //{
-            //    var userRoles = (from user in context.Users
-            //                     join roleMapping in context.UserRolesMappings
-            //                     on user.ID equals roleMapping.UserID
-            //                     join role in context.RoleMasters
-            //                     on roleMapping.RoleID equals role.ID
-            //                     where user.UserName == username
-            //                     select role.RollName).ToArray();
-            //    return userRoles;
-            //}
+
+            // Log roles to the text file
+            //LogRolesToFile(username, roles, logFilePath);
+
+            return roles;
+
+
+
+
         }
 
+        private void LogRolesToFile(string username, string[] roles, string logFilePath)
+        {
+            try
+            {
+                string roleString = string.Join(", ", roles);
+                string logEntry = $"Username: {username}, Roles: {roleString}, Timestamp: {DateTime.Now}\n";
+
+                // Ensure the directory exists
+                Directory.CreateDirectory(Path.GetDirectoryName(logFilePath));
+
+                // Append the log entry to the file
+                File.AppendAllText(logFilePath, logEntry);
+            }
+            catch (Exception ex)
+            {
+                // Log exception if needed, but avoid throwing to ensure the main functionality isn't affected
+                File.AppendAllText(logFilePath, $"Error logging roles for {username}: {ex.Message}\n");
+            }
+        }
 
         public override string[] GetUsersInRole(string roleName)
         {
@@ -95,7 +140,10 @@ namespace MVCFirebase.Models
         }
         public override bool IsUserInRole(string username, string roleName)
         {
-            throw new NotImplementedException();
+            var roles = GetRolesForUser(username);
+
+            return roles.Contains(roleName, StringComparer.OrdinalIgnoreCase);
+
         }
         public override void RemoveUsersFromRoles(string[] usernames, string[] roleNames)
         {

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using System.Web.Security;
 
 namespace MVCFirebase.Controllers
 {
@@ -14,7 +15,22 @@ namespace MVCFirebase.Controllers
         // GET: ClinicSetting
         public async Task<ActionResult> Index()
         {
-            string ClinicMobileNumber = GlobalSessionVariables.ClinicMobileNumber;
+            var authCookie = Request.Cookies[FormsAuthentication.FormsCookieName];
+            string savedString = "";
+            string ClinicMobileNumber = "";
+            string ClinicFirebaseDocumentId = "";
+            if (authCookie != null)
+            {
+                var ticket = FormsAuthentication.Decrypt(authCookie.Value);
+                if (ticket != null)
+                {
+                    savedString = ticket.Name; // Get the stored string
+                    ClinicMobileNumber = savedString.Split('|')[3];
+                    ClinicFirebaseDocumentId = savedString.Split('|')[4];
+                }
+            }
+
+            //string ClinicMobileNumber = GlobalSessionVariables.ClinicMobileNumber;
             string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
             Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
             FirestoreDb db = FirestoreDb.Create("greenpaperdev");
@@ -96,7 +112,22 @@ namespace MVCFirebase.Controllers
         [HttpPost]
         public async Task<ActionResult> Create(ClinicSettings settings)
         {
-            string ClinicMobileNumber = GlobalSessionVariables.ClinicMobileNumber;
+            var authCookie = Request.Cookies[FormsAuthentication.FormsCookieName];
+            string savedString = "";
+            string ClinicMobileNumber = "";
+            string ClinicFirebaseDocumentId = "";
+            if (authCookie != null)
+            {
+                var ticket = FormsAuthentication.Decrypt(authCookie.Value);
+                if (ticket != null)
+                {
+                    savedString = ticket.Name; // Get the stored string
+                    ClinicMobileNumber = savedString.Split('|')[3];
+                    ClinicFirebaseDocumentId = savedString.Split('|')[4];
+                }
+            }
+
+            //string ClinicMobileNumber = GlobalSessionVariables.ClinicMobileNumber;
             try
             {
                 List<SelectListItem> whofirst = new List<SelectListItem>() {
@@ -117,12 +148,12 @@ namespace MVCFirebase.Controllers
                     Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
                     FirestoreDb db = FirestoreDb.Create("greenpaperdev");
 
-                    Query QrefSettings = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("settings");
+                    Query QrefSettings = db.Collection("clinics").Document(ClinicFirebaseDocumentId).Collection("settings");
                     QuerySnapshot snapSettings = await QrefSettings.GetSnapshotAsync();
 
                     if (snapSettings.Count == 0)
                     {
-                        CollectionReference col1 = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("settings");
+                        CollectionReference col1 = db.Collection("clinics").Document(ClinicFirebaseDocumentId).Collection("settings");
                         Dictionary<string, object> data1 = new Dictionary<string, object>
                             {
                                 {"bill_sms" ,settings.bill_sms},
@@ -162,6 +193,21 @@ namespace MVCFirebase.Controllers
         // GET: ClinicSetting/Edit/5
         public async Task<ActionResult> Edit(string id)
         {
+            var authCookie = Request.Cookies[FormsAuthentication.FormsCookieName];
+            string savedString = "";
+            string ClinicMobileNumber = "";
+            string ClinicFirebaseDocumentId = "";
+            if (authCookie != null)
+            {
+                var ticket = FormsAuthentication.Decrypt(authCookie.Value);
+                if (ticket != null)
+                {
+                    savedString = ticket.Name; // Get the stored string
+                    ClinicMobileNumber = savedString.Split('|')[3];
+                    ClinicFirebaseDocumentId = savedString.Split('|')[4];
+                }
+            }
+
             List<SelectListItem> whofirst = new List<SelectListItem>() {
                 new SelectListItem {
                     Text = "Chemist", Value = "Chemist"
@@ -177,7 +223,7 @@ namespace MVCFirebase.Controllers
             FirestoreDb db = FirestoreDb.Create("greenpaperdev");
 
                         
-            DocumentReference docRef = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("settings").Document(id);
+            DocumentReference docRef = db.Collection("clinics").Document(ClinicFirebaseDocumentId).Collection("settings").Document(id);
             DocumentSnapshot docsnapSettings = await docRef.GetSnapshotAsync();
             ClinicSettings settings = new ClinicSettings();
             settings.bill_sms = docsnapSettings.GetValue<bool>("bill_sms");
@@ -210,6 +256,21 @@ namespace MVCFirebase.Controllers
         [HttpPost]
         public async Task<ActionResult> Edit(string id, ClinicSettings settings)
         {
+            var authCookie = Request.Cookies[FormsAuthentication.FormsCookieName];
+            string savedString = "";
+            string ClinicMobileNumber = "";
+            string ClinicFirebaseDocumentId = "";
+            if (authCookie != null)
+            {
+                var ticket = FormsAuthentication.Decrypt(authCookie.Value);
+                if (ticket != null)
+                {
+                    savedString = ticket.Name; // Get the stored string
+                    ClinicMobileNumber = savedString.Split('|')[3];
+                    ClinicFirebaseDocumentId = savedString.Split('|')[4];
+                }
+            }
+
             List<SelectListItem> whofirst = new List<SelectListItem>() {
                 new SelectListItem {
                     Text = "Chemist", Value = "Chemist"
@@ -227,7 +288,7 @@ namespace MVCFirebase.Controllers
                     Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
                     FirestoreDb db = FirestoreDb.Create("greenpaperdev");
 
-                    DocumentReference docRef = db.Collection("clinics").Document(GlobalSessionVariables.ClinicDocumentAutoId).Collection("settings").Document(id);
+                    DocumentReference docRef = db.Collection("clinics").Document(ClinicFirebaseDocumentId).Collection("settings").Document(id);
                     DocumentSnapshot docSnap = await docRef.GetSnapshotAsync();
 
 

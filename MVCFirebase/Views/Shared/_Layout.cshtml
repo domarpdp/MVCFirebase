@@ -69,7 +69,8 @@
                 @if (User.Identity.IsAuthenticated)
                 {
                     <ul class="nav navbar-nav navbar-right">
-                        <li><a class="nav-link" href="#"><span class="glyphicon glyphicon-user"></span><b>@HttpContext.Current.User.Identity.Name.Split('-')[1]</b></a></li>
+                        @*<li><a class="nav-link" href="#"><span class="glyphicon glyphicon-user"></span><b>@HttpContext.Current.User.Identity.Name.Split('|')[1]</b></a></li>*@
+                        <li><a class="nav-link" href="#"><span class="glyphicon glyphicon-user"></span><b>@HttpContext.Current.User.Identity.Name.Split('|')[1]</b></a></li>
                         <li>
                             @using (Html.BeginForm("Logout", "Home", FormMethod.Post))
                             {
