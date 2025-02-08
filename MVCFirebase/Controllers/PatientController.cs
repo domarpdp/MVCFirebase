@@ -16,42 +16,26 @@ namespace MVCFirebase.Controllers
 {
 
 
-    [AccessDeniedAuthorize(Roles = "Receptionist")]
+    [AccessDeniedAuthorize(Roles = "Receptionist, Doctor")]
     //[Authorize(Roles = "Receptionist")]
     public class PatientController : Controller
     {
         // GET: Patient
 
+        private readonly FirestoreDb _db;
 
+        public PatientController()
+        {
+            var firestoreService = (FirestoreService)System.Web.HttpContext.Current.Application["FirestoreService"];
+            _db = firestoreService.GetDb();
+        }
         public async Task<ActionResult> Index()
         {
             string ClinicMobileNumber = "";
             string ClinicFirebaseDocumentId = "";
-            //var claimsIdentity = User.Identity as ClaimsIdentity;
             
-            //if (claimsIdentity != null)
-            //{
-            //    // Find the "MobileNumber" claim
-            //    var mobile_number = claimsIdentity.FindFirst("mobile_number")?.Value;
-            //    var documentid = claimsIdentity.FindFirst("documentid")?.Value;
-
-            //    // Use the values as needed
-            //    //ViewBag.MobileNumber = mobile_number;
-            //    //ViewBag.documentid = documentid;
-
-            //    ClinicMobileNumber = mobile_number;
-            //    ClinicFirebaseDocumentId = documentid;
-
-            //    var roles = claimsIdentity?.FindAll(ClaimTypes.Role).Select(c => c.Value).ToList();
-
-            //}
             string search = "";
-            //var userName = User.Identity.Name;
-            //var roles = Roles.GetRolesForUser(userName);
-
-            //string allRoles = "";
-
-            
+           
 
             string msg = "";
             List<Patient> PatientList = new List<Patient>();
@@ -3783,8 +3767,8 @@ namespace MVCFirebase.Controllers
                                 {"assigned_tokens" ,null},
                                 {"clinicCode" ,ClinicCode},
                                 {"clinicId" ,ClinicFirebaseDocumentId},
-                                {"isCreated" ,"true"},
-                                {"isSynced" ,"true"},
+                                {"isCreated" ,true},
+                                {"isSynced" ,true},
                                 {"UpdatedAt" ,DateTime.SpecifyKind(DateTime.Now.AddHours(-5).AddMinutes(-30), DateTimeKind.Utc)},
                             };
                 await colTokenNumber.Document(futAppDate.ToString("dd_MM_yyyy")).SetAsync(dataTokenNumber);
@@ -3889,8 +3873,8 @@ namespace MVCFirebase.Controllers
                                 {"assigned_tokens" ,assignedtokenList.ToArray()},
                                 {"clinicCode" ,ClinicCode},
                                 {"clinicId" ,ClinicFirebaseDocumentId},
-                                {"isCreated" ,"true"},
-                                {"isSynced" ,"true"},
+                                {"isCreated" ,true},
+                                {"isSynced" ,true},
                                 {"UpdatedAt" ,DateTime.SpecifyKind(DateTime.Now.AddHours(-5).AddMinutes(-30), DateTimeKind.Utc)},
                             };
                             await colTokenNumber.Document(futAppDate.ToString("dd_MM_yyyy")).SetAsync(dataTokenNumber);
@@ -3903,8 +3887,8 @@ namespace MVCFirebase.Controllers
                                 {"assigned_tokens" ,null},
                                 {"clinicCode" ,ClinicCode},
                                 {"clinicId" ,ClinicFirebaseDocumentId},
-                                {"isCreated" ,"true"},
-                                {"isSynced" ,"true"},
+                                {"isCreated" ,true},
+                                {"isSynced" ,true},
                                 {"UpdatedAt" ,DateTime.SpecifyKind(DateTime.Now.AddHours(-5).AddMinutes(-30), DateTimeKind.Utc)},
                             };
                             await colTokenNumber.Document(futAppDate.ToString("dd_MM_yyyy")).SetAsync(dataTokenNumber);
@@ -3943,8 +3927,8 @@ namespace MVCFirebase.Controllers
                                 {"assigned_tokens" ,assignedtokenList.ToArray()},
                                 {"clinicCode" ,ClinicCode},
                                 {"clinicId" ,ClinicFirebaseDocumentId},
-                                {"isCreated" ,"true"},
-                                {"isSynced" ,"true"},
+                                {"isCreated" ,true},
+                                {"isSynced" ,true},
                                 {"UpdatedAt" ,DateTime.SpecifyKind(DateTime.Now.AddHours(-5).AddMinutes(-30), DateTimeKind.Utc)},
 
 
@@ -3963,8 +3947,8 @@ namespace MVCFirebase.Controllers
                                 {"assigned_tokens" ,null},
                                 {"clinicCode" ,ClinicCode},
                                 {"clinicId" ,ClinicFirebaseDocumentId},
-                                {"isCreated" ,"true"},
-                                {"isSynced" ,"true"},
+                                {"isCreated" ,true},
+                                {"isSynced" ,true},
                                 {"UpdatedAt" ,DateTime.SpecifyKind(DateTime.Now.AddHours(-5).AddMinutes(-30), DateTimeKind.Utc)},
                             };
                         await colTokenNumber.Document(futAppDate.ToString("dd_MM_yyyy")).SetAsync(dataTokenNumber);
@@ -4011,8 +3995,8 @@ namespace MVCFirebase.Controllers
                             {"assigned_tokens" ,assignedtokenList.ToArray()},
                             {"clinicCode" ,ClinicCode},
                             {"clinicId" ,ClinicFirebaseDocumentId},
-                            {"isCreated" ,"true"},
-                            {"isSynced" ,"true"},
+                            {"isCreated" ,true},
+                            {"isSynced" ,true},
                             {"UpdatedAt" ,DateTime.SpecifyKind(DateTime.Now.AddHours(-5).AddMinutes(-30), DateTimeKind.Utc)},
                         };
                         await colTokenNumber.Document(futAppDate.ToString("dd_MM_yyyy")).SetAsync(dataTokenNumber);

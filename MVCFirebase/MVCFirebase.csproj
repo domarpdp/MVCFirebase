@@ -405,6 +405,8 @@
     <Compile Include="Models\AccountLoginModel.cs" />
     <Compile Include="Models\Appointment.cs" />
     <Compile Include="Models\AppointmentAPI.cs" />
+    <Compile Include="Models\AppointmentPatientViewModel.cs" />
+    <Compile Include="Models\AppointmentsCount.cs" />
     <Compile Include="Models\AuthenticateJWT.cs" />
     <Compile Include="Models\autocomplete.cs" />
     <Compile Include="Models\CheckSessionTimeOutAttribute.cs" />
@@ -413,6 +415,7 @@
     <Compile Include="Models\ClinicAPI.cs" />
     <Compile Include="Models\ClinicSettings.cs" />
     <Compile Include="Models\CRM.cs" />
+    <Compile Include="Models\FirestoreService.cs" />
     <Compile Include="Models\GenericAPIResult.cs" />
     <Compile Include="Models\GlobalSessionVariables.cs" />
     <Compile Include="Models\ImageModel.cs" />
@@ -446,6 +449,8 @@
     <Content Include="Content\bootstrap-theme.min.css" />
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
+    <Content Include="Content\favicon.ico" />
+    <Content Include="Content\favicon.png" />
     <Content Include="Content\PagedList.css" />
     <Content Include="Content\style.css" />
     <Content Include="favicon.ico" />
@@ -453,7 +458,9 @@
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
     <Content Include="Images\Downloading.gif" />
+    <Content Include="Images\loader.gif" />
     <Content Include="Images\logo copy.png" />
+    <Content Include="Images\Spinner-3.gif" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
     <Content Include="myfastingapp-bd6ec.json">
@@ -462,6 +469,7 @@
     <Content Include="greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json" />
     <Content Include="Content\JsonFiles\city.json" />
     <Content Include="Content\JsonFiles\cities.json" />
+    <Content Include="Content\manifest.json" />
     <None Include="Properties\PublishProfiles\FolderProfile.pubxml" />
     <None Include="Properties\PublishProfiles\FTPProfile.pubxml" />
     <None Include="Scripts\jquery-3.4.1.intellisense.js" />
@@ -480,6 +488,7 @@
     <Content Include="Scripts\jquery.validate.unobtrusive.min.js" />
     <Content Include="Scripts\modernizr-2.8.3.js" />
     <Content Include="Scripts\Scripts.js" />
+    <Content Include="Scripts\service-worker.js" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
@@ -533,6 +542,10 @@
     <Content Include="Views\Payment\Success.cshtml" />
     <Content Include="Views\Payment\Error.cshtml" />
     <Content Include="Views\Payment\OrderStatus.cshtml" />
+    <Content Include="Views\Appointment\Doctor.cshtml" />
+    <Content Include="Views\Appointment\_PatientListPartial.cshtml" />
+    <Content Include="Views\Appointment\_AppointmentListPartial.cshtml" />
+    <Content Include="Views\Shared\_Layout1.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

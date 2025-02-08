@@ -7,6 +7,7 @@ using System.Web.Optimization;
 using System.Web.Routing;
 using System.Web.Http;
 using System.Web.Security;
+using MVCFirebase.Models;
 
 namespace MVCFirebase
 {
@@ -20,6 +21,7 @@ namespace MVCFirebase
         {
             try
             {
+                Application["FirestoreService"] = new FirestoreService();
                 AreaRegistration.RegisterAllAreas();
                 System.Web.Http.GlobalConfiguration.Configure(WebApiConfig.Register);
                 FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);

@@ -1,0 +1,48 @@
+﻿@model IEnumerable<MVCFirebase.Models.AppointmentPatientViewModel>
+
+@foreach (var patient in Model)
+{
+    foreach (var item in patient.Patients)
+    {
+<div class="col-lg-12 col-md-12 col-sm-12 col-12 p-0">
+    <div class="card">
+        <div class="card-body my card-detail">
+            <div class="myboxview">
+                <div class="d-flex w-100 flex-column boxitemView modal-link" data-toggle="modal" data-target=".bootstrapmodal" data-patient-id="@item.id">
+                    <div class="myboxmid">
+                        <span class="card-body-item myboxrightName ">
+                            <strong>@Html.DisplayFor(modelItem => item.patient_name)</strong>
+                        </span>
+                    </div>
+                    <div class="myboxmid">
+                        <span class="card-body-item">
+                            @Html.DisplayFor(modelItem => item.gender)
+                        </span>
+                        <span class="card-body-item">
+                            @Html.DisplayFor(modelItem => item.age)
+                        </span>
+                        <span class="card-body-item">
+                            @Html.DisplayFor(modelItem => item.patient_mobile_number)
+                        </span>
+                    </div>
+                    <div class="myboxmid">
+                        <span class="card-body-item">
+                            UID: @Html.DisplayFor(modelItem => item.patient_id)
+                        </span>
+                    </div>
+                </div>
+                <div class="myboxright">
+                    <span id="popoverToggle"><i class="fa fa-ellipsis-v"></i></span>
+                </div>
+                <div id="popover" class="popover">
+                    <ul>
+                        <li>Option 1</li>
+                        <li>Option 2</li>
+                        <li>Option 3</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>}
+}

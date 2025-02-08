@@ -58,7 +58,24 @@ namespace MVCFirebase.Controllers
         [AllowAnonymous]
         public ActionResult Login()
         {
-            return View();
+            var model = new User
+            {
+                cliniccode = "GP-107",
+                mobile_number = "9811035028"
+            };
+            var authCookie = Request.Cookies[FormsAuthentication.FormsCookieName];
+
+            if (authCookie != null)
+            {
+                return RedirectToAction("Index", "Appointment");
+            }
+            else
+            {
+                return View(model);
+            }
+            
+            
+
         }
 
         //[HttpPost]
@@ -316,6 +333,158 @@ namespace MVCFirebase.Controllers
                         Clinic clinic = docsnapClinic.ConvertTo<Clinic>();
                         clinicPlan = clinic.selected_plan;
 
+                        QuerySnapshot snapUser = await docsnapClinic.Reference.Collection("user").WhereEqualTo("mobile_number", user.mobile_number).GetSnapshotAsync();
+
+                        if (snapUser.Count > 0)
+                        {
+                            foreach (DocumentSnapshot docsnapUsers in snapUser)
+                            {
+
+                                User userLoggedIn = docsnapUsers.ConvertTo<User>();
+                                QuerySnapshot snapUserPassword = await docsnapClinic.Reference.Collection("user").WhereEqualTo("mobile_number", user.mobile_number).WhereEqualTo("password", user.password).GetSnapshotAsync();
+
+                                if (snapUserPassword.Count > 0)
+                                {
+                                    Session["sessionid"] = System.Web.HttpContext.Current.Session.SessionID;
+
+                                    DocumentSnapshot docsnapUser = snapUserPassword.Documents[0];
+
+                                    User userForRoles = docsnapUser.ConvertTo<User>();
+
+                                    FormsAuthentication.SetAuthCookie(userLoggedIn.mobile_number + "|" + userLoggedIn.name + "|" + string.Join("_", userForRoles.user_roles) + "|" + clinic.clinicmobilenumber + "|" + docsnapClinic.Id + "|" + user.cliniccode, true);
+                                    
+                                    if (userForRoles.user_roles.Contains("Receptionist") || userForRoles.user_roles.Contains("Doctor") || userForRoles.user_roles.Contains("Chemist") || userForRoles.user_roles.Contains("Cashier"))
+                                    {
+                                        if (userForRoles.user_roles.Contains("Chemist") || userForRoles.user_roles.Contains("Cashier")) 
+                                        {
+                                            return RedirectToAction("Index", "Appointment");//return RedirectToAction("Waiting", "Appointment");
+                                        }
+                                        else
+                                        {
+                                            return RedirectToAction("Index", "Appointment");
+                                        }
+                                    }
+                                    else //for admin
+                                    {
+                                        return RedirectToAction("Index", "User");
+                                    }
+                                }
+                                else
+                                {
+                                    message = "Password for user " + user.mobile_number + " is incorrect.";
+                                    ModelState.AddModelError("", message);
+                                    ViewBag.Message = message;
+                                    return View(user);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            message = "User Id " + user.mobile_number + " does not exist for " + clinic.clinicname + " Clinic.";
+                            ModelState.AddModelError("", message);
+                            ViewBag.Message = message;
+                            return View(user);
+                        }
+                    }
+                    else
+                    {
+                        message = "Sorry,Clinic mobile number is not valid.";
+                        ModelState.AddModelError("", message);
+                        ViewBag.Message = message;
+                        return View(user);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    ViewBag.Message = ex.Message;
+                    ModelState.AddModelError("", $"An error occurred: {ex.Message}");
+                    return View(user);
+                }
+
+            }
+
+            // Add a fallback return statement
+            ModelState.AddModelError("", "Unexpected error occurred.");
+            return View(user);
+
+        }
+
+
+        [HttpPost]
+        [AllowAnonymous]
+        public async Task<ActionResult> Login1(User user)
+        {
+            //string Path = AppDomain.CurrentDomain.BaseDirectory + @"myfastingapp-bd6ec.json";
+            string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
+            Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
+            FirestoreDb db = FirestoreDb.Create("greenpaperdev");
+            string message = string.Empty;
+            string clinicPlan = "";
+            string numericcliniccode = user.cliniccode.Split('-')[1];
+
+            if (user.cliniccode == "" || user.cliniccode == null)
+            {
+
+                try
+                {
+                    //Query Qref = db.Collection("Students").WhereEqualTo("StudentName","Suvidhi");
+                    Query Qref = db.Collection("SuperUsers").WhereEqualTo("UserId", user.mobile_number).WhereEqualTo("Password", user.password).Limit(1);
+                    QuerySnapshot snap = await Qref.GetSnapshotAsync();
+                    if (snap.Count > 0)
+                    {
+                        foreach (DocumentSnapshot docsnap in snap)
+                        {
+                            SuperUser superuser = docsnap.ConvertTo<SuperUser>();
+                            if (docsnap.Exists)
+                            {
+                                //GlobalSessionVariables.UserRoles = "SuperAdmin";
+                                FormsAuthentication.SetAuthCookie(superuser.UserName + "-" + superuser.UserName, superuser.RememberMe);
+
+                                return RedirectToAction("Index");
+                            }
+                            else
+                            {
+                                message = "Username and/or password is incorrect.";
+                                ModelState.AddModelError("", message);
+                                ViewBag.Message = message;
+                                return View(user);
+                            }
+
+
+
+                        }
+                    }
+                    else
+                    {
+                        message = "Username and/or password is incorrect.";
+                        ModelState.AddModelError("", message);
+                        ViewBag.Message = message;
+                        return View(user);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    ModelState.AddModelError("", $"An error occurred: {ex.Message}");
+                    ViewBag.Message = ex.Message;
+                    return View(user);
+                }
+
+            }
+            else
+            {
+
+                try
+                {
+                    Query Qref = db.Collection("clinics").WhereEqualTo("clinic_code", user.cliniccode).Limit(1);
+                    QuerySnapshot snapClinic = await Qref.GetSnapshotAsync();
+
+                    if (snapClinic.Count > 0)
+                    {
+                        DocumentSnapshot docsnapClinic = snapClinic.Documents[0];
+
+                        Clinic clinic = docsnapClinic.ConvertTo<Clinic>();
+                        clinicPlan = clinic.selected_plan;
+
                         //GlobalSessionVariables.ClinicMobileNumber = clinic.clinicmobilenumber;
                         //GlobalSessionVariables.ClinicDocumentAutoId = docsnapClinic.Id;
                         //GlobalSessionVariables.ClinicCode = clinic.clinic_code;
@@ -379,7 +548,14 @@ namespace MVCFirebase.Controllers
 
                                     if (userForRoles.user_roles.Contains("Receptionist"))
                                     {
-                                        return RedirectToAction("Index", "Appointment");
+                                        if (userForRoles.user_roles.Contains("Chemist") || userForRoles.user_roles.Contains("Cashier"))
+                                        {
+                                            return RedirectToAction("Waiting", "Appointment");
+                                        }
+                                        else
+                                        {
+                                            return RedirectToAction("Index", "Appointment");
+                                        }
                                     }
                                     else if (userForRoles.user_roles.Contains("Admin"))
                                     {
@@ -431,12 +607,21 @@ namespace MVCFirebase.Controllers
 
         }
 
-        [HttpPost]
+        [HttpGet]
 
         public ActionResult Logout()
         {
-            var authManager = HttpContext.GetOwinContext().Authentication;
-            authManager.SignOut(DefaultAuthenticationTypes.ApplicationCookie);
+            //var authManager = HttpContext.GetOwinContext().Authentication;
+            //authManager.SignOut(DefaultAuthenticationTypes.ApplicationCookie);
+            //Session.Clear(); // Clear session data
+            //Session.Abandon(); // Abandon the session
+            //return RedirectToAction("Login", "Home");
+
+
+            FormsAuthentication.SignOut(); // Sign out the authentication cookie
+            Session.Clear(); // Clear all session data
+            Session.Abandon(); // Abandon the session
+            Response.Cookies.Add(new HttpCookie(FormsAuthentication.FormsCookieName, "") { Expires = DateTime.Now.AddDays(-1) }); // Expire the auth cookie
             return RedirectToAction("Login", "Home");
         }
 

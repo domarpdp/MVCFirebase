@@ -47,8 +47,8 @@ namespace MVCFirebase.Controllers
             int i = 1;
 
 
-            Query QrefPrescriptions = db.Collection("clinics").Document(ClinicFirebaseDocumentId).Collection("patientList").Document(patient).Collection("prescriptions").OrderByDescending("timeStamp");
-            
+            //Query QrefPrescriptions = db.Collection("clinics").Document(ClinicFirebaseDocumentId).Collection("patientList").Document(patient).Collection("prescriptions").OrderByDescending("timeStamp");
+            Query QrefPrescriptions = db.Collection("clinics").Document(ClinicFirebaseDocumentId).Collection("prescriptions").WhereEqualTo("patientId", patient).OrderByDescending("timeStamp");
 
             QuerySnapshot snapPres = await QrefPrescriptions.GetSnapshotAsync();
             if(snapPres.Count > 0)
@@ -212,9 +212,10 @@ namespace MVCFirebase.Controllers
             Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
             FirestoreDb db = FirestoreDb.Create("greenpaperdev");
             int i = 1;
-            
 
-            Query QrefPrescriptions = db.Collection("clinics").Document(ClinicFirebaseDocumentId).Collection("patientList").Document(patientAutoId).Collection("prescriptions").OrderByDescending("timeStamp");
+
+            //Query QrefPrescriptions = db.Collection("clinics").Document(ClinicFirebaseDocumentId).Collection("patientList").Document(patientAutoId).Collection("prescriptions").OrderByDescending("timeStamp");
+            Query QrefPrescriptions = db.Collection("clinics").Document(ClinicFirebaseDocumentId).Collection("prescriptions").WhereEqualTo("patientId", patientAutoId).OrderByDescending("timeStamp");
             QuerySnapshot snapPres = await QrefPrescriptions.GetSnapshotAsync();
             if (snapPres.Count > 0)
             {

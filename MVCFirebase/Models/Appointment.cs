@@ -58,6 +58,9 @@ namespace MVCFirebase.Models
         [FirestoreProperty]
         [Required(ErrorMessage = "Required.")]
         public string status { get; set; }
+        public string statusChemist { get; set; }
+        public string statusCashier { get; set; }
+
 
         [FirestoreProperty]
         [Required(ErrorMessage = "Required.")]

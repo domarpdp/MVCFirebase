@@ -1,63 +1,1538 @@
-﻿@model IEnumerable<MVCFirebase.Models.Appointment>
+﻿@model IEnumerable<MVCFirebase.Models.AppointmentPatientViewModel>
+
 
 @{
     ViewBag.Title = "Index";
 }
 
-@*<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>*@
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
-@*<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>*@
-
-@*<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-ui-timepicker-addon/1.6.3/jquery-ui-timepicker-addon.min.js"></script>*@
-@*<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" />*@
-
-@*<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-ui-timepicker-addon/1.6.3/jquery-ui-timepicker-addon.min.css" />*@
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/fontawesome.min.css" />
 
 <script src="~/Scripts/jquery-3.4.1.min.js"></script>
 <script src="~/Scripts/jquery-ui.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
 <script src="~/Scripts/jquery-ui-timepicker-addon.min.js"></script>
 <link href="~/Scripts/css/jquery-ui.min.css" rel="stylesheet" />
 <link href="~/Scripts/css/jquery-ui-timepicker-addon.min.css" rel="stylesheet" />
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+@*<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>*@
+
+
+<style>
+    .pageDetailhead {
+        background-color: lightgray!important; /* Default color */
+        padding: 10px 20px;
+        border: none;
+        cursor: pointer;
+    }
+
+    .active-btn {
+        background-color: blue !important; /* Active color */
+        color: white;
+    }
+
+    html, body {
+        margin: 0;
+        padding: 0;
+    }
+
+    .card {
+        position: relative;
+    }
+
+    .card-header.myfixheader {
+        position: sticky;
+        top: 0px;
+        z-index: 9;
+        background-color: #fff;
+        border-bottom: 1px solid #333;
+        display: flex;
+        flex-direction: column;
+        margin-top: 0; /* Ensure there's no margin from the top */
+        padding-top: 0; /* Remove any padding causing the offset */
+        padding-bottom: 5px;
+    }
+
+    .p-0 {
+        padding: 0px !important;
+    }
+
+    .m-0 {
+        margin: 0px !important;
+    }
+
+    .me-2 {
+        margin-right: 0.5rem !important;
+    }
+
+    .py-0 {
+        padding-left: 0px !important;
+        padding-right: 0px !important;
+    }
+
+    #loader {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5); /* Semi-transparent overlay */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999; /* Ensures it stays on top */
+        display: none; /* Initially hidden */
+    }
+
+        #loader img {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%); /* Perfect centering */
+            width: 100px; /* Adjust size as needed */
+            height: auto;
+        }
+
+
+
+    #selectedDate {
+        height: 70px; /* Adjust the height as needed */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid #ccc; /* Optional: Add a border */
+        background-color: blue; /* Optional: Set background color */
+        cursor: pointer;
+        border-radius: 5px; /* Optional: Add rounded corners */
+    }
+
+    .row:before, .row:after {
+        content: unset;
+    }
+
+    .modal {
+        z-index: 7777 !important; /* Set a higher value */
+    }
+
+    .modal-backdrop {
+        z-index: 7776 !important; /* Ensure backdrop is behind the modal */
+    }
+
+    .ui-datepicker, .ui-timepicker-div {
+        z-index: 9999 !important;
+    }
+    .col-md-5 {
+        display: flex;
+        align-items: center;
+        gap: 10px; /* Optional: Adjust spacing between radio buttons */
+    }
+</style>
+
+
+<script>
+
+
+    // ✅ Function to Listen for Appointments
+    function listenForNewAppointments() {
+
+        //let lastFetchTime = new Date().toISOString();
+
+        var counter = 1;
+        const today = new Date();
+        const yesterday = new Date(today);
+        yesterday.setDate(today.getDate() - 1);
+
+        //console.log('lastFetchTime', lastFetchTime);
+        // ✅ Initialize Firebase App
+        const firebaseConfig = {
+            apiKey: "AIzaSyDMFeFXi9KKQz9kKKR1vMGPSeS7X77HkNs",
+            authDomain: "greenpaperdev.firebaseapp.com",
+            projectId: "greenpaperdev",
+            storageBucket: "greenpaperdev.appspot.com",
+            messagingSenderId: "470154539907",
+            appId: "1:470154539907:android:9f8137fd194a9060377cb6"
+        };
+
+        // ✅ Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        console.log(firebase.apps.length > 0 ? "Firebase Loaded Successfully" : "Firebase Failed to Load");
+
+        db.collection("clinics")
+            .where("clinicmobilenumber", "==", "8860458487")
+            .get()
+            .then((querySnapshot) => {
+                querySnapshot.forEach((doc) => {
+                    let appointmentRef = db.collection("clinics").doc(doc.id).collection("appointments").where("raisedDate", ">", yesterday);
+
+                    appointmentRef
+                        .onSnapshot((snapshot) => {
+                            snapshot.docChanges().forEach((change) => {
+                                if (change.type === "added") {
+                                    //console.log("New Appointment Data:", change.doc.data());
+                                    //console.log("counter out", counter)
+                                    if (counter == snapshot.size) {
+                                        console.log("counter in", counter)
+                                        $("#search").val('');
+
+                                        
+                                        $(".pageDetailhead").removeClass("active-btn"); // Remove active class from all buttons
+                                        $("#WaitingPatients").addClass("active-btn");
+
+                                        $.ajax({
+                                            url: "/Appointment/Search",
+                                            type: "GET",
+                                            data: { startdate: '', Type: 'Appointments', Search: '' },
+                                            success: function (data) {
+                                                //console.log(data);
+                                                $("#patientList").html("");
+                                                $("#appointmentList").html(data);
+                                            },
+                                        });
+                                    }
+                                    counter = counter + 1;
+
+                                }
+                                if (change.type === "modified") {
+                                    console.log("Appointment updated:", change.doc.data());
+                                    // Handle updated appointment (update your view, etc.)
+                                }
+                                if (change.type === "removed") {
+                                    console.log("Appointment removed:", change.doc.data());
+                                    // Handle removed appointment (remove from your view, etc.)
+                                }
+                            });
+
+                            // Update last fetch time to the latest timestamp in the collection
+                            console.log('snapshot.size', snapshot.size)
+                            //if (snapshot.size > 0)
+                            //{
+
+                            //    lastFetchTime = snapshot.docs[snapshot.size - 1].data().updatedAt;
+                            //}
+                        });
+                });
+            })
+            .catch((error) => {
+                console.error("Error fetching clinic:", error);
+            });
+    }
+
+    function formatDate(date) {
+        const options = { weekday: 'short', day: '2-digit' };
+        return date.toLocaleDateString('en-US', options).toUpperCase().replace(',', '');
+    }
+
+
+    function validateMaxLength(input)
+    {
+        if (input.value.length > 10) {
+            input.value = input.value.slice(0, 10);
+        }
+
+    }
+    function validateAgeLength(input)
+    {
+        if (input.value.length > 2)
+        {
+            input.value = input.value.slice(0, 2);
+        }
+    }
+    function validateTokenLength(input)
+    {
+        if (input.value.length > 3)
+        {
+            input.value = input.value.slice(0, 3);
+        }
+    }
+
+</script>
 <script>
 
     $(document).ready(function () {
-        //    // Get the current date
-        //    var d = new Date();
 
-        //// Array of month names
-        //var monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        listenForNewAppointments();
+        
 
-        //// Get the components of the date
-        //var day = d.getDate();
-        //var month = monthNames[d.getMonth()]; // Get the month name
-        //var year = d.getFullYear();
+        let timer;
+        let xhr; // Store the ongoing AJAX request
 
-        //// Add leading zero to the day if needed
-        //day = day < 10 ? "0" + day : day;
+        $("#search").on("input", function () {
+            console.log($(this).val());
 
-        //// Format the date as dd-MMM-yyyy
-        //var formattedDate = day + "-" + month + "-" + year;
+            $(".pageDetailhead").removeClass("active-btn"); // Remove active class from all buttons
+            clearTimeout(timer);
 
-        //// Set the value of the textbox
-        //$("#startdate").val(formattedDate);
-        /**/
+            // Abort the previous request if it exists
+            if (xhr) {
+                xhr.abort();
+            }
 
-        /**/
-        console.log("@ViewBag.Message");
-        $("#startdate").datetimepicker({
+            timer = setTimeout(() => {
+                xhr = $.ajax({
+                    url: "/Appointment/Search",
+                    type: "GET",
+                    data: { startdate: '', Type: 'Patients', Search: $(this).val() },
+                    beforeSend: function () {
+                        $("#loader").show(); // Show loader before request starts
+                    },
+                    success: function (data) {
+                        $.ajax({
+                            url: "/Appointment/GetCounts",
+                            type: "GET",
+                            data: { startdate: '' },
+                            success: function (response) {
+                                console.log('GetCounts', response);
+                                //console.log(data);
+                                if (document.getElementById("TotalPatientCount")) {
+                                    document.getElementById("TotalPatientCount").value = response.AllPatientsCount;
+                                }
+                                if (document.getElementById("TotalTodayAppointments")) {
+                                    document.getElementById("TotalTodayAppointments").value = response.TodayAppointmentsCount;
+                                }
+                                if (document.getElementById("TotalWaitingAppointments")) {
+                                    document.getElementById("TotalWaitingAppointments").value = response.WaitingAppointmentsCounts;
+                                }
+                                if (document.getElementById("TotalCompletedAppointments")) {
+                                    document.getElementById("TotalCompletedAppointments").value = response.CompletedAppointmentsCounts;
+                                }
+                            },
+                            error: function (xhr, status, error) {
+                                console.log('Error:', error);
+                                console.log('Status:', status);
+                                console.log('Response:', xhr.responseText);
+                            }
+                        });
+
+                        $("#appointmentList").html("");
+                        $("#patientList").html(data);
+
+
+                    },
+                    complete: function () {
+                        $("#loader").hide(); // Hide loader when request completes
+                        xhr = null; // Reset xhr when request completes
+                    }
+                });
+            }, 100);
+        });
+
+        $("#AllPatients").on("click", function () {
+            $("#search").val('');
+
+            $(".pageDetailhead").removeClass("active-btn"); // Remove active class from all buttons
+            $(this).addClass("active-btn");
+            $.ajax({
+                url: "/Appointment/Search",
+                type: "GET",
+                data: { startdate: '', Type: 'Patients', Search: '' },
+                beforeSend: function () {
+                    $("#loader").show(); // Show loader before request starts
+                },
+                success: function (data) {
+
+                    $.ajax({
+                        url: "/Appointment/GetCounts",
+                        type: "GET",
+                        data: { startdate: '' },
+                        success: function (response) {
+                            console.log('GetCounts', response);
+                            //console.log(data);
+                            if (document.getElementById("TotalPatientCount")) {
+                                document.getElementById("TotalPatientCount").value = response.AllPatientsCount;
+                            }
+                            if (document.getElementById("TotalTodayAppointments")) {
+                                document.getElementById("TotalTodayAppointments").value = response.TodayAppointmentsCount;
+                            }
+                            if (document.getElementById("TotalWaitingAppointments")) {
+                                document.getElementById("TotalWaitingAppointments").value = response.WaitingAppointmentsCounts;
+                            }
+                            if (document.getElementById("TotalCompletedAppointments")) {
+                                document.getElementById("TotalCompletedAppointments").value = response.CompletedAppointmentsCounts;
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            console.log('Error:', error);
+                            console.log('Status:', status);
+                            console.log('Response:', xhr.responseText);
+                        }
+                    });
+
+                    $("#appointmentList").html("");
+                    $("#patientList").html(data);
+
+
+
+                },
+                complete: function () {
+                    $("#loader").hide(); // Hide loader when request completes
+                }
+            }); // Call AJAX function when button is clicked
+        });
+
+        
+        $("#WaitingPatients").on("click", function () {
+            $("#search").val('');
+
+            $(".pageDetailhead").removeClass("active-btn"); // Remove active class from all buttons
+            $(this).addClass("active-btn");
+            $.ajax({
+                url: "/Appointment/Search",
+                type: "GET",
+                data: { startdate: document.getElementById("hdSelectedDate").value, Type: 'WaitingAppointments', Search: '' },
+                beforeSend: function () {
+                    $("#loader").show(); // Show loader before request starts
+                },
+                success: function (data) {
+                    //console.log(data);
+                    $("#patientList").html("");
+                    $("#appointmentList").html(data);
+
+                    $.ajax({
+                        url: "/Appointment/GetCounts",
+                        type: "GET",
+                        data: { startdate: document.getElementById("hdSelectedDate").value },
+                        success: function (response) {
+                            console.log('GetCounts', response);
+                            //console.log(data);
+                            if (document.getElementById("TotalPatientCount")) {
+                                document.getElementById("TotalPatientCount").value = response.AllPatientsCount;
+                            }
+                            if (document.getElementById("TotalTodayAppointments")) {
+                                document.getElementById("TotalTodayAppointments").value = response.TodayAppointmentsCount;
+                            }
+                            if (document.getElementById("TotalWaitingAppointments")) {
+                                document.getElementById("TotalWaitingAppointments").value = response.WaitingAppointmentsCounts;
+                            }
+                            if (document.getElementById("TotalCompletedAppointments")) {
+                                document.getElementById("TotalCompletedAppointments").value = response.CompletedAppointmentsCounts;
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            console.log('Error:', error);
+                            console.log('Status:', status);
+                            console.log('Response:', xhr.responseText);
+                        }
+                    });
+                },
+                complete: function () {
+                    $("#loader").hide(); // Hide loader when request completes
+                }
+            }); // Call AJAX function when button is clicked
+        });
+
+        $("#CompletedPatients").on("click", function () {
+            $("#search").val('');
+
+            $(".pageDetailhead").removeClass("active-btn"); // Remove active class from all buttons
+            $(this).addClass("active-btn");
+            $.ajax({
+                url: "/Appointment/Search",
+                type: "GET",
+                data: { startdate: document.getElementById("hdSelectedDate").value, Type: 'CompletedAppointments', Search: '' },
+                beforeSend: function () {
+                    $("#loader").show(); // Show loader before request starts
+                },
+                success: function (data) {
+                    //console.log(data);
+                    $("#patientList").html("");
+                    $("#appointmentList").html(data);
+
+                    $.ajax({
+                        url: "/Appointment/GetCounts",
+                        type: "GET",
+                        data: { startdate: document.getElementById("hdSelectedDate").value },
+                        success: function (response) {
+                            console.log('GetCounts', response);
+                            //console.log(data);
+                            if (document.getElementById("TotalPatientCount")) {
+                                document.getElementById("TotalPatientCount").value = response.AllPatientsCount;
+                            }
+                            if (document.getElementById("TotalTodayAppointments")) {
+                                document.getElementById("TotalTodayAppointments").value = response.TodayAppointmentsCount;
+                            }
+                            if (document.getElementById("TotalWaitingAppointments")) {
+                                document.getElementById("TotalWaitingAppointments").value = response.WaitingAppointmentsCounts;
+                            }
+                            if (document.getElementById("TotalCompletedAppointments")) {
+                                document.getElementById("TotalCompletedAppointments").value = response.CompletedAppointmentsCounts;
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            console.log('Error:', error);
+                            console.log('Status:', status);
+                            console.log('Response:', xhr.responseText);
+                        }
+                    });
+                },
+                complete: function () {
+                    $("#loader").hide(); // Hide loader when request completes
+                }
+            }); // Call AJAX function when button is clicked
+        });
+
+        //Code to fill date when creating appointment on clicking patient card
+        $(document).on("click", ".modal-link", function () {
+
+            var patientId = $(this).data("patient-id"); // Get the patient ID
+            $('#patientAutoId').val(patientId);
+            var d = new Date($.now());
+            //var formattedDate = (d.getMonth() + 1) + "/" + d.getDate() + "/" + d.getFullYear() + " " + d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds();
+
+            var d = new Date($.now());
+
+            // Array of month names
+            var monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+            // Get the components of the date
+            var day = d.getDate();
+            var month = monthNames[d.getMonth()]; // Get the month name from the array
+            var year = d.getFullYear();
+            var hours = d.getHours();
+            var minutes = d.getMinutes();
+            var seconds = d.getSeconds();
+
+            // Add leading zero to day, hours, minutes, and seconds if needed
+            day = day < 10 ? "0" + day : day;
+            hours = hours < 10 ? "0" + hours : hours;
+            minutes = minutes < 10 ? "0" + minutes : minutes;
+            seconds = seconds < 10 ? "0" + seconds : seconds;
+
+            // Format the date as dd-MMM-yyyy HH:mm:ss
+            var formattedDate = day + "-" + month + "-" + year + " " + hours + ":" + minutes + ":" + seconds;
+
+            console.log('formattedDate : ', formattedDate);
+            $("#datepicker").val(formattedDate);
+            //$.post("/Patient/getLatestToken", { futureAppointmentDate: formattedDate },
+            //    function (data) {
+            //        console.log('token No:' + data);
+
+            //        $('#tokennumber').val(data);
+            //    })
+            $.ajax({
+                url: "/Patient/getLatestToken", // URL of the API or endpoint
+                type: "POST", // HTTP method
+                data: { futureAppointmentDate: formattedDate }, // Data to send to the server
+                success: function (data) {
+                    console.log('token No:' + data);
+
+                    // Update the token number input field
+                    $('#tokennumber').val(data);
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error: " + error);
+                    console.error("Status: " + status);
+                    console.error("Response: " + xhr.responseText);
+                }
+            });
+            console.log('token No:' + $('#tokennumber').val());
+
+
+        });
+
+        //Code to fill Date to create Patient and its appointment
+        $(document).on("click", ".modal-linkPC", function () {
+
+            var d = new Date($.now());
+            //var formattedDate = (d.getMonth() + 1) + "/" + d.getDate() + "/" + d.getFullYear() + " " + d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds();
+
+            var d = new Date($.now());
+
+            // Array of month names
+            var monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+            // Get the components of the date
+            var day = d.getDate();
+            var month = monthNames[d.getMonth()]; // Get the month name from the array
+            var year = d.getFullYear();
+            var hours = d.getHours();
+            var minutes = d.getMinutes();
+            var seconds = d.getSeconds();
+
+            // Add leading zero to day, hours, minutes, and seconds if needed
+            day = day < 10 ? "0" + day : day;
+            hours = hours < 10 ? "0" + hours : hours;
+            minutes = minutes < 10 ? "0" + minutes : minutes;
+            seconds = seconds < 10 ? "0" + seconds : seconds;
+
+            // Format the date as dd-MMM-yyyy HH:mm:ss
+            var formattedDate = day + "-" + month + "-" + year + " " + hours + ":" + minutes + ":" + seconds;
+
+            console.log('formattedDate : ', formattedDate);
+            $("#AppointmentDate").val(formattedDate);
+            //$.post("/Patient/getLatestToken", { futureAppointmentDate: formattedDate },
+            //    function (data) {
+            //        console.log('token No:' + data);
+
+            //        $('#tokennumber').val(data);
+            //    })
+            $.ajax({
+                url: "/Patient/getLatestToken", // URL of the API or endpoint
+                type: "POST", // HTTP method
+                data: { futureAppointmentDate: formattedDate }, // Data to send to the server
+                success: function (data) {
+                    console.log('token No:' + data);
+
+                    // Update the token number input field
+                    $('#tokennumberPC').val(data);
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error: " + error);
+                    console.error("Status: " + status);
+                    console.error("Response: " + xhr.responseText);
+                }
+            });
+            console.log('token No:' + $('#tokennumber').val());
+
+
+        });
+
+        //This is the field declared in modal to crreate appointment
+        $("#datepicker").datetimepicker({
             dateFormat: 'dd-M-yy', // Set the date format
-            timeFormat: 'HH:mm:ss', // Match '00:00:00'
             minDate: 0 // Disallow past dates
-        }).attr('readonly', 'readonly');
-        console.log($("#startdate").val());
-});
+        }).attr('readonly', 'readonly').change(function () {
+            $('#tokennumber').html('');
+            var selection1 = $('#datepicker').val();
+            var selection2 = $('#patientAutoId').val();
+            if (selection1.length > 0) {
 
+                $.ajax({
+                    url: "/Patient/getLatestToken", // URL for the request
+                    type: "POST", // HTTP method
+                    data: { futureAppointmentDate: selection1 }, // Data to send to the server
+                    success: function (data) {
+                        // Update the token number input field with the received data
+                        $('#tokennumber').val(data);
+                    },
+                    error: function (xhr, status, error) {
+                        // Log any errors for debugging
+                        console.error("Error: " + error);
+                        console.error("Status: " + status);
+                        console.error("Response: " + xhr.responseText);
+                    }
+                });
+            }
+        });
+
+        //This is the field declared in modal to crreate appointment
+        $("#AppointmentDate").datetimepicker({
+            dateFormat: 'dd-M-yy', // Set the date format
+            //minDate: 0 // Disallow past dates
+        }).attr('readonly', 'readonly').change(function () {
+            $('#tokennumberPC').html('');
+            var selection1 = $('#AppointmentDate').val();
+            if (selection1.length > 0) {
+
+                $.ajax({
+                    url: "/Patient/getLatestToken", // URL for the request
+                    type: "POST", // HTTP method
+                    data: { futureAppointmentDate: selection1 }, // Data to send to the server
+                    success: function (data) {
+                        // Update the token number input field with the received data
+                        $('#tokennumberPC').val(data);
+                    },
+                    error: function (xhr, status, error) {
+                        // Log any errors for debugging
+                        console.error("Error: " + error);
+                        console.error("Status: " + status);
+                        console.error("Response: " + xhr.responseText);
+                    }
+                });
+            }
+        });
+
+
+
+
+        //$("#rrr").click(function () {
+        //    $("<input type='text'>").datetimepicker({
+        //        dateFormat: "mm/dd/yy",
+        //        onSelect: function (dateText) {
+        //            $("#rrr").val(dateText);
+        //        }
+        //    }).datetimepicker("show");
+        //});
+
+        $('#TodayPatients').val(formatDate(new Date()));
+
+        // Initialize the datetimepicker on the hidden input
+        $("#hidden-datepicker").datetimepicker({
+            dateFormat: 'dd-M-yy', // Match your format
+            minDate: 0, // Disable past dates
+            timeFormat: 'HH:mm', // Optional: If you need time as well
+
+            onSelect: function (dateText) {
+                let date = new Date(dateText);
+                $('#TodayPatients').val(formatDate(date));
+                //$("#rrr").val(dateText); // Update button value with selected date
+                $(this).datetimepicker("hide");
+
+                const formattedDate = date.toLocaleDateString("en-GB", {
+                    day: "2-digit",
+                    month: "short",
+                    year: "numeric"
+                }).replace(",", "-");
+
+                document.getElementById("hdSelectedDate").value = formattedDate;
+                $.ajax({
+                    url: "/Appointment/Search",
+                    type: "GET",
+                    data: { startdate: formattedDate, Type: 'Appointments', Search: '' },
+                    beforeSend: function () {
+                        $("#loader").show(); // Show loader before request starts
+                    },
+                    success: function (data) {
+
+                        //console.log(data);
+                        $("#patientList").html("");
+                        $("#appointmentList").html("");
+                        $("#appointmentList").html(data);
+
+                        $.ajax({
+                            url: "/Appointment/GetCounts",
+                            type: "GET",
+                            data: { startdate: formattedDate},
+                            success: function (response) {
+                                console.log('GetCounts', response);
+                                //console.log(data);
+                                if (document.getElementById("TotalPatientCount")) {
+                                    document.getElementById("TotalPatientCount").value = response.AllPatientsCount;
+                                }
+                                if (document.getElementById("TotalTodayAppointments")) {
+                                    document.getElementById("TotalTodayAppointments").value = response.TodayAppointmentsCount;
+                                }
+                                if (document.getElementById("TotalWaitingAppointments")) {
+                                    document.getElementById("TotalWaitingAppointments").value = response.WaitingAppointmentsCounts;
+                                }
+                                if (document.getElementById("TotalCompletedAppointments")) {
+                                    document.getElementById("TotalCompletedAppointments").value = response.CompletedAppointmentsCounts;
+                                }
+                            },
+                            error: function (xhr, status, error) {
+                                console.log('Error:', error);
+                                console.log('Status:', status);
+                                console.log('Response:', xhr.responseText);
+                            }
+                        });
+                    },
+                    complete: function () {
+                        $("#loader").hide(); // Hide loader when request completes
+                    }
+                });
+            }
+        });
+
+        // Show the datepicker when the button is clicked
+        $("#TodayPatients").click(function () {
+            $(".pageDetailhead").removeClass("active-btn"); // Remove active class from all buttons
+            $(this).addClass("active-btn");
+            $("#hidden-datepicker").datetimepicker("show");
+
+
+        });
+
+        $("#modalSubmit").on("click", function () {
+            //$("#loader").show();
+
+            $.ajax({
+                type: "GET",
+                url: "/Appointment/TokenNumberValidation",
+                async: true,
+                data: {
+                    appointmentDate: document.getElementById("datepicker").value,
+                    token: document.getElementById("tokennumber").value
+                },
+                success: function (response) {
+
+                    if (response.success) {
+                        $.ajax({
+                            type: "POST",
+                            url: "/Appointment/ValidationsCreateAppointment",
+                            async: true,
+                            data: {
+                                startdate: '',
+                                Type: '',
+                                Search: '',
+                                datepicker: document.getElementById("datepicker").value,
+                                patientAutoId: document.getElementById("patientAutoId").value,
+                                token: document.getElementById("tokennumber").value,
+                                referto: document.getElementById("referto").value
+                            },
+                            beforeSend: function () {
+                                $("#loader").show(); // Show loader before request starts
+                            },
+                            success: function (response) {
+
+                                if (response.success) {
+                                    $.ajax({
+                                        url: "/Appointment/CreateFutureAppointment",
+                                        type: "GET",
+                                        async: true,
+                                        data: {
+                                            startdate: '',
+                                            Type: '',
+                                            Search: '',
+                                            datepicker: document.getElementById("datepicker").value,
+                                            patientAutoId: document.getElementById("patientAutoId").value,
+                                            token: document.getElementById("tokennumber").value,
+                                            referto: document.getElementById("referto").value
+                                        },
+                                        success: function (data) {
+                                            //console.log(data);
+                                            $("#search").val('');
+                                            $(".pageDetailhead").removeClass("active-btn"); // Remove active class from all buttons
+                                            $("#TodayPatients").addClass("active-btn");
+
+                                            // Appointment list page is getting refreshed automatically due to calling of listenForNewAppointments();
+                                            //$("#patientList").html("");
+                                            //$("#appointmentList").html(data);
+
+                                            $.ajax({
+                                                url: "/Appointment/GetCounts",
+                                                type: "GET",
+                                                data: { startdate: document.getElementById("hdSelectedDate").value },
+                                                success: function (response) {
+                                                    console.log('GetCounts', response);
+                                                    //console.log(data);
+                                                    if (document.getElementById("TotalPatientCount")) {
+                                                        document.getElementById("TotalPatientCount").value = response.AllPatientsCount;
+                                                    }
+                                                    if (document.getElementById("TotalTodayAppointments")) {
+                                                        document.getElementById("TotalTodayAppointments").value = response.TodayAppointmentsCount;
+                                                    }
+                                                    if (document.getElementById("TotalWaitingAppointments")) {
+                                                        document.getElementById("TotalWaitingAppointments").value = response.WaitingAppointmentsCounts;
+                                                    }
+                                                    if (document.getElementById("TotalCompletedAppointments")) {
+                                                        document.getElementById("TotalCompletedAppointments").value = response.CompletedAppointmentsCounts;
+                                                    }
+                                                },
+                                                error: function (xhr, status, error) {
+                                                    console.log('Error:', error);
+                                                    console.log('Status:', status);
+                                                    console.log('Response:', xhr.responseText);
+                                                }
+                                            });
+                                        }
+                                    });
+                                }
+                                else {
+                                    alert(response.message); // Error message
+                                }
+
+                            },
+                            error: function (xhr, status, error) {
+                                alert("An unexpected error occurred: " + error);
+                            },
+                            complete: function () {
+                                //setTimeout(function () {
+                                $("#loader").hide(); // Hide loader after 10 seconds
+                                //}, 2000);
+
+                                $('#appointmentModal').removeClass('show').hide();
+                                $('.modal-backdrop').remove();
+                                $('body').removeClass('modal-open');
+                            }
+                        });
+                    }
+                    else {
+                        alert(response.message); // Error message
+                    }
+
+                },
+                error: function (xhr, status, error) {
+                    alert(alert("Error: " + xhr.status + " - " + xhr.responseText));
+                },
+
+            });
+
+
+
+
+
+
+        });
+
+        $("#modalSubmitPC").on("click", function () {
+            //$("#loader").show();
+            //CareOf, MobileNumber, Age, City, tokennumberPC
+            if (document.getElementById("PatientName").value == "") {
+                alert("Please enter Patient Name");
+                $("#PatientName").focus();
+                return false;
+
+            }
+            else if (document.getElementById("CareOf").value == "") {
+                alert("Please enter CareOf");
+                $("#CareOf").focus();
+                return false;
+            }
+            else if (document.getElementById("MobileNumber").value == "") {
+                alert("Please enter Mobile Number");
+                $("#MobileNumber").focus();
+                return false;
+            } else if (document.getElementById("Age").value == "") {
+                alert("Please enter Age");
+                $("#Age").focus();
+                return false;
+            } else if (document.getElementById("City").value == "") {
+                alert("Please enter City");
+                $("#City").focus();
+                return false;
+            } else if (document.getElementById("tokennumberPC").value == "") {
+                alert("Please enter token number");
+                $("#tokennumberPC").focus();
+                return false;
+            }
+            else
+            {
+                $.ajax({
+                    type: "GET",
+                    url: "/Appointment/TokenNumberValidation",
+                    async: true,
+                    data: {
+                        appointmentDate: document.getElementById("AppointmentDate").value,
+                        token: document.getElementById("tokennumberPC").value
+                    },
+                    success: function (response) {
+                        
+                        if (response.success) {
+                            $.ajax({
+                                type: "GET",
+                                url: "/Appointment/CreatePatient",
+                                async: true,
+                                data: {
+                                    PatientName: document.getElementById("PatientName").value,
+                                    CareOf: document.getElementById("CareOf").value,
+                                    MobileNumber: document.getElementById("MobileNumber").value,
+                                    Age: document.getElementById("Age").value,
+                                    AppointmentDate: document.getElementById("AppointmentDate").value,
+                                    TokenNumber: document.getElementById("tokennumberPC").value,
+                                    Disease: document.getElementById("Disease").value,
+                                    City: document.getElementById("City").value,
+                                    Gender: document.querySelector('input[name="Gender"]:checked').value,
+                                    Severity: document.querySelector('input[name="Severity"]:checked').value,
+                                    ReferBy: document.getElementById("refer_by").value,
+                                    ReferTo: document.getElementById("refer_to").value,
+                                    //CreateAppointment: document.querySelector('input[name="CreateAppointment"]:checked').value,
+                                },
+                                beforeSend: function () {
+                                    $("#loader").show(); // Show loader before request starts
+                                },
+                                success: function (response) {
+                                    //alert(response.message);
+                                    if (response.success) {
+
+                                        $.ajax({
+                                            url: "/Appointment/GetCounts",
+                                            type: "GET",
+                                            data: { startdate: document.getElementById("hdSelectedDate").value },
+                                            success: function (response) {
+                                                console.log('GetCounts', response);
+                                                //console.log(data);
+                                                if (document.getElementById("TotalPatientCount")) {
+                                                    document.getElementById("TotalPatientCount").value = response.AllPatientsCount;
+                                                }
+                                                if (document.getElementById("TotalTodayAppointments")) {
+                                                    document.getElementById("TotalTodayAppointments").value = response.TodayAppointmentsCount;
+                                                }
+                                                if (document.getElementById("TotalWaitingAppointments")) {
+                                                    document.getElementById("TotalWaitingAppointments").value = response.WaitingAppointmentsCounts;
+                                                }
+                                                if (document.getElementById("TotalCompletedAppointments")) {
+                                                    document.getElementById("TotalCompletedAppointments").value = response.CompletedAppointmentsCounts;
+                                                }
+                                            },
+                                            error: function (xhr, status, error) {
+                                                console.log('Error:', error);
+                                                console.log('Status:', status);
+                                                console.log('Response:', xhr.responseText);
+                                            }
+                                        });
+                                    }
+                                    else {
+                                        alert(response.message); // Error message
+                                    }
+
+                                },
+                                error: function (xhr, status, error) {
+                                    alert("An unexpected error occurred: " + error);
+                                },
+                                complete: function () {
+                                    //setTimeout(function () {
+                                    $("#loader").hide(); // Hide loader after 10 seconds
+                                    //}, 2000);
+                                    // Appointment list page is getting refreshed automatically due to calling of listenForNewAppointments();
+                                    $('#createPatientModal').removeClass('show').hide();
+                                    $('.modal-backdrop').remove();
+                                    $('body').removeClass('modal-open');
+                                }
+                            });
+                        }
+                        else
+                        {
+                            alert(response.message); // Error message
+                        }
+
+                    },
+                    error: function (xhr, status, error) {
+                        alert(alert("Error: " + xhr.status + " - " + xhr.responseText));
+                    },
+
+                });
+
+                
+            }
+        });
+
+    });
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const selectedDateDiv = document.getElementById("selectedDate");
+
+        // Get the current date
+        const currentDate = new Date();
+        const dayName = currentDate.toLocaleString("default", { weekday: "short" }).toUpperCase();
+        const dayNumber = String(currentDate.getDate()).padStart(2, "0");
+
+        // Set the initial content to current date
+        selectedDateDiv.innerHTML = `<span style="font-size: 24px; font-weight: bold; text-align:center;">${dayName} <br />${dayNumber}</span>`;
+
+        const formattedDateToday = currentDate.toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric"
+        }).replace(",", "-");
+
+        document.getElementById("hdSelectedDate").value = formattedDateToday;
+
+        // Initialize Flatpickr on the div
+        const flatpickrInstance = flatpickr(selectedDateDiv, {
+            dateFormat: "d-m-Y",
+            clickOpens: false, // Prevent Flatpickr from opening on its own
+            onChange: function (selectedDates) {
+                const date = new Date(selectedDates[0]);
+                const dayName = date.toLocaleString("default", { weekday: "short" }).toUpperCase();
+                const dayNumber = String(date.getDate()).padStart(2, "0");
+                selectedDateDiv.innerHTML = `<span style="font-size: 24px; font-weight: bold; text-align:center;">${dayName} <br />${dayNumber}</span>`;
+
+                // Format date as dd-MMM-yyyy (e.g., 05-Feb-2025)
+                const formattedDate = date.toLocaleDateString("en-GB", {
+                    day: "2-digit",
+                    month: "short",
+                    year: "numeric"
+                }).replace(",", "-"); // Remove comma
+
+                document.getElementById("hdSelectedDate").value = formattedDate;
+                $.ajax({
+                    url: "/Appointment/Search",
+                    type: "GET",
+                    data: { startdate: formattedDate, Type: 'Appointments', Search: '' },
+                    beforeSend: function () {
+                        $("#loader").show(); // Show loader before request starts
+                    },
+                    success: function (data) {
+
+                        //console.log(data);
+                        $("#patientList").html("");
+                        $("#appointmentList").html("");
+                        $("#appointmentList").html(data);
+
+                        $.ajax({
+                            url: "/Appointment/GetCounts",
+                            type: "GET",
+                            data: { startdate: '' },
+                            success: function (response) {
+                                console.log('GetCounts', response);
+                                //console.log(data);
+                                if (document.getElementById("TotalPatientCount")) {
+                                    document.getElementById("TotalPatientCount").value = response.AllPatientsCount;
+                                }
+                                if (document.getElementById("TotalTodayAppointments")) {
+                                    document.getElementById("TotalTodayAppointments").value = response.TodayAppointmentsCount;
+                                }
+                                if (document.getElementById("TotalWaitingAppointments")) {
+                                    document.getElementById("TotalWaitingAppointments").value = response.WaitingAppointmentsCounts;
+                                }
+                                if (document.getElementById("TotalCompletedAppointments")) {
+                                    document.getElementById("TotalCompletedAppointments").value = response.CompletedAppointmentsCounts;
+                                }
+                            },
+                            error: function (xhr, status, error) {
+                                console.log('Error:', error);
+                                console.log('Status:', status);
+                                console.log('Response:', xhr.responseText);
+                            }
+                        });
+                    },
+                    complete: function () {
+                        $("#loader").hide(); // Hide loader when request completes
+                    }
+                });
+            }
+        });
+
+        //// Select elements by class
+        //document.querySelectorAll('.trigger-element').forEach(trigger => {
+        //    trigger.addEventListener('click', function () {
+        //        const input = this.nextElementSibling; // Select the next sibling input element
+        //        if (input && input.classList.contains('hidden-input')) {
+        //            input.click(); // Trigger the click event on the input
+        //            input.addEventListener('change', function () {
+        //                // Update the span content after date selection
+        //                const selectedDate = new Date(input.value);
+        //                const days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+        //                const span = trigger.querySelector('span');
+        //                if (span) {
+        //                    span.innerHTML = `${days[selectedDate.getUTCDay()]} <br>${selectedDate.getUTCDate()}`;
+        //                }
+        //            });
+        //        }
+        //    });
+        //});
+
+        // Toggle calendar when clicking on the div
+        selectedDateDiv.addEventListener("click", () => {
+            if (flatpickrInstance.isOpen) {
+                flatpickrInstance.close(); // Close if already open
+            } else {
+                flatpickrInstance.open(); // Open if closed
+            }
+        });
+    });
+
+    //document.addEventListener("DOMContentLoaded", () => {
+    //    const selectedDateDiv = document.getElementById("selectedDate");
+
+    //    // Initialize Flatpickr on the div
+    //    const flatpickrInstance = flatpickr(selectedDateDiv, {
+    //        dateFormat: "d-m-Y",
+    //        clickOpens: false, // Prevent Flatpickr from opening on its own
+    //        onChange: function (selectedDates) {
+    //            const date = new Date(selectedDates[0]);
+    //            const dayName = date.toLocaleString("default", { weekday: "short" }).toUpperCase();
+    //            const dayNumber = date.getDate();
+    //            selectedDateDiv.innerHTML = `<span>${dayName} <br />${dayNumber}</span>`;
+    //        }
+    //    });
+
+    //    // Open calendar when the div is clicked
+    //    selectedDateDiv.addEventListener("click", () => {
+    //        flatpickrInstance.open(); // Open Flatpickr popup
+    //    });
+
+    //    // Select elements by class
+    //    document.querySelectorAll('.trigger-element').forEach(trigger => {
+    //        trigger.addEventListener('click', function () {
+    //            const input = this.nextElementSibling; // Select the next sibling input element
+    //            if (input && input.classList.contains('hidden-input')) {
+    //                input.click(); // Trigger the click event on the input
+    //                input.addEventListener('change', function () {
+    //                    // Update the span content after date selection
+    //                    const selectedDate = new Date(input.value);
+    //                    const days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+    //                    const span = trigger.querySelector('span');
+    //                    if (span) {
+    //                        span.innerHTML = `${days[selectedDate.getUTCDay()]} <br>${selectedDate.getUTCDate()}`;
+    //                    }
+    //                });
+    //            }
+    //        });
+    //    });
+
+
+    //});
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const toggle = document.getElementById('popoverToggle');
+        const popover = document.getElementById('popover');
+
+        toggle.addEventListener('click', () => {
+            // Toggle the popover's visibility
+            if (popover.style.display === 'none' || popover.style.display === '') {
+                popover.style.display = 'block';
+            } else {
+                popover.style.display = 'none';
+            }
+        });
+
+        // Close popover if clicked outside
+        document.addEventListener('click', (event) => {
+            if (!toggle.contains(event.target) && !popover.contains(event.target)) {
+                popover.style.display = 'none';
+            }
+        });
+    });
+
+    function logout() {
+        // For example, clear session storage or cookies if you're using them for authentication
+        sessionStorage.clear();
+        document.location.href = '/Home/Logout'; // Redirect to logout route
+    }
 
 </script>
-<h2>Appointments</h2>
+
+<div class="card">
+    <div class="card-header py-0 myfixheader d-flex justify-content-end">
+        <div class="card-header-button-group d-flex w-100 justify-content-end">
+            <input id="UserDetail" class="form-control me-3 w-50" value="@ViewBag.UserDetail" readonly />
+            <button class="btn btn-secondary btn-sm me-3 boxcircle" type="button" onclick="logout()"><i class="fa fa-sign-out"></i></button>
+            <button class="btn btn-secondary btn-sm me-3 boxcircle" type="button"><i class="fa fa-refresh"></i></button>
+            @if (User.IsInRole("Doctor") || User.IsInRole("Receptionist"))
+            {
+                <button class="btn btn-secondary btn-sm me-3 boxcircle" type="button"><i class="fa fa-calendar-plus"></i></button>
+                <button class="btn btn-secondary btn-sm me-3 boxcircle modal-linkPC" data-toggle="modal" data-target=".modalCreatePatient" type="button"><i class="fa fa-plus"></i></button>
+            }
+        </div>
+        <div class="row p-0 m-0 d-flex w-100 flex-unwrap justify-content-between">
+
+            <div class="pageDetailout">
+                @if (User.IsInRole("Doctor") || User.IsInRole("Receptionist"))
+                {
+                    <div class="pageDetailValue me-2">
+                        <form method="Post">
+                            @Html.AntiForgeryToken()
+                            <input type="text" name="Type" value="Patients" hidden /> <!-- Parameter -->
+                            @*<input class="form-control" name="startdate" type="date" id="startdate" style="width:155px" value="@ViewBag.Message">*@
+                            @*<button type="submit" formaction="@Url.Action("Index", "Appointment")" class="pageDetailhead">
+                        All Patients
+                    </button>*@
+
+                            <button type="button" id="AllPatients" class="pageDetailhead">
+                                All
+                            </button>
+                        </form>
+                        <input id="TotalPatientCount" class="form-control smallinput" value="@ViewBag.TotalPatientCount" readonly style="text-align: center;" />
+                    </div>
+
+                    @*<div class="pageDetailValue  me-2">
+                    <input type="text" name="Type" value="Appointments" hidden />
+                    <button type="button" id="TodayPatients" class="pageDetailhead active-btn">Today's</button>
+                <input class="form-control smallinput" id="TotalTodayAppointments" value="@ViewBag.TotalTodayAppointmentsReceptionist" readonly style="text-align: center;" />
+            </div>*@
+                }
+                @if (User.IsInRole("Doctor") || User.IsInRole("Chemist") || User.IsInRole("Cashier"))
+                {
+
+                    <div class="pageDetailValue  me-2">
+
+                        <button type="button" id="WaitingPatients" class="pageDetailhead active-btn">Waiting</button>
+                        <input id="TotalWaitingAppointments" class="form-control smallinput" value="@ViewBag.TotalWaitingAppointments" readonly style="text-align: center;" />
 
 
-<table class="table" border="0">
+                    </div>
+                    @*<div class="pageDetailValue  me-2">
+
+                        <button type="button" id="CompletedPatients" class="pageDetailhead">Completed</button>
+                        <input id="TotalCompletedAppointments" class="form-control smallinput" value="@ViewBag.TotalCompletedAppointments" readonly style="text-align: center;" />
+
+
+                    </div>*@
+
+
+                }
+                @if (User.IsInRole("Doctor") || User.IsInRole("Receptionist"))
+                {
+            <div class="pageDetailValue">
+
+
+                <input id="TodayPatients" type="button" class="form-control pageDetailhead" value="Today's" readonly style="text-align: center;height:40px" />
+                <input type="text" id="hidden-datepicker" style="position: absolute; visibility: hidden;">
+                <input class="form-control" id="hdSelectedDate" type="hidden" />
+                <input id="TotalTodayAppointments" class="form-control smallinput" value="@ViewBag.TotalTodayAppointmentsReceptionist" readonly style="text-align: center;" />
+
+
+            </div>
+                }
+            </div>
+            @*<div class="pageDetailout datebox">
+                <div class="pageDetailValue" id="selectedDate1">
+                    <span></span>
+
+                </div>
+            </div>
+            <input class="form-control" id="hdSelectedDate" type="hidden" />*@
+        </div>
+        @if (User.IsInRole("Doctor") || User.IsInRole("Receptionist"))
+        {
+            <div class="row w-100 p-0 m-0">
+                <div class="col-lg-12 w-100 p-0">
+                    <div class="mysearchheader">
+                        <form class="w-100" method="Post">
+                            @Html.AntiForgeryToken()
+                            @*<input class="form-control" name="startdate" type="hidden" id="startdate" style="width:155px" value="@ViewBag.Message">*@
+                            <input type="text" name="Type" value="Patients" hidden /> <!-- Parameter -->
+                            <input class="form-control w-100" name="search" type="text" id="search" placeholder="Search using Name/UID,Mobile">
+                            @*<input type="submit" formaction="@Url.Action("Index", "Appointment")" class="btn btn-secondary btn-sm" value="Search" />*@
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+    <div id="loader" style="display: none;">
+        <img src="~/Images/loader.gif" alt="Loading..." />
+    </div>
+    <div class="card-body">
+
+
+        <div class="row  p-0 m-0" id="appointmentList" style="margin-top:10px;">
+            @Html.Partial("_AppointmentListPartial", Model)
+        </div>
+        <div class="row  p-0 m-0" id="patientList" style="margin-top:10px;">
+            @Html.Partial("_PatientListPartial", Model)
+        </div>
+    </div>
+</div>
+
+@*@using (Html.BeginForm("CreateFutureAppointment", "Patient", FormMethod.Post))
+    {*@
+<div class="form-horizontal">
+    <div class="modal fade bootstrapmodal" id="appointmentModal">
+        <div class="modal-dialog">
+
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button data-dismiss="modal" class="close"><span>&times;</span></button>
+                    Please Select Appointment Date
+                </div>
+                <div class="modal-body">
+
+                    <div class="form-group">
+                        <div class="col-md-5">
+                            @Html.Label("StartDate", "Start Date:")
+                        </div>
+
+                        <div class="col-md-5">
+                            <input class="form-control" name="datepicker" type="text" id="datepicker">
+                        </div>
+
+                    </div>
+                    <div class="form-group">
+                        <div class="col-md-5">
+                            @Html.Label("TokenNumber", "Token Number:")
+                        </div>
+
+                        <div class="col-md-5">
+                            <input class="form-control" name="tokennumber" type="number" min="0" step="1" max="10000" id="tokennumber">
+                        </div>
+
+                    </div>
+                    <div class="form-group">
+                        <div class="col-md-5">
+                            @Html.Label("ReferTo", "Refer To:")
+                        </div>
+
+                        <div class="col-md-5">
+                            @Html.DropDownList("referto", (IEnumerable<SelectListItem>)ViewBag.USERS, new { @class = "select2_demo_4 form-control" })
+                        </div>
+                    </div>
+
+                </div>
+
+                <input type="hidden" class="form-control" name="patientAutoId" id="patientAutoId" value="" />
+
+                <div class="modal-footer">
+                    <div class="form-group">
+                        <div class="col-md-1">
+                            <button type="button" id="modalSubmit" class="btn btn-primary">Submit</button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="form-horizontal">
+    <div class="modal fade modalCreatePatient" id="createPatientModal">
+        <div class="modal-dialog">
+
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button data-dismiss="modal" class="close"><span>&times;</span></button>
+                    Create Patient
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <div class="row d-flex">
+                            <div class="col-md-5">
+                                <input class="form-control" name="PatientName" type="text" id="PatientName" placeholder="Enter Patient Name">
+                            </div>
+                            <div class="col-md-5">
+                                <input class="form-control" name="CareOf" type="text" id="CareOf" placeholder="Enter CareOf">
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="form-group">
+                        <div class="row d-flex">
+                            <div class="col-md-5">
+                                <input class="form-control" name="MobileNumber" type="number" min="0" step="1" id="MobileNumber" placeholder="Enter Mobile Number" oninput="validateMaxLength(this)" />
+                            </div>
+                            <div class="col-md-5">
+                                <input class="form-control" name="Age" id="Age" type="number" min="0" step="1" max="150" oninput="validateAgeLength(this)"  placeholder="Enter Age">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="row d-flex">
+                            <div class="col-md-5">
+                                <input class="form-control" name="City" type="text" id="City" placeholder="Enter City">
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="form-group">
+                        <div class="row d-flex">
+                            <div class="col-md-5">
+                                <input class="form-control" name="AppointmentDate" type="text" id="AppointmentDate" placeholder="Select Appointment Date">
+                            </div>
+                            <div class="col-md-5">
+                                <input class="form-control" name="tokennumberPC" type="number" min="0" step="1" id="tokennumberPC" oninput="validateTokenLength(this)" placeholder="Enter Token">
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="form-group">
+                        <div class="col-md-5">
+                            @Html.Label("Gender", "Gender:")
+                        </div>
+
+                        <div class="col-md-5 d-flex">
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" checked type="radio" name="Gender" id="Male" value="Male">
+                                <label class="form-check-label" for="Male">
+                                    Male
+                                </label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="Gender" id="Female" value="Female">
+                                <label class="form-check-label" for="Female">
+                                    Female
+                                </label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="Gender" id="Other" value="Other">
+                                <label class="form-check-label" for="Other">
+                                    Other
+                                </label>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="form-group">
+                        <div class="col-md-5">
+                            @Html.Label("Severity", "Severity:")
+                        </div>
+
+                        <div class="col-md-5 d-flex">
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" checked type="radio" name="Severity" id="Low" value="Low">
+                                <label class="form-check-label" for="Male">
+                                    Green
+                                </label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="Severity" id="Medium" value="Medium">
+                                <label class="form-check-label" for="Female">
+                                    Yellow
+                                </label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="Severity" id="High" value="High">
+                                <label class="form-check-label" for="Other">
+                                    Red
+                                </label>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    @*<div class="form-group">
+                        <div class="col-md-5">
+                            @Html.Label("CreateAppointment", "Create Appointment:")
+                        </div>
+
+                        <div class="col-md-5 d-flex">
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" checked type="radio" name="CreateAppointment" id="Yes" value="Yes">
+                                <label class="form-check-label" for="Male">
+                                    Yes
+                                </label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="CreateAppointment" id="No" value="No">
+                                <label class="form-check-label" for="Female">
+                                    No
+                                </label>
+                            </div>
+                        </div>
+
+                    </div>*@
+
+
+                    <div class="form-group">
+                        <div class="col-md-5">
+                            @Html.Label("Diseases", "Select Disease:")
+                        </div>
+
+                        <div class="col-md-5">
+                            @Html.DropDownList("Disease", (IEnumerable<SelectListItem>)ViewBag.DISEASES, new { @class = "select2_demo_4 form-control" })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-md-5">
+                            @Html.Label("ReferBy", "Refer By:")
+                        </div>
+
+                        <div class="col-md-5">
+                            @Html.DropDownList("refer_by", (IEnumerable<SelectListItem>)ViewBag.REFERBYS, new { @class = "select2_demo_4 form-control" })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-md-5">
+                            @Html.Label("ReferToDoctor", "Refer To:")
+                        </div>
+
+                        <div class="col-md-5">
+                            @Html.DropDownList("refer_to", (IEnumerable<SelectListItem>)ViewBag.USERS, new { @class = "select2_demo_4 form-control" })
+                        </div>
+                    </div>
+                </div>
+              
+
+                <div class="modal-footer">
+                    <div class="form-group">
+                        <div class="col-md-1">
+                            <button type="button" id="modalSubmitPC" class="btn btn-primary">Submit</button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@*}*@
+
+<h2 style="display:none;">Appointments</h2>
+
+
+<table class="table" border="0" style="display:none;">
     <tr>
 
         @using (Html.BeginForm("", "Appointment", FormMethod.Post))
@@ -117,7 +1592,8 @@
     </tr>
 </table>
 @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-<table class="table">
+<!--<table class="table" style="display:none;">-->
+<table class="table" style="display:none;">
     <tr>
         <th>
 
@@ -143,32 +1619,40 @@
 
     @foreach (var item in Model)
     {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.token)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.patient_name) <text>c/o</text> @Html.DisplayFor(modelItem => item.patient_care_of)<br />
-                @Html.DisplayFor(modelItem => item.patient_gender) <text>/</text> @Html.DisplayFor(modelItem => item.patient_age)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.patient_mobile) <br /> @Html.DisplayFor(modelItem => item.patient_id)
-            </td>
-            @*<td>
-                    @Html.DisplayFor(modelItem => item.raisedDate) <br /> @Html.DisplayFor(modelItem => item.timeStamp)
-                </td>*@
 
-            <td>
-                @*@Html.DisplayFor(modelItem => item.status)*@-
-                <br />
-                @*@Html.DisplayFor(modelItem => item.status)*@-
-                <br />
-                @*@Html.DisplayFor(modelItem => item.status)*@-
-            </td>
+        foreach (var appointment in item.Appointments)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => appointment.token)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => appointment.patient_name) <text>c/o</text> @Html.DisplayFor(a => appointment.patient_care_of)<br />
+                    @Html.DisplayFor(modelItem => appointment.patient_gender) <text>/</text> @Html.DisplayFor(a => appointment.patient_age)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => appointment.patient_mobile) <br /> @Html.DisplayFor(a => appointment.patient_id)
+                </td>
+                @*<td>
+                        @Html.DisplayFor(modelItem => item.raisedDate) <br /> @Html.DisplayFor(modelItem => item.timeStamp)
+                    </td>*@
 
-        </tr>
+                <td>
+                    @*@Html.DisplayFor(modelItem => item.status)*@-
+                    <br />
+                    @*@Html.DisplayFor(modelItem => item.status)*@-
+                    <br />
+                    @*@Html.DisplayFor(modelItem => item.status)*@-
+                </td>
+
+            </tr>
+        }
+
     }
 
 </table>
+
+@*<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>*@
+
 
 

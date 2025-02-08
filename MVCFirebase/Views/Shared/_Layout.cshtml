@@ -2,117 +2,120 @@
 <html>
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@ViewBag.Title Grren Paper Technology</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0 user-scalable=no, maximum-scale=1.0">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>@ViewBag.Title Green Paper Technology</title>
+    <link rel="manifest" href="~/Content/manifest.json">
+    <link href="~/Content/style.css" rel="stylesheet" />
+    <!-- Bootstrap CSS -->
+    <!--<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+          integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">-->
+
     @Styles.Render("~/Content/css")
     @Scripts.Render("~/bundles/modernizr")
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/bootstrap")
 
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/Scripts/service-worker.js')
+                .then(function (registration) {
+                    console.log('Service Worker registered with scope:', registration.scope);
+                }).catch(function (error) {
+                    console.error('Service Worker registration failed:', error);
+                });
+        }
+    </script>
 </head>
 <body>
-    <div class="navbar navbar-inverse navbar-fixed-top">
-        <div class="container">
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-                <a href="/Home/Index" class="navbar-brand"> <img src="~/Images/logo copy.png" alt="Company logo" width="30" height="30" class="d-inline-block align-top" /></a>
-                @Html.ActionLink("Green Paper Technology", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
-
-            </div>
-            <div class="navbar-collapse collapse">
-                <ul class="nav navbar-nav">
-                    <li>@Html.ActionLink("Home", "Index", "Home")</li>
-                    <li>@Html.ActionLink("About", "About", "Home")</li>
-                    <li>@Html.ActionLink("Contact", "Contact", "Home")</li>
-                    @if (User.IsInRole("SuperAdmin"))
-                    {
-                        <li>@Html.ActionLink("Clinics", "Index", "Clinic")</li>
-                        <li>@Html.ActionLink("SuperUsers", "Index", "SuperUser")</li>
-                    }
-                    @if (User.IsInRole("Salesman"))
-                    {
-                        <li>@Html.ActionLink("CRM", "Index", "CRM")</li>
-                        
-                    }
-
-                    @if (User.IsInRole("Receptionist"))
-                    {
-                        <li>@Html.ActionLink("Patients", "Index", "Patient")</li>
-                    }
-                    @if (User.IsInRole("Receptionist") || User.IsInRole("Chemist") || User.IsInRole("Cashier"))
-                    {
-                        if (User.IsInRole("Receptionist"))
-                        {
-                            <li>@Html.ActionLink("Appointments", "Index", "Appointment")</li>
-                        }
-                        else
-                        {
-                            <li>@Html.ActionLink("Appointments", "Waiting", "Appointment")</li>
-                        }
-
-                    }
-                    @if (User.IsInRole("Chemist"))
-                    {
-                        <li>@Html.ActionLink("Inventory", "Index", "Inventory")</li>
-                    }
-
-                    @if (User.IsInRole("Admin"))
-                    {
-                        <li>@Html.ActionLink("Users", "Index", "User")</li>
-                        <li>@Html.ActionLink("Settings", "Index", "ClinicSetting")</li>
-                    }
-                </ul>
-                @if (User.Identity.IsAuthenticated)
-                {
-                    <ul class="nav navbar-nav navbar-right">
-                        @*<li><a class="nav-link" href="#"><span class="glyphicon glyphicon-user"></span><b>@HttpContext.Current.User.Identity.Name.Split('|')[1]</b></a></li>*@
-                        <li><a class="nav-link" href="#"><span class="glyphicon glyphicon-user"></span><b>@HttpContext.Current.User.Identity.Name.Split('|')[1]</b></a></li>
-                        <li>
-                            @using (Html.BeginForm("Logout", "Home", FormMethod.Post))
-                            {
-                                <a class="nav-link" href="javascript:;" onclick="document.forms[0].submit();"><span class="glyphicon glyphicon-log-in"></span> Logout</a>
-                            }
-                        </li>
-                    </ul>
-                }
-                else
-                {
-            <ul class="nav navbar-nav navbar-right">
-                <li>
-                @Html.ActionLink("Login", "Login", "Home")
-                @*@using (Html.BeginForm("Login", "Home", FormMethod.Post))
-        {
-            <a href="javascript:;" onclick="document.forms[0].submit();"><span class="glyphicon glyphicon-log-in"></span>Log In</a>
-        }*@
-                </li>
-            </ul>
-                }
-            </div>
-            @*<div class="navbar-collapse collapse">
-                Welcome :
-                <b>@HttpContext.Current.User.Identity.Name</b>
-                @using (Html.BeginForm("Logout", "Home", FormMethod.Post))
-                {
-                    <a href="javascript:;" onclick="document.forms[0].submit();">Logout</a>
-                }
-            </div>*@
-
-            
-        </div>
-    </div>
-    <div class="container body-content">
+    <div class="container body-content p-0 m-0" style="max-width:100%; margin: 0 auto!important;">
         @RenderBody()
-        <hr />
-        <footer>
-            <p>&copy; @DateTime.Now.Year - Green Paper Technology</p>
-        </footer>
     </div>
+    <script>
+        const drawer = document.getElementById('drawer');
+        const openDrawerButton = document.getElementById('openDrawer');
 
-    
+        openDrawerButton.addEventListener('click', () => {
+            drawer.classList.toggle('hidden');
+        });
+    </script>
+    @*<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+            integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+            crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
+            integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN"
+            crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
+            integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV"
+            crossorigin="anonymous"></script>*@
+
+    <script>
+        const drawer = document.getElementById('drawer');
+        const openDrawerButton = document.getElementById('openDrawer');
+
+        // Open drawer on button click
+        openDrawerButton.addEventListener('click', (event) => {
+            drawer.classList.toggle('hidden');
+            event.stopPropagation(); // Prevents click event from propagating
+        });
+
+        // Close drawer when clicking outside
+        document.addEventListener('click', (event) => {
+            // Debugging log to check which element is clicked
+            console.log('Clicked element:', event.target);
+
+            if (
+                drawer.classList.contains('hidden') && // Drawer is visible
+                !drawer.contains(event.target) && // Click is outside the drawer
+                event.target !== openDrawerButton // Click is not on the open button
+            ) {
+                drawer.classList.remove('hidden');
+            }
+        });
+
+        // Prevent clicks inside the drawer from closing it
+        drawer.addEventListener('click', (event) => {
+            event.stopPropagation();
+        });
+
+    </script>
+
     @RenderSection("scripts", required: false)
+
+    @*<script>
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker
+                    .register('/Scripts/service-worker.js')
+                    .then((registration) => {
+                        console.log('Service Worker registered with scope:', registration.scope);
+
+                        // Listen for messages from the Service Worker
+                        navigator.serviceWorker.addEventListener('message', (event) => {
+                            if (event.data.action === 'saveLastPath') {
+                                localStorage.setItem('lastPath', event.data.path);
+                                console.log('localStorage:', event.data.path);
+                            }
+
+                            console.log('out side localStorage:', event.data , event.data.path);
+                        });
+
+                        // Redirect to the last saved path on page load
+                        const lastPath = localStorage.getItem('lastPath');
+                        if (lastPath && location.pathname === '/') {
+                            location.replace(lastPath);
+                            console.log('Service Worker registered with scope:', registration.scope);
+                        }
+                    })
+                    .catch((error) => {
+                        console.error('Service Worker registration failed:', error);
+                    });
+            }
+        </script>*@
+
+
+
 </body>
 </html>
+

@@ -1,39 +1,6 @@
 ﻿@model MVCFirebase.Models.User
-@{
-    Layout = null;
-}
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@ViewBag.Title - Green Paper Technology</title>
-    @Styles.Render("~/Content/css")
-    @Scripts.Render("~/bundles/modernizr")
-    
-    @*  *@
 
 
-
-
-</head>
-<body>
-    <div class="navbar navbar-inverse navbar-fixed-top">
-        <div class="container">
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-
-                <a href="/Home/Index" class="navbar-brand"> <img src="~/Images/logo copy.png" alt="Company logo" width="30" height="30" class="d-inline-block align-top" /></a>
-                @Html.ActionLink("Green Paper Technology", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
-
-            </div>
-
-        </div>
-    </div>
     @using (Html.BeginForm())
     {
         @*@Html.AntiForgeryToken()*@
@@ -46,7 +13,7 @@
                     @*@Html.LabelFor(model => model.clinicmobilenumber, htmlAttributes: new { @class = "control-label col-md-2" })*@
                     <label class = "control-label col-md-2">Clinic Code</label>
                     <div class="col-md-10">
-                        @Html.EditorFor(model => model.cliniccode, new { htmlAttributes = new { @class = "form-control", placeholder = "Clinic Code" } })
+                        @Html.EditorFor(model => model.cliniccode, new { htmlAttributes = new { @class = "form-control", placeholder = "Clinic Code"} })
                         @Html.ValidationMessageFor(model => model.cliniccode, "", new { @class = "text-danger" })
                     </div>
                 </div>
@@ -62,7 +29,7 @@
                     @*@Html.LabelFor(model => model.password, htmlAttributes: new { @class = "control-label col-md-2" })*@
                     <label class="control-label col-md-2">Password</label>
                     <div class="col-md-10">
-                        @Html.PasswordFor(model => model.password, new { @class = "form-control", placeholder = "Password" })
+                        @Html.PasswordFor(model => model.password, new { @class = "form-control", placeholder = "Password", value = "12345678" })
                         @Html.ValidationMessageFor(model => model.password, "", new { @class = "text-danger" })
                     </div>
                 </div>
@@ -74,13 +41,6 @@
                         <input type="submit" value="Submit" class="btn btn-default" />
                     </div>
                 </div>
-            </div>
-            <div class="container body-content">
-
-                <hr />
-                <footer>
-                    <p>&copy; @DateTime.Now.Year - Green Paper Technology</p>
-                </footer>
             </div>
         </div>
 
@@ -98,5 +58,4 @@
             });
         </script>
     }
-</body>
-</html>
+

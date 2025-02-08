@@ -100,7 +100,7 @@
             // Format the date as dd-MMM-yyyy HH:mm:ss
             var formattedDate = day + "-" + month + "-" + year + " " + hours + ":" + minutes + ":" + seconds;
 
-            console.log(formattedDate);
+            console.log('formattedDate : ',formattedDate);
             $("#datepicker").val(formattedDate);
             //$.post("/Patient/getLatestToken", { futureAppointmentDate: formattedDate },
             //    function (data) {
@@ -161,7 +161,7 @@
 
     <table class="table">
         <tr>
-
+            <th>Actions</th>
             <th>
                 @Html.DisplayNameFor(model => model.patient_id)
             </th>
@@ -183,40 +183,40 @@
             <th>
                 @Html.DisplayNameFor(model => model.city)
             </th>
-            <th></th>
+
         </tr>
 
         @foreach (var item in Model)
         {
-            <tr>
+    <tr>
+        <td>
+            @Html.ActionLink("Edit", "Edit", new { id = item.id }) |
+            @*@Html.ActionLink("Add Prescriptions", "AddPres", new { id = item.id }) |*@
+            <a class="modal-link" data-id="@item.id" data-toggle="modal" data-target=".bootstrapmodal">Add Appointment</a>
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.patient_id)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.patient_name)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.patient_mobile_number)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.disease)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.gender)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.age)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.city)
+        </td>
 
-                <td>
-                    @Html.DisplayFor(modelItem => item.patient_id)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.patient_name)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.patient_mobile_number)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.disease)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.gender)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.age)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.city)
-                </td>
-                <td>
-                    @Html.ActionLink("Edit", "Edit", new { id = item.id }) |
-                    @*@Html.ActionLink("Add Prescriptions", "AddPres", new { id = item.id }) |*@
-                    <a class="modal-link" data-id="@item.id" data-toggle="modal" data-target=".bootstrapmodal">Add Appointment</a>
-                </td>
-            </tr>
+    </tr>
         }
 
     </table>
