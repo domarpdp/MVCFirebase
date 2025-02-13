@@ -1,0 +1,75 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0 user-scalable=no, maximum-scale=1.0">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>@ViewBag.Title Green Paper Technology</title>
+    <link rel="manifest" href="~/Content/manifest.json">
+    <link href="~/Content/style.css" rel="stylesheet" />
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/Scripts/service-worker.js')
+                .then(function (registration) {
+                    console.log('Service Worker registered with scope:', registration.scope);
+                }).catch(function (error) {
+                    console.error('Service Worker registration failed:', error);
+                });
+        }
+    </script>
+</head>
+<body>
+    <div class="container body-content p-0 m-0" style="max-width:100%; margin: 0 auto!important;">
+        @RenderBody()
+    </div>
+    <script>
+        const drawer = document.getElementById('drawer');
+        const openDrawerButton = document.getElementById('openDrawer');
+
+        openDrawerButton.addEventListener('click', () => {
+            drawer.classList.toggle('hidden');
+        });
+    </script>
+    <script>
+        const drawer = document.getElementById('drawer');
+        const openDrawerButton = document.getElementById('openDrawer');
+
+        // Open drawer on button click
+        openDrawerButton.addEventListener('click', (event) => {
+            drawer.classList.toggle('hidden');
+            event.stopPropagation(); // Prevents click event from propagating
+        });
+
+        // Close drawer when clicking outside
+        document.addEventListener('click', (event) => {
+            // Debugging log to check which element is clicked
+            console.log('Clicked element:', event.target);
+
+            if (
+                drawer.classList.contains('hidden') && // Drawer is visible
+                !drawer.contains(event.target) && // Click is outside the drawer
+                event.target !== openDrawerButton // Click is not on the open button
+            ) {
+                drawer.classList.remove('hidden');
+            }
+        });
+
+        // Prevent clicks inside the drawer from closing it
+        drawer.addEventListener('click', (event) => {
+            event.stopPropagation();
+        });
+
+    </script>
+
+    @RenderSection("scripts", required: false)
+
+</body>
+</html>
+

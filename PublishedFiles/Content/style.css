@@ -1,0 +1,545 @@
+﻿/** {
+    font-size: 12px;
+    font-family: 'Times New Roman';
+}
+*/
+td,
+th,
+tr,
+table {
+    border-top: 1px solid black;
+    border-collapse: collapse;
+}
+    body{
+        padding-right:0px!important;
+    }
+    td.description,
+    th.description {
+        width: 75px;
+        max-width: 75px;
+    }
+
+    td.quantity,
+    th.quantity {
+        width: 40px;
+        max-width: 40px;
+        word-break: break-all;
+    }
+
+    td.price,
+    th.price {
+        width: 40px;
+        max-width: 40px;
+        word-break: break-all;
+    }
+
+.centered {
+    text-align: center;
+    align-content: center;
+}
+
+.ticket {
+    width: 155px;
+    max-width: 155px;
+}
+
+img {
+    max-width: inherit;
+    width: inherit;
+}
+
+@media print {
+    .hidden-print,
+    .hidden-print * {
+        display: none !important;
+    }
+}
+
+.card-detail {
+    display: flex;
+    flex-wrap: wrap;
+    background-color: #f5f5f5;
+    margin-bottom: 5px;
+    border-radius: 10px;
+    padding: 10px;
+}
+
+    .card-detail .card-body-item {
+        display: flex;
+        width: 24%;
+        padding: 5px;
+        flex-direction: column;
+    }
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+#mobiledrawer {
+    position: relative;
+}
+
+#openDrawer {
+    font-size: 24px;
+    background-color: #4a56e2;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+}
+
+#drawer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 75%;
+    max-width: 300px;
+    background-color: #4a56e2;
+    color: white;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
+    transform: translateX(-100%);
+    transition: transform 0.3s ease-in-out;
+}
+
+    #drawer.hidden {
+        transform: translateX(-100%);
+    }
+
+    #drawer .drawer-header {
+        padding: 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid white;
+    }
+
+    #drawer .avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background-color: white;
+        margin-right: 10px;
+    }
+
+.drawer-body {
+    padding: 15px;
+}
+
+    .drawer-body .plan,
+    .drawer-body .balance {
+        margin-bottom: 15px;
+        padding: 10px;
+        background-color: #3949ab;
+        border-radius: 5px;
+    }
+
+        .drawer-body .plan button,
+        .drawer-body .balance button {
+            display: inline-block;
+            margin-top: 5px;
+            padding: 5px 10px;
+            background-color: #ffb300;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+    .drawer-body .menu {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+        .drawer-body .menu li {
+            padding: 10px 0;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid white;
+        }
+
+            .drawer-body .menu li span {
+                margin-right: 10px;
+                font-size: 18px;
+            }
+
+
+.pageDetailValue.flatpickr-input.flatpickr-mobile {
+    /*    width: 70px;
+    position: absolute;
+    height: 90px;
+    top: 0;
+    display:none;*/
+    background-color: #eeeeee;
+    border: 0px;
+    color: #eee;
+}
+
+.pageDetailout.datebox {
+    width: 20%;
+    flex-direction: column;
+}
+.pageDetailout {
+    position: relative;
+    width: 100%;
+    padding: 5px 0px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.pageDetailout.datebox #selectedDate {
+    width: 100%;
+}
+.pageDetailValue.flatpickr-input {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 40px;
+    background-color: #4a56e2;
+    border-radius: 5px;
+    color: #fff;
+    margin: 0px;
+}
+
+.myboxview {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    background-color: #eee;
+    padding: 5px;
+    border-radius: 5px;
+}
+
+.myboxmid {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.myboxright span {
+    display: flex;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    justify-content: center;
+    align-items: center;
+}
+
+.myboxmid .card-body-item.myboxrightName {
+    display: flex;
+    width: 100%;
+    border-right: unset;
+}
+
+.myboxmid .card-body-item {
+    width: 33%;
+    border-right: 2px solid #ddd;
+    padding: 0px;
+    margin-bottom: 5px;
+}
+
+.myboxleft .boxCount {
+    display: flex;
+    width: 35px;
+    background-color: #ccc;
+    height: 35px;
+    border-radius: 50%;
+    justify-content: center;
+    align-items: center;
+}
+
+.card-body.my.card-detail {
+    padding: 5px;
+}
+
+.boxitemView .myboxmid .card-body-item {
+    width: auto;
+    padding: 0px 10px;
+}
+
+.myboxmid {
+    display: flex;
+    width: 100%;
+    justify-content: flex-start;
+}
+
+.w-100 {
+    width: 100%;
+}
+
+.flex-column {
+    flex-direction: column;
+}
+
+.myboxleft {
+    display: flex;
+    height: 100%;
+    justify-content: center;
+    align-items: center;
+    border-right: 2px solid #ddd;
+    padding-right: 5px;
+    margin-right: 5px;
+}
+
+.d-flex {
+    display: flex;
+}
+
+.myboxright {
+    display: flex;
+    height: 100%;
+    justify-content: center;
+    align-items: center;
+    border-left: 2px solid #ddd;
+    padding-left: 5px;
+    margin-left: 5px;
+}
+
+.pageDetailhead {
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    margin-bottom: 5px !important;
+    display: inline-block !important;
+    max-width: 100%;
+    white-space: normal;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    border: 2px solid #e3e3e3;
+    border-radius: 5px;
+    width: 100%;
+    height: 40px;
+}
+
+.pageDetailValue {
+    margin-bottom: 0px;
+    width:33.33%;
+}
+
+.mysearchheader {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+}
+
+    .mysearchheader input {
+        max-width: unset;
+        margin-right: 10px;
+    }
+
+.justify-content-end {
+    justify-content: flex-end;
+}
+
+.flex-unwrap {
+    flex-wrap: nowrap;
+}
+
+.justify-content-between {
+    justify-content: space-between;
+}
+
+.me-3 {
+    margin-right: .75rem;
+}
+
+.boxcircle {
+    border-radius: 50% !important;
+    padding: 5px !important;
+    height: 40px;
+    width: 45px;
+    display: flex !important;
+    justify-content: center;
+    align-items: center;
+}
+.w-50{
+    width:50vw;
+}
+.border {
+    border: 2px solid #ddd;
+}
+
+.pageDetailValue.flatpickr-input.flatpickr-mobile {
+    /* position: absolute; */
+    position: absolute;
+    top: 8px;
+    width: 60px;
+    justify-content: flex-end;
+    z-index: -1;
+    left: 8px;
+}
+/* Style for the popover */
+.popover {
+    position: absolute;
+    top: 40px; /* Adjust to place the popover below the icon */
+    right: 0;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    display: none; /* Initially hidden */
+    z-index: 999;
+}
+
+    .popover ul {
+        list-style: none;
+        margin: 0;
+        padding: 10px;
+    }
+
+        .popover ul li {
+            padding: 8px 15px;
+            cursor: pointer;
+        }
+
+            .popover ul li:hover {
+                background-color: #f0f0f0;
+            }
+
+html {
+    scroll-behavior: smooth;
+}
+
+#mobiledrawer {
+    position: relative;
+}
+
+#openDrawer {
+    font-size: 24px;
+    background-color: #dcdcdc;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+}
+
+#drawer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 75%;
+    max-width: 300px;
+    background-color: #dcdcdc;
+    color: white;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
+    transform: translateX(-100%);
+    transition: transform 0.3s ease-in-out;
+}
+
+    #drawer.hidden {
+        transform: translateX(0%);
+    }
+
+    #drawer .drawer-header {
+        padding: 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid white;
+    }
+
+    #drawer .avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background-color: white;
+        margin-right: 10px;
+    }
+
+.drawer-body {
+    padding: 15px;
+}
+
+    .drawer-body .plan,
+    .drawer-body .balance {
+        margin-bottom: 15px;
+        padding: 10px;
+        background-color: #3949ab;
+        border-radius: 5px;
+    }
+
+        .drawer-body .plan button,
+        .drawer-body .balance button {
+            display: inline-block;
+            margin-top: 5px;
+            padding: 5px 10px;
+            background-color: #ffb300;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+    .drawer-body .menu {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+        .drawer-body .menu li {
+            padding: 10px 0;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid white;
+        }
+
+            .drawer-body .menu li span {
+                margin-right: 10px;
+                font-size: 18px;
+            }
+.smallinput {
+    height: 25px !important;
+    font-size: 10px !important;
+    font-weight: 600;
+    max-width:unset!important;
+}
+/* Media query for extra small devices (<576px) */
+@media (max-width: 575.98px) {
+    .card-detail .card-body-item {
+        width: 24%;
+    }
+
+    .boxitemView .myboxmid .card-body-item {
+        width: auto;
+        padding: 0px 10px;
+    }
+
+    .col-lg-3, .col-3 {
+        width: 25%;
+    }
+
+    .pageDetailhead {
+        height: 40px;
+        padding: 0px !important;
+        font-size: 9px !important;
+    }
+   #mobiledrawer{
+       display:block;
+   }
+}
+/* Media query for small devices (≥576px and <768px) */
+@media (min-width: 576px) and (max-width: 767.98px) {
+    .card-detail .card-body-item {
+        width: 33%;
+    }
+}
+/* Media query for medium devices (≥768px and <992px) */
+@media (min-width: 768px) and (max-width: 991.98px) {
+    .card-detail .card-body-item {
+        width: 33%;
+    }
+}
+
+/* Media query for large devices (≥992px) */
+@media (min-width: 992px) {
+    .card-detail .card-body-item {
+        width: 33%;
+    }
+}

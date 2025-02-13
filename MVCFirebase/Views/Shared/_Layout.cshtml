@@ -9,10 +9,6 @@
     <title>@ViewBag.Title Green Paper Technology</title>
     <link rel="manifest" href="~/Content/manifest.json">
     <link href="~/Content/style.css" rel="stylesheet" />
-    <!-- Bootstrap CSS -->
-    <!--<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
-          integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">-->
-
     @Styles.Render("~/Content/css")
     @Scripts.Render("~/bundles/modernizr")
     @Scripts.Render("~/bundles/jquery")
@@ -41,16 +37,6 @@
             drawer.classList.toggle('hidden');
         });
     </script>
-    @*<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
-            integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
-            crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
-            integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN"
-            crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
-            integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV"
-            crossorigin="anonymous"></script>*@
-
     <script>
         const drawer = document.getElementById('drawer');
         const openDrawerButton = document.getElementById('openDrawer');
@@ -83,38 +69,6 @@
     </script>
 
     @RenderSection("scripts", required: false)
-
-    @*<script>
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker
-                    .register('/Scripts/service-worker.js')
-                    .then((registration) => {
-                        console.log('Service Worker registered with scope:', registration.scope);
-
-                        // Listen for messages from the Service Worker
-                        navigator.serviceWorker.addEventListener('message', (event) => {
-                            if (event.data.action === 'saveLastPath') {
-                                localStorage.setItem('lastPath', event.data.path);
-                                console.log('localStorage:', event.data.path);
-                            }
-
-                            console.log('out side localStorage:', event.data , event.data.path);
-                        });
-
-                        // Redirect to the last saved path on page load
-                        const lastPath = localStorage.getItem('lastPath');
-                        if (lastPath && location.pathname === '/') {
-                            location.replace(lastPath);
-                            console.log('Service Worker registered with scope:', registration.scope);
-                        }
-                    })
-                    .catch((error) => {
-                        console.error('Service Worker registration failed:', error);
-                    });
-            }
-        </script>*@
-
-
 
 </body>
 </html>
