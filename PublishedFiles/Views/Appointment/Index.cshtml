@@ -580,7 +580,10 @@
         // Disable auto-sliding and wrap-around
         $('#imageSlider').carousel({
             interval: false,
-            wrap: false
+            wrap: false,
+            keyboard: false,
+            touch: false,
+            pause: false
         });
 
         $('#imageSlider').on('slid.bs.carousel', function () {
@@ -613,12 +616,21 @@
                 e.stopPropagation(); // Prevent Bootstrap from detecting swipe
             });
 
+            // Disable touch swipe
+            $("#imageSlider").on("touchmove", function (e) {
+                e.stopPropagation(); // Prevent Bootstrap from detecting swipe
+            });
+
             // Disable mouse drag
             $("#imageSlider").on("mousedown", function (e) {
                 e.stopPropagation(); // Prevent Bootstrap from detecting drag
             });
             // Disable mouse drag
             $("#imageSlider").on("mouseup", function (e) {
+                e.stopPropagation(); // Prevent Bootstrap from detecting drag
+            });
+            // Disable mouse drag
+            $("#imageSlider").on("mousemove", function (e) {
                 e.stopPropagation(); // Prevent Bootstrap from detecting drag
             });
         }
@@ -630,6 +642,33 @@
 
         function initializeCanvas() {
             var canvas = document.getElementById("drawingCanvas2");
+
+            canvas.addEventListener("touchstart", function (e) {
+                e.stopPropagation();
+                e.preventDefault();
+            }, { passive: false });
+
+            canvas.addEventListener("touchmove", function (e) {
+                e.stopPropagation();
+                e.preventDefault();
+            }, { passive: false });
+
+            canvas.addEventListener("mousedown", function (e) {
+                e.stopPropagation();
+                e.preventDefault();
+            });
+
+            canvas.addEventListener("mousemove", function (e) {
+                e.stopPropagation();
+                e.preventDefault();
+            });
+            canvas.addEventListener("mouseenter", function () {
+                $("#imageSlider").carousel('pause');
+            });
+            canvas.addEventListener("mouseleave", function () {
+                $("#imageSlider").carousel('cycle');
+            });
+
             var ctx = canvas.getContext("2d");
 
             // Set canvas size
@@ -710,7 +749,7 @@
             }
         }
 
-
+        
 
         console.log('amang', typeof jQuery);
         console.log("jQuery Version:", jQuery.fn.jquery);
@@ -1438,7 +1477,51 @@
             }
         });
 
+        $("#City").autocomplete({
+            source: function (request, response) {
+                $.ajax({
+                    url: '/Patient/cityautocomplete/',
+                    data: "{ 'city': '" + request.term + "'}",
+                    dataType: "json",
+                    type: "POST",
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
 
+                        response($.map(data, function (item) {
+
+                            return {
+                                label: item.name,
+                                value: item.name
+                            };
+                            //return item;
+                        }))
+                    },
+                    error: function (response) {
+                        alert(response.responseText);
+                    },
+                    failure: function (response) {
+                        alert(response.responseText);
+                    }
+                });
+            },
+            change: function (e, i) {
+                //If the No match found" u.item will return null, clear the TextBox.
+                //if (i.item == null) {
+                //    //Clear the AutoComplete TextBox.
+                //    $(this).val("");
+                //    return false;
+                //}
+            },
+            select: function (e, i) {
+                e.preventDefault();
+                //alert('you have selected ' + i.item.label + ' ID: ' + i.item.value);
+                //$("#hfinventoryid").val(i.item.value);
+                //$("#hfquantitybalance").val(i.item.label);
+                $(this).val(i.item.value);
+
+            },
+            minLength: 1
+        });
 
         $(document).on("click", ".popover-toggle", function (event) {
             console.log("Three dots clicked!");
@@ -1459,21 +1542,54 @@
         $(document).on("click", ".openModal", function (event) {
             event.stopPropagation();
             console.log("Open Modal clicked!"); // Debugging Log
+            var patientId = $(this).data('patient-id');
+            console.log('Patient ID:', patientId);
 
+            // Example: Set the patient ID to a hidden input in the modal
+            $('.canvasModal').find('input[name="patient_id"]').val(patientId);
             // Hide all popover menus after opening the modal
             $(".popover-menu").hide();
+
+            // Make AJAX call to get images
+            $.ajax({
+                url: '/Appointment/GetPatientImages', // Change to your endpoint
+                type: 'GET',
+                data: { patientId: patientId },
+                success: function (response) {
+                    console.log('Raw Response:', response);
+                    console.log('Type:', typeof response);
+                    console.log('ImageList:', response.ImageList);
+                    console.log('Is Array:', Array.isArray(response.ImageList));
+
+                    const images = Array.isArray(response.ImageList) ? response.ImageList : Object.values(response.ImageList);
+                    console.log('Images Processed:', images);
+                    console.log('Is Array After Conversion:', Array.isArray(images));
+
+                    if (images.length > 0) {
+                        populateImageSlider(images);
+                    } else {
+                        console.warn("No images found.");
+                        populateImageSlider([]);
+                    }
+                },
+                error: function () {
+                    console.error("Error fetching images.");
+                }
+            });
         });
+
+
 
         $(document).on("click", ".openDoctorView", function (event) {
             window.location.href = "/Appointment/Doctor";
         });
 
-        $('#canvasModal').on('shown.bs.modal', function () {
+        $('#canvasModal1').on('shown.bs.modal', function () {
             const canvas = document.getElementById("drawingCanvas1");
             const ctx = canvas.getContext("2d");
 
             // Get modal body dimensions
-            const modalBody = document.querySelector("#canvasModal .modal-body");
+            const modalBody = document.querySelector("#canvasModal1 .modal-body");
             const computedStyle = window.getComputedStyle(modalBody);
             const paddingLeft = parseFloat(computedStyle.paddingLeft);
             const paddingRight = parseFloat(computedStyle.paddingRight);
@@ -1490,12 +1606,111 @@
 
     });
 
+    function clearCanvas2() {
+        var canvas = document.getElementById('drawingCanvas2');
+        var context = canvas.getContext('2d');
+        context.clearRect(0, 0, canvas.width, canvas.height);
+    }
 
     function logout() {
         // For example, clear session storage or cookies if you're using them for authentication
         sessionStorage.clear();
         document.location.href = '/Home/Logout'; // Redirect to logout route
     }
+
+    // Function to populate carousel with images
+    function populateImageSlider(images)
+    {
+        // Convert to array if needed
+        if (!Array.isArray(images)) {
+            images = Object.values(images);
+        }
+
+        var indicators = $('.carousel-indicators');
+        var inner = $('.carousel-inner');
+        indicators.empty();
+        inner.empty();
+
+        if (images.length === 0) {
+            inner.append('<div class="carousel-item active"><p class="text-center">No Images Available</p></div>');
+            return;
+        }
+
+        images.forEach((image, index) => {
+            //console.log('image URL', image.ImageUrl)
+            var isActive = index === 0 ? 'active' : '';
+            indicators.append(`
+                <li data-target="#imageSlider" data-slide-to="${index}" class="${isActive}"></li>
+            `);
+            inner.append(`
+                <div class="carousel-item ${isActive}">
+                    <img src="${image.ImageUrl}" class="d-block w-100" alt="Image ${image.Id}">
+                </div>
+            `);
+        });
+
+        // Add the canvas slide at the end
+        var canvasSlideIndex = images.length;
+        indicators.append(`
+            <li data-target="#imageSlider" data-slide-to="${canvasSlideIndex}"></li>
+        `);
+        inner.append(`
+            <div class="carousel-item">
+                <canvas id="drawingCanvas2" class="d-block w-100 h-300" style="background: #f5f5f5;"></canvas>
+            </div>
+        `);
+    }
+
+    function saveCanvasImage() {
+        var canvas = document.getElementById('drawingCanvas2');
+        var imageData = canvas.toDataURL('image/png');
+        $.ajax({
+            url: '/Appointment/SaveCanvasImage',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                base64Image: imageData,
+                patientId: document.getElementById('patient_id').value
+            }),
+            success: function (response) {
+
+                if (response.success) {
+                    console.log('Image saved:', response.message);
+                    refreshImageSlider();
+                } else {
+                    console.error('Save failed:', response.message);
+                }
+                $('#canvasModal').removeClass('show').hide();
+                $('.modal-backdrop').remove();
+                $('body').removeClass('modal-open');
+
+            },
+            error: function (error) {
+                console.error('Error:', error);
+            }
+        });
+    }
+
+    function refreshImageSlider() {
+        $.ajax({
+            url: '/Appointment/GetPatientImages', // Your endpoint to fetch images
+            type: 'GET',
+            data: { patientId: document.getElementById('patient_id').value },
+            success: function (response) {
+                // Assuming your response contains an array of images:
+                if (response && response.ImageList && response.ImageList.length > 0) {
+                    populateImageSlider(response.ImageList);
+                } else {
+                    console.warn("No images found.");
+                    populateImageSlider([]);
+                }
+            },
+            error: function (error) {
+                console.error('Error refreshing slider:', error);
+            }
+        });
+    }
+
 
 </script>
 <script>
@@ -2142,7 +2357,7 @@
                         </div>
                     </div>*@
                     <div>
-                            <canvas id="drawingCanvas11"></canvas>
+                            <canvas id="drawingCanvas1"></canvas>
 
                     </div>
                     @*<div>
@@ -2194,24 +2409,24 @@
         <div class="modal-dialog modal-fullscreen">
 
             <div class="modal-content">
-
+                <input type="hidden" name="patient_id" id="patient_id">
                 <div class="modal-body">
                     @*<div>
-                        <canvas id="drawingCanvas1"></canvas>
-                    </div>*@
+                <canvas id="drawingCanvas1"></canvas>
+            </div>*@
                     <div class="modal-body h-100 d-flex align-items-center justify-content-center">
                         @*<div id="imageSlider" class="carousel slide h-300 w-100" data-ride="carousel">*@
                         <div id="imageSlider" class="carousel slide h-300 w-100" data-interval="false">
                             <ul class="carousel-indicators">
-                                <li data-target="#imageSlider" data-slide-to="0" class="active"></li>
+                                @*<li data-target="#imageSlider" data-slide-to="0" class="active"></li>
                                 <li data-target="#imageSlider" data-slide-to="1"></li>
                                 <li data-target="#imageSlider" data-slide-to="2"></li>
-                                <li data-target="#imageSlider" data-slide-to="3"></li> <!-- Canvas Slide -->
+                                <li data-target="#imageSlider" data-slide-to="3"></li>*@ 
                             </ul>
 
 
                             <div class="carousel-inner">
-                                <div class="carousel-item active">
+                                @*<div class="carousel-item active">
                                     <img src="~/Images/logo copy.png" class="d-block w-100" alt="Image 1">
                                 </div>
                                 <div class="carousel-item">
@@ -2223,16 +2438,16 @@
                                 <div class="carousel-item">
                                     <canvas id="drawingCanvas2" class="d-block w-100 h-300"
                                             style="background: #f5f5f5;"></canvas>
-                                </div>
+                                </div>*@
                             </div>
 
 
-                            @*<a class="carousel-control-prev" href="#imageSlider" data-slide="prev">
+                            <a class="carousel-control-prev" href="#imageSlider" data-slide="prev">
                                 <span class="carousel-control-prev-icon"></span>
                             </a>
                             <a class="carousel-control-next" href="#imageSlider" data-slide="next">
                                 <span class="carousel-control-next-icon"></span>
-                            </a>*@
+                            </a>
                         </div>
 
                     </div>
@@ -2241,6 +2456,7 @@
                     <div class="form-group row">
                         <div class="col-md-1">
                             <button id="clearCanvas2" onclick="clearCanvas2()" class="btn btn-danger">Clear</button>
+                            <button id="savePrescription" onclick="saveCanvasImage()" class="btn btn-primary">Save</button>
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                         </div>
 

@@ -409,6 +409,7 @@
     <Compile Include="Models\AppointmentsCount.cs" />
     <Compile Include="Models\AuthenticateJWT.cs" />
     <Compile Include="Models\autocomplete.cs" />
+    <Compile Include="Models\CanvasImageModal.cs" />
     <Compile Include="Models\CheckSessionTimeOutAttribute.cs" />
     <Compile Include="Models\city.cs" />
     <Compile Include="Models\Clinic.cs" />

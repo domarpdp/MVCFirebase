@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
+using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
@@ -7440,5 +7442,179 @@ namespace MVCFirebase.Controllers
             }
 
         }
+
+        [HttpGet]
+        public async Task<JsonResult> GetPatientImages(string patientId)
+        {
+            string patientDocumentId = "";
+            var authCookie = Request.Cookies[FormsAuthentication.FormsCookieName];
+            string savedString = "";
+            string ClinicMobileNumber = "";
+            string ClinicFirebaseDocumentId = "";
+            if (authCookie != null)
+            {
+                var ticket = FormsAuthentication.Decrypt(authCookie.Value);
+                if (ticket != null)
+                {
+                    savedString = ticket.Name; // Get the stored string
+                    ClinicMobileNumber = savedString.Split('|')[3];
+                    ClinicFirebaseDocumentId = savedString.Split('|')[4];
+                }
+            }
+            // Call your specific method here
+            //string ClinicMobileNumber = GlobalSessionVariables.ClinicMobileNumber;
+            //string Path = AppDomain.CurrentDomain.BaseDirectory + @"greenpaperdev-firebase-adminsdk-8k2y5-fb46e63414.json";
+            //Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path);
+            //FirestoreDb db = FirestoreDb.Create("greenpaperdev");
+
+            List<ImageViewModel> ImageList = new List<ImageViewModel>();
+
+            Query Qref = _db.Collection("clinics").WhereEqualTo("clinicmobilenumber", ClinicMobileNumber);
+            QuerySnapshot snap = await Qref.GetSnapshotAsync();
+            foreach (DocumentSnapshot docsnap in snap)
+            {
+                try
+                {
+                    Clinic clinic = docsnap.ConvertTo<Clinic>();
+                    string ClinicCode = clinic.clinic_code;
+
+                    #region to get patient documentid
+                    QuerySnapshot snapPatient = await docsnap.Reference.Collection("patientList").WhereEqualTo("patient_id", patientId).WhereEqualTo("clinicCode", ClinicCode).GetSnapshotAsync();
+                    DocumentSnapshot docPatient = snapPatient.Documents[0];
+
+                    patientDocumentId = docPatient.Id;
+                    #endregion
+
+                    int i = 1;
+
+                    Query QrefPrescriptions = _db.Collection("clinics").Document(ClinicFirebaseDocumentId).Collection("prescriptions").WhereEqualTo("patientId", patientDocumentId).OrderByDescending("timeStamp").Limit(5); 
+
+                    QuerySnapshot snapPres = await QrefPrescriptions.GetSnapshotAsync();
+                    if (snapPres.Count > 0)
+                    {
+                        foreach (DocumentSnapshot docsnapPres in snapPres)
+                        {
+
+                            if (docsnapPres.Exists)
+                            {
+                                ImageViewModel img = new ImageViewModel();
+                                img.Id = i;
+                                img.ImageUrl = "data:image/png;base64," + docsnapPres.GetValue<string>("file");
+                                ImageList.Add(img);
+                                i++;
+                            }
+
+                        }
+                        //_objuserloginmodel.SelectedImage = ImageList[0];
+                    }
+                }
+                catch (Exception ex)
+                {
+
+                    string str = ex.Message;
+                }
+
+            }
+
+            // Example: Fetch image URLs from database or storage
+
+            //var images = new List<string>
+            //    {
+            //        Url.Content("~/Images/logo copy.png"),
+            //        Url.Content("~/Images/logo copy1.png"),
+            //        Url.Content("~/Images/Downloading.gif")
+            //    };
+
+            return Json(new { ImageList = ImageList }, JsonRequestBehavior.AllowGet);
+
+        }
+
+        [HttpPost]
+        public async Task<JsonResult> SaveCanvasImage(CanvasImageModal model)
+        {
+            if (model?.Base64Image != null)
+            {
+                // Remove the data URL scheme prefix if it exists
+                string base64 = Regex.Replace(model.Base64Image, @"^data:image\/[a-zA-Z]+;base64,", string.Empty);
+                string patientDocumentId = "";
+                string UserMobileNumber = "";
+
+                try
+                {
+                    //byte[] imageBytes = Convert.FromBase64String(base64);
+                    var authCookie = Request.Cookies[FormsAuthentication.FormsCookieName];
+                    string savedString = "";
+                    string ClinicMobileNumber = "";
+                    string ClinicFirebaseDocumentId = "";
+                    if (authCookie != null)
+                    {
+                        var ticket = FormsAuthentication.Decrypt(authCookie.Value);
+                        if (ticket != null)
+                        {
+                            savedString = ticket.Name; // Get the stored string
+                            ClinicMobileNumber = savedString.Split('|')[3];
+                            ClinicFirebaseDocumentId = savedString.Split('|')[4];
+                            UserMobileNumber = savedString.Split('|')[0];
+                        }
+                    }
+                    Query Qref = _db.Collection("clinics").WhereEqualTo("clinicmobilenumber", ClinicMobileNumber);
+                    QuerySnapshot snap = await Qref.GetSnapshotAsync();
+                    foreach (DocumentSnapshot docsnap in snap)
+                    {
+                        Clinic clinic = docsnap.ConvertTo<Clinic>();
+                        string ClinicCode = clinic.clinic_code;
+
+                        #region to get patient documentid
+                        QuerySnapshot snapPatient = await docsnap.Reference.Collection("patientList").WhereEqualTo("patient_id", model.PatientId).WhereEqualTo("clinicCode", ClinicCode).GetSnapshotAsync();
+                        DocumentSnapshot docPatient = snapPatient.Documents[0];
+
+                        patientDocumentId = docPatient.Id;
+                        #endregion
+
+                        #region to get user documentid
+                        QuerySnapshot snapUser = await docsnap.Reference.Collection("user").WhereEqualTo("mobile_number", UserMobileNumber).GetSnapshotAsync();
+                        DocumentSnapshot docUser = snapUser.Documents[0];
+
+                        string userId = docUser.Id;
+                        #endregion
+
+                        CollectionReference colPrescriptions = _db.Collection("clinics").Document(ClinicFirebaseDocumentId).Collection("prescriptions");
+                        Dictionary<string, object> dataAppointment = new Dictionary<string, object>
+                                {
+                                    {"chemist" ,""},
+                                    {"cashier" ,""},
+                                    {"clinicCode" ,ClinicCode},
+                                    {"clinicId" ,ClinicFirebaseDocumentId},
+                                    {"date" ,""},
+                                    {"file" ,base64},
+                                    {"fileUrl" ,""},
+                                    {"days" ,"7"},
+                                    {"fee" ,"100"},
+                                    {"patientId" ,patientDocumentId},
+                                    {"timeStamp" ,DateTime.SpecifyKind(DateTime.Now.AddHours(-5).AddMinutes(-30), DateTimeKind.Utc)},
+                                    {"doctor" ,userId},
+                                    {"receptionist" ,""},
+                                    {"isPrescription" ,"true"},
+                                    {"isCreated" ,true},
+                                    {"isSynced" ,true},
+                                    {"isDeleted" ,false},
+                                    {"UpdatedAt" ,DateTime.SpecifyKind(DateTime.Now.AddHours(-5).AddMinutes(-30), DateTimeKind.Utc)},
+
+                                };
+                        await colPrescriptions.Document().SetAsync(dataAppointment);
+                    }
+
+
+                    return Json(new { success = true, message = "Image saved successfully" }, JsonRequestBehavior.AllowGet);
+                }
+                catch (Exception ex)
+                {
+                    return Json(new { success = false, message = "Error saving image: " + ex.Message }, JsonRequestBehavior.AllowGet);
+                }
+            }
+            return Json(new { success = false, message = "Invalid image data" }, JsonRequestBehavior.AllowGet);
+        }
+
+
     }
 }
