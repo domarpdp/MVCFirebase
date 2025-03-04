@@ -444,15 +444,45 @@
     }
     .modal-body img {
         height: 100%;
-        object-fit: cover;
+        object-fit: none;
     }
     .modal-body {
         min-height: 80vh;
     }
+
+    .carousel-control-prev,
+    .carousel-control-next {
+        width: auto; /* Prevent them from taking too much space */
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 10;
+        background: none; /* Remove any background that may be adding extra space */
+    }
+
+    .carousel-control-prev {
+        left: 10px; /* Adjust as needed */
+    }
+
+    .carousel-control-next {
+        right: 10px; /* Adjust as needed */
+    }
+
     .carousel-control-prev-icon,
     .carousel-control-next-icon {
-        filter: invert(1); /* Inverts white to black */
+        width: 30px; /* Reduce icon size if needed */
+        height: 30px;
+        background-size: contain; /* Ensure the icon fits properly */
     }
+    .carousel-control-prev-icon {
+        background-image: url('data:image/svg+xml;charset=UTF8,<svg xmlns="http://www.w3.org/2000/svg" fill="red" viewBox="0 0 8 8"><path d="M5.5 0L1 4l4.5 4V0z"/></svg>');
+    }
+
+    .carousel-control-next-icon {
+        background-image: url('data:image/svg+xml;charset=UTF8,<svg xmlns="http://www.w3.org/2000/svg" fill="red" viewBox="0 0 8 8"><path d="M2.5 0L7 4l-4.5 4V0z"/></svg>');
+    }
+
+
 </style>
 
 
@@ -571,11 +601,11 @@
 
 </script>
 <script>
-
+    let savedCanvasData = null;
     $(document).ready(function () {
 
         let canvasInitialized = false;
-        let savedCanvasData = null;
+       
 
         // Disable auto-sliding and wrap-around
         $('#imageSlider').carousel({
@@ -731,6 +761,7 @@
 
             restoreCanvas();
         }
+
 
         function saveCanvas() {
             var canvas = document.getElementById("drawingCanvas2");
@@ -1225,6 +1256,7 @@
 
         });
 
+        //Called for create future or current day appointment
         $("#modalSubmit").on("click", function () {
             //$("#loader").show();
 
@@ -1275,7 +1307,7 @@
                                             //console.log(data);
                                             $("#search").val('');
                                             $(".pageDetailhead").removeClass("active-btn"); // Remove active class from all buttons
-                                            $("#TodayPatients").addClass("active-btn");
+                                            $("#WaitingPatients").addClass("active-btn");
 
                                             // Appointment list page is getting refreshed automatically due to calling of listenForNewAppointments();
                                             //$("#patientList").html("");
@@ -1347,6 +1379,8 @@
 
         });
 
+
+        //Called for Create Patient
         $("#modalSubmitPC").on("click", function () {
             //$("#loader").show();
             //CareOf, MobileNumber, Age, City, tokennumberPC
@@ -1545,10 +1579,12 @@
             var patientId = $(this).data('patient-id');
             console.log('Patient ID:', patientId);
 
+
             // Example: Set the patient ID to a hidden input in the modal
             $('.canvasModal').find('input[name="patient_id"]').val(patientId);
             // Hide all popover menus after opening the modal
             $(".popover-menu").hide();
+
 
             // Make AJAX call to get images
             $.ajax({
@@ -1566,7 +1602,13 @@
                     console.log('Is Array After Conversion:', Array.isArray(images));
 
                     if (images.length > 0) {
+                        
                         populateImageSlider(images);
+
+                        console.log("before initize canvas", savedCanvasData);
+                        initializeCanvas();
+                        console.log("after initize canvas", savedCanvasData);
+                        
                     } else {
                         console.warn("No images found.");
                         populateImageSlider([]);
@@ -1577,8 +1619,6 @@
                 }
             });
         });
-
-
 
         $(document).on("click", ".openDoctorView", function (event) {
             window.location.href = "/Appointment/Doctor";
@@ -1604,12 +1644,80 @@
         });
 
 
+
+        //earlier it was used in saveCanvasImage but as it is commented in saveCanvasImage so commented this too
+
     });
 
-    function clearCanvas2() {
+
+
+    function saveCanvasImage() {
         var canvas = document.getElementById('drawingCanvas2');
-        var context = canvas.getContext('2d');
-        context.clearRect(0, 0, canvas.width, canvas.height);
+        var imageData = canvas.toDataURL('image/png');
+        $.ajax({
+            url: '/Appointment/SaveCanvasImage',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                base64Image: imageData,
+                patientId: document.getElementById('patient_id').value
+            }),
+            beforeSend: function () {
+                $("#loader").show(); // Show loader before request starts
+            },
+            success: function (response) {
+                $("#loader").hide();
+
+                console.log("after save canvas", savedCanvasData);
+                savedCanvasData = null;
+                //window.location.reload();
+                if (response.success) {
+                    console.log('Image saved:', response.message);
+                    refreshImageSlider();
+
+                } else {
+                    console.error('Save failed:', response.message);
+                }
+                //$('#canvasModal').removeClass('show').hide();
+                //$('.modal-backdrop').remove();
+                //$('body').removeClass('modal-open');
+
+
+
+            },
+            error: function (error) {
+                console.error('Error:', error);
+            }
+        });
+    }
+
+
+    function refreshImageSlider() {
+        $.ajax({
+            url: '/Appointment/GetPatientImages', // Your endpoint to fetch images
+            type: 'GET',
+            data: { patientId: document.getElementById('patient_id').value },
+            success: function (response) {
+                // Assuming your response contains an array of images:
+                if (response && response.ImageList && response.ImageList.length > 0) {
+                    populateImageSlider(response.ImageList);
+
+                } else {
+                    console.warn("No images found.");
+                    populateImageSlider([]);
+                }
+            },
+            error: function (error) {
+                console.error('Error refreshing slider:', error);
+            }
+        });
+    }
+
+    function clearCanvas2() {
+
+        var canvas = document.getElementById('drawingCanvas2');
+        var ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
 
     function logout() {
@@ -1619,8 +1727,7 @@
     }
 
     // Function to populate carousel with images
-    function populateImageSlider(images)
-    {
+    function populateImageSlider(images) {
         // Convert to array if needed
         if (!Array.isArray(images)) {
             images = Object.values(images);
@@ -1637,79 +1744,31 @@
         }
 
         images.forEach((image, index) => {
-            //console.log('image URL', image.ImageUrl)
-            var isActive = index === 0 ? 'active' : '';
             indicators.append(`
-                <li data-target="#imageSlider" data-slide-to="${index}" class="${isActive}"></li>
-            `);
-            inner.append(`
-                <div class="carousel-item ${isActive}">
-                    <img src="${image.ImageUrl}" class="d-block w-100" alt="Image ${image.Id}">
-                </div>
-            `);
-        });
-
-        // Add the canvas slide at the end
-        var canvasSlideIndex = images.length;
-        indicators.append(`
-            <li data-target="#imageSlider" data-slide-to="${canvasSlideIndex}"></li>
+            <li data-target="#imageSlider" data-slide-to="${index}"></li>
         `);
-        inner.append(`
+            inner.append(`
             <div class="carousel-item">
-                <canvas id="drawingCanvas2" class="d-block w-100 h-300" style="background: #f5f5f5;"></canvas>
+                <img src="${image.ImageUrl}" class="d-block w-100" alt="Image ${image.Id}">
             </div>
         `);
-    }
-
-    function saveCanvasImage() {
-        var canvas = document.getElementById('drawingCanvas2');
-        var imageData = canvas.toDataURL('image/png');
-        $.ajax({
-            url: '/Appointment/SaveCanvasImage',
-            type: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify({
-                base64Image: imageData,
-                patientId: document.getElementById('patient_id').value
-            }),
-            success: function (response) {
-
-                if (response.success) {
-                    console.log('Image saved:', response.message);
-                    refreshImageSlider();
-                } else {
-                    console.error('Save failed:', response.message);
-                }
-                $('#canvasModal').removeClass('show').hide();
-                $('.modal-backdrop').remove();
-                $('body').removeClass('modal-open');
-
-            },
-            error: function (error) {
-                console.error('Error:', error);
-            }
         });
+
+        // Add the canvas slide at the end and make it active
+        var canvasSlideIndex = images.length;
+        indicators.append(`
+        <li data-target="#imageSlider" data-slide-to="${canvasSlideIndex}" class="active"></li>
+    `);
+        inner.append(`
+        <div class="carousel-item active">
+            <canvas id="drawingCanvas2" class="d-block w-100 h-300" style="background: #f5f5f5;"></canvas>
+        </div>
+    `);
+
     }
 
-    function refreshImageSlider() {
-        $.ajax({
-            url: '/Appointment/GetPatientImages', // Your endpoint to fetch images
-            type: 'GET',
-            data: { patientId: document.getElementById('patient_id').value },
-            success: function (response) {
-                // Assuming your response contains an array of images:
-                if (response && response.ImageList && response.ImageList.length > 0) {
-                    populateImageSlider(response.ImageList);
-                } else {
-                    console.warn("No images found.");
-                    populateImageSlider([]);
-                }
-            },
-            error: function (error) {
-                console.error('Error refreshing slider:', error);
-            }
-        });
-    }
+
+    
 
 
 </script>
@@ -2454,9 +2513,9 @@
                 </div>
                 <div class="modal-footer">
                     <div class="form-group row">
-                        <div class="col-md-1">
+                        <div class="col-md-12 text-right">
                             <button id="clearCanvas2" onclick="clearCanvas2()" class="btn btn-danger">Clear</button>
-                            <button id="savePrescription" onclick="saveCanvasImage()" class="btn btn-primary">Save</button>
+                            <button id="savePrescription" onclick="saveCanvasImage()" data-dismiss="modal" class="btn btn-primary">Save</button>
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                         </div>
 
