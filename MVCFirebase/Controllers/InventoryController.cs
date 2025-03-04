@@ -15,7 +15,7 @@ namespace MVCFirebase.Controllers
     public class InventoryController : Controller
     {
         // GET: Inventory
-        
+        [AccessDeniedAuthorize(Roles = "Doctor,Chemist")]
         public async Task<ActionResult> Index()
         {
             var authCookie = Request.Cookies[FormsAuthentication.FormsCookieName];

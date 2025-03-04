@@ -61,6 +61,9 @@
             font-size: 20px;
             background-color: transparent;
         }
+    .modal-header:before, .modal-header:after{
+        content:unset;
+    }
 
     .pen-img {
         position: absolute;
@@ -382,7 +385,9 @@
         font-size: 18px;
         padding: 5px;
     }
-
+    .modal-header {
+        align-items: center;
+    }
     .modal-fullscreen {
         width: 100%;
         max-width: none;
@@ -444,14 +449,60 @@
     }
     .modal-body img {
         height: 100%;
-        object-fit: cover;
+        object-fit: none;
     }
     .modal-body {
         min-height: 80vh;
     }
+
+    .carousel-control-prev,
+    .carousel-control-next {
+        width: auto; /* Prevent them from taking too much space */
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 10;
+        background: none; /* Remove any background that may be adding extra space */
+    }
+
+    .carousel-control-prev {
+        left: 10px; /* Adjust as needed */
+    }
+
+    .carousel-control-next {
+        right: 10px; /* Adjust as needed */
+    }
+
     .carousel-control-prev-icon,
     .carousel-control-next-icon {
-        filter: invert(1); /* Inverts white to black */
+        width: 30px; /* Reduce icon size if needed */
+        height: 30px;
+        background-size: contain; /* Ensure the icon fits properly */
+    }
+    .carousel-control-prev-icon {
+        background-image: url('data:image/svg+xml;charset=UTF8,<svg xmlns="http://www.w3.org/2000/svg" fill="red" viewBox="0 0 8 8"><path d="M5.5 0L1 4l4.5 4V0z"/></svg>');
+    }
+
+    .carousel-control-next-icon {
+        background-image: url('data:image/svg+xml;charset=UTF8,<svg xmlns="http://www.w3.org/2000/svg" fill="red" viewBox="0 0 8 8"><path d="M2.5 0L7 4l-4.5 4V0z"/></svg>');
+    }
+
+    .modal.left .modal-dialog {
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        margin: 0;
+        width: 300px; /* Adjust width as needed */
+        transform: translateX(-100%);
+        transition: transform 0.3s ease-in-out;
+    }
+
+    .modal.left.show .modal-dialog {
+        transform: translateX(0);
+    }
+    .modal-backdrop {
+        display: none !important;
     }
 </style>
 
@@ -464,7 +515,6 @@
 
         //let lastFetchTime = new Date().toISOString();
 
-        var counter = 1;
         const today = new Date();
         const yesterday = new Date(today);
         yesterday.setDate(today.getDate() - 1);
@@ -493,57 +543,52 @@
                 querySnapshot.forEach((doc) => {
                     let appointmentRef = db.collection("clinics").doc(doc.id).collection("appointments").where("raisedDate", ">", yesterday);
 
-                    appointmentRef
-                        .onSnapshot((snapshot) => {
-                            snapshot.docChanges().forEach((change) => {
-                                if (change.type === "added") {
-                                    //console.log("New Appointment Data:", change.doc.data());
-                                    //console.log("counter out", counter)
-                                    if (counter == snapshot.size) {
-                                        console.log("counter in", counter)
-                                        $("#search").val('');
+                    let isInitialLoad = true; // Flag to track initial load
 
+                    appointmentRef.onSnapshot((snapshot) => {
+                        if (isInitialLoad) {
+                            isInitialLoad = false; // Mark as loaded
+                            return; // Prevent AJAX call on initial load
+                        }
 
-                                        $(".pageDetailhead").removeClass("active-btn"); // Remove active class from all buttons
-                                        $("#WaitingPatients").addClass("active-btn");
+                        let shouldTriggerAjax = false;
 
-                                        $.ajax({
-                                            url: "/Appointment/Search",
-                                            type: "GET",
-                                            data: { startdate: '', Type: 'Appointments', Search: '' },
-                                            success: function (data) {
-                                                //console.log(data);
-                                                $("#patientList").html("");
-                                                $("#appointmentList").html(data);
-                                            },
-                                        });
-                                    }
-                                    counter = counter + 1;
+                        snapshot.docChanges().forEach((change) => {
+                            console.log("Change Type:", change.type);
 
-                                }
-                                if (change.type === "modified") {
-                                    console.log("Appointment updated:", change.doc.data());
-                                    // Handle updated appointment (update your view, etc.)
-                                }
-                                if (change.type === "removed") {
-                                    console.log("Appointment removed:", change.doc.data());
-                                    // Handle removed appointment (remove from your view, etc.)
-                                }
-                            });
+                            if (change.type === "added" || change.type === "modified") {
+                                console.log('change.type', change.type);
+                                shouldTriggerAjax = true;
+                            }
 
-                            // Update last fetch time to the latest timestamp in the collection
-                            console.log('snapshot.size', snapshot.size)
-                            //if (snapshot.size > 0)
-                            //{
-
-                            //    lastFetchTime = snapshot.docs[snapshot.size - 1].data().updatedAt;
-                            //}
+                            if (change.type === "removed") {
+                                console.log("Appointment removed:", change.doc.data());
+                                // Handle removed appointment if needed
+                            }
                         });
+
+                        if (shouldTriggerAjax) {
+                            $("#search").val('');
+                            $(".pageDetailhead").removeClass("active-btn"); // Remove active class from all buttons
+                            $("#WaitingPatients").addClass("active-btn");
+
+                            $.ajax({
+                                url: "/Appointment/Search",
+                                type: "GET",
+                                data: { startdate: '', Type: 'WaitingAppointments', Search: '' },
+                                success: function (data) {
+                                    $("#patientList").html("");
+                                    $("#appointmentList").html(data);
+                                },
+                            });
+                        }
+                    });
                 });
             })
             .catch((error) => {
                 console.error("Error fetching clinic:", error);
             });
+
     }
 
     function formatDate(date) {
@@ -571,11 +616,11 @@
 
 </script>
 <script>
-
+    let savedCanvasData = null;
     $(document).ready(function () {
 
         let canvasInitialized = false;
-        let savedCanvasData = null;
+       
 
         // Disable auto-sliding and wrap-around
         $('#imageSlider').carousel({
@@ -732,6 +777,7 @@
             restoreCanvas();
         }
 
+
         function saveCanvas() {
             var canvas = document.getElementById("drawingCanvas2");
             savedCanvasData = canvas.toDataURL(); // Save canvas state as image
@@ -787,7 +833,7 @@
                             type: "GET",
                             data: { startdate: '' },
                             success: function (response) {
-                                console.log('GetCounts', response);
+                                console.log('GetCounts Search Patient', response);
                                 //console.log(data);
                                 if (document.getElementById("TotalPatientCount")) {
                                     document.getElementById("TotalPatientCount").value = response.AllPatientsCount;
@@ -841,7 +887,7 @@
                         type: "GET",
                         data: { startdate: '' },
                         success: function (response) {
-                            console.log('GetCounts', response);
+                            console.log('GetCounts AllPatients', response);
                             //console.log(data);
                             if (document.getElementById("TotalPatientCount")) {
                                 document.getElementById("TotalPatientCount").value = response.AllPatientsCount;
@@ -898,7 +944,7 @@
                         type: "GET",
                         data: { startdate: document.getElementById("hdSelectedDate").value },
                         success: function (response) {
-                            console.log('GetCounts', response);
+                            console.log('GetCounts Waiting', response);
                             //console.log(data);
                             if (document.getElementById("TotalPatientCount")) {
                                 document.getElementById("TotalPatientCount").value = response.AllPatientsCount;
@@ -948,7 +994,7 @@
                         type: "GET",
                         data: { startdate: document.getElementById("hdSelectedDate").value },
                         success: function (response) {
-                            console.log('GetCounts', response);
+                            console.log('GetCounts Completed', response);
                             //console.log(data);
                             if (document.getElementById("TotalPatientCount")) {
                                 document.getElementById("TotalPatientCount").value = response.AllPatientsCount;
@@ -1092,6 +1138,12 @@
 
         });
 
+        $(document).on("click", function (event) {
+            if (!$(event.target).closest("#offcanvasMenu .modal-content, [data-toggle='modal']").length) {
+                $("#offcanvasMenu").modal("hide"); // Hide modal if clicked outside
+            }
+        });
+
         //This is the field declared in modal to crreate appointment
         $("#datepicker").datetimepicker({
             dateFormat: 'dd-M-yy', // Set the date format
@@ -1187,7 +1239,7 @@
                             type: "GET",
                             data: { startdate: formattedDate },
                             success: function (response) {
-                                console.log('GetCounts', response);
+                                console.log('GetCounts Today', response);
                                 //console.log(data);
                                 if (document.getElementById("TotalPatientCount")) {
                                     document.getElementById("TotalPatientCount").value = response.AllPatientsCount;
@@ -1225,6 +1277,7 @@
 
         });
 
+        //Called for create future or current day appointment
         $("#modalSubmit").on("click", function () {
             //$("#loader").show();
 
@@ -1275,7 +1328,7 @@
                                             //console.log(data);
                                             $("#search").val('');
                                             $(".pageDetailhead").removeClass("active-btn"); // Remove active class from all buttons
-                                            $("#TodayPatients").addClass("active-btn");
+                                            $("#WaitingPatients").addClass("active-btn");
 
                                             // Appointment list page is getting refreshed automatically due to calling of listenForNewAppointments();
                                             //$("#patientList").html("");
@@ -1286,7 +1339,7 @@
                                                 type: "GET",
                                                 data: { startdate: document.getElementById("hdSelectedDate").value },
                                                 success: function (response) {
-                                                    console.log('GetCounts', response);
+                                                    console.log('GetCounts after CreateFutureAppointment', response);
                                                     //console.log(data);
                                                     if (document.getElementById("TotalPatientCount")) {
                                                         document.getElementById("TotalPatientCount").value = response.AllPatientsCount;
@@ -1347,6 +1400,8 @@
 
         });
 
+
+        //Called for Create Patient
         $("#modalSubmitPC").on("click", function () {
             //$("#loader").show();
             //CareOf, MobileNumber, Age, City, tokennumberPC
@@ -1421,7 +1476,7 @@
                                             type: "GET",
                                             data: { startdate: document.getElementById("hdSelectedDate").value },
                                             success: function (response) {
-                                                console.log('GetCounts', response);
+                                                console.log('GetCounts CreatePatient', response);
                                                 //console.log(data);
                                                 if (document.getElementById("TotalPatientCount")) {
                                                     document.getElementById("TotalPatientCount").value = response.AllPatientsCount;
@@ -1543,12 +1598,16 @@
             event.stopPropagation();
             console.log("Open Modal clicked!"); // Debugging Log
             var patientId = $(this).data('patient-id');
+            var appointmentDocumentId = $(this).data('appointment-id');
             console.log('Patient ID:', patientId);
+
 
             // Example: Set the patient ID to a hidden input in the modal
             $('.canvasModal').find('input[name="patient_id"]').val(patientId);
+            $('.canvasModal').find('input[name="appointment_doc_id"]').val(appointmentDocumentId);
             // Hide all popover menus after opening the modal
             $(".popover-menu").hide();
+
 
             // Make AJAX call to get images
             $.ajax({
@@ -1566,7 +1625,13 @@
                     console.log('Is Array After Conversion:', Array.isArray(images));
 
                     if (images.length > 0) {
+                        
                         populateImageSlider(images);
+
+                        console.log("before initize canvas", savedCanvasData);
+                        initializeCanvas();
+                        console.log("after initize canvas", savedCanvasData);
+                        
                     } else {
                         console.warn("No images found.");
                         populateImageSlider([]);
@@ -1577,8 +1642,6 @@
                 }
             });
         });
-
-
 
         $(document).on("click", ".openDoctorView", function (event) {
             window.location.href = "/Appointment/Doctor";
@@ -1604,12 +1667,81 @@
         });
 
 
+
+        //earlier it was used in saveCanvasImage but as it is commented in saveCanvasImage so commented this too
+
     });
 
-    function clearCanvas2() {
+
+
+    function saveCanvasImage() {
         var canvas = document.getElementById('drawingCanvas2');
-        var context = canvas.getContext('2d');
-        context.clearRect(0, 0, canvas.width, canvas.height);
+        var imageData = canvas.toDataURL('image/png');
+        $.ajax({
+            url: '/Appointment/SaveCanvasImage',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                base64Image: imageData,
+                patientId: document.getElementById('patient_id').value,
+                appointmentDocId: document.getElementById('appointment_doc_id').value,
+            }),
+            beforeSend: function () {
+                $("#loader").show(); // Show loader before request starts
+            },
+            success: function (response) {
+                $("#loader").hide();
+
+                console.log("after save canvas", savedCanvasData);
+                savedCanvasData = null;
+                //window.location.reload();
+                if (response.success) {
+                    console.log('Image saved:', response.message);
+                    refreshImageSlider();
+
+                } else {
+                    console.error('Save failed:', response.message);
+                }
+                //$('#canvasModal').removeClass('show').hide();
+                //$('.modal-backdrop').remove();
+                //$('body').removeClass('modal-open');
+
+
+
+            },
+            error: function (error) {
+                console.error('Error:', error);
+            }
+        });
+    }
+
+
+    function refreshImageSlider() {
+        $.ajax({
+            url: '/Appointment/GetPatientImages', // Your endpoint to fetch images
+            type: 'GET',
+            data: { patientId: document.getElementById('patient_id').value },
+            success: function (response) {
+                // Assuming your response contains an array of images:
+                if (response && response.ImageList && response.ImageList.length > 0) {
+                    populateImageSlider(response.ImageList);
+
+                } else {
+                    console.warn("No images found.");
+                    populateImageSlider([]);
+                }
+            },
+            error: function (error) {
+                console.error('Error refreshing slider:', error);
+            }
+        });
+    }
+
+    function clearCanvas2() {
+
+        var canvas = document.getElementById('drawingCanvas2');
+        var ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
 
     function logout() {
@@ -1619,8 +1751,7 @@
     }
 
     // Function to populate carousel with images
-    function populateImageSlider(images)
-    {
+    function populateImageSlider(images) {
         // Convert to array if needed
         if (!Array.isArray(images)) {
             images = Object.values(images);
@@ -1637,79 +1768,31 @@
         }
 
         images.forEach((image, index) => {
-            //console.log('image URL', image.ImageUrl)
-            var isActive = index === 0 ? 'active' : '';
             indicators.append(`
-                <li data-target="#imageSlider" data-slide-to="${index}" class="${isActive}"></li>
-            `);
-            inner.append(`
-                <div class="carousel-item ${isActive}">
-                    <img src="${image.ImageUrl}" class="d-block w-100" alt="Image ${image.Id}">
-                </div>
-            `);
-        });
-
-        // Add the canvas slide at the end
-        var canvasSlideIndex = images.length;
-        indicators.append(`
-            <li data-target="#imageSlider" data-slide-to="${canvasSlideIndex}"></li>
+            <li data-target="#imageSlider" data-slide-to="${index}"></li>
         `);
-        inner.append(`
+            inner.append(`
             <div class="carousel-item">
-                <canvas id="drawingCanvas2" class="d-block w-100 h-300" style="background: #f5f5f5;"></canvas>
+                <img src="${image.ImageUrl}" class="d-block w-100" alt="Image ${image.Id}">
             </div>
         `);
-    }
-
-    function saveCanvasImage() {
-        var canvas = document.getElementById('drawingCanvas2');
-        var imageData = canvas.toDataURL('image/png');
-        $.ajax({
-            url: '/Appointment/SaveCanvasImage',
-            type: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify({
-                base64Image: imageData,
-                patientId: document.getElementById('patient_id').value
-            }),
-            success: function (response) {
-
-                if (response.success) {
-                    console.log('Image saved:', response.message);
-                    refreshImageSlider();
-                } else {
-                    console.error('Save failed:', response.message);
-                }
-                $('#canvasModal').removeClass('show').hide();
-                $('.modal-backdrop').remove();
-                $('body').removeClass('modal-open');
-
-            },
-            error: function (error) {
-                console.error('Error:', error);
-            }
         });
+
+        // Add the canvas slide at the end and make it active
+        var canvasSlideIndex = images.length;
+        indicators.append(`
+        <li data-target="#imageSlider" data-slide-to="${canvasSlideIndex}" class="active"></li>
+    `);
+        inner.append(`
+        <div class="carousel-item active">
+            <canvas id="drawingCanvas2" class="d-block w-100 h-300" style="background: #f5f5f5;"></canvas>
+        </div>
+    `);
+
     }
 
-    function refreshImageSlider() {
-        $.ajax({
-            url: '/Appointment/GetPatientImages', // Your endpoint to fetch images
-            type: 'GET',
-            data: { patientId: document.getElementById('patient_id').value },
-            success: function (response) {
-                // Assuming your response contains an array of images:
-                if (response && response.ImageList && response.ImageList.length > 0) {
-                    populateImageSlider(response.ImageList);
-                } else {
-                    console.warn("No images found.");
-                    populateImageSlider([]);
-                }
-            },
-            error: function (error) {
-                console.error('Error refreshing slider:', error);
-            }
-        });
-    }
+
+    
 
 
 </script>
@@ -1845,16 +1928,70 @@
 
 <div class="card">
     <div class="card-header py-0 myfixheader d-flex justify-content-end">
-        <div class="card-header-button-group d-flex w-100 justify-content-end">
-            <input id="UserDetail" class="form-control me-3 w-50" value="@ViewBag.UserDetail" readonly />
-            <button class="btn btn-secondary btn-sm me-3 boxcircle" type="button" onclick="logout()"><i class="fa fa-sign-out"></i></button>
-            <button class="btn btn-secondary btn-sm me-3 boxcircle" type="button"><i class="fa fa-refresh"></i></button>
-            @if (User.IsInRole("Doctor") || User.IsInRole("Receptionist"))
-            {
-                <button class="btn btn-secondary btn-sm me-3 boxcircle" type="button"><i class="fa fa-calendar-plus"></i></button>
-                <button class="btn btn-secondary btn-sm me-3 boxcircle modal-linkPC" data-toggle="modal" data-target=".modalCreatePatient" type="button"><i class="fa fa-plus"></i></button>
-            }
+        <div class="card-header-button-group d-flex w-100 justify-content-between">
+            <!-- Three Bars Button (Opens Offcanvas) -->
+            <div class="menuBtn">
+                <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#offcanvasMenu">
+                    <i class="fa fa-bars"></i>
+                </button>
+                <!-- Offcanvas Menu (Bootstrap 4 Modal) -->
+                <div class="modal left fade" id="offcanvasMenu" tabindex="-1" role="dialog" aria-labelledby="offcanvasMenuLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-lg" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="offcanvasMenuLabel">Menu</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <ul class="list-group">
+                                    <li class="list-group-item"><a href="#">Upgrade Plan</a></li>
+                                    <li class="list-group-item"><a href="#">Transactional Messages</a></li>
+                                    <li class="list-group-item"><a href="#">My Clinic</a></li>
+                                    <li class="list-group-item"><a href="#">Send Message</a></li>
+                                    <li class="list-group-item"><a href="#">Manage Staff</a></li>
+                                    <li class="list-group-item"><a href="/inventory/Index">Inventory</a></li>
+                                    <li class="list-group-item"><a href="#">Money</a></li>
+                                    <li class="list-group-item"><a href="#">Printer Setting</a></li>
+                                    <li class="list-group-item"><a href="#">Auto Counter Bell</a></li>
+                                    <li class="list-group-item"><a href="#">Tell a Friend</a></li>
+                                    <li class="list-group-item"><a href="#">More Settings</a></li>
+                                    <li class="list-group-item"><a href="#">Help & Tips</a></li>
+                                    <li class="list-group-item"><a href="#">Utility</a></li>
+                                    <li class="list-group-item"><a href="#">Promote Me</a></li>
+
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <style>
+                .headerItems {
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                }
+                .menuBtn {
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    margin: 5px;
+                }
+            </style>
+            <div class="headerItems">
+                <input id="UserDetail" class="form-control me-3 w-50" value="@ViewBag.UserDetail" readonly />
+                <button class="btn btn-secondary btn-sm me-3 boxcircle" type="button" onclick="logout()"><i class="fa fa-sign-out"></i></button>
+                <button class="btn btn-secondary btn-sm me-3 boxcircle" type="button"><i class="fa fa-refresh"></i></button>
+                @if (User.IsInRole("Doctor") || User.IsInRole("Receptionist"))
+                {
+                    <button class="btn btn-secondary btn-sm me-3 boxcircle" type="button"><i class="fa fa-calendar-plus"></i></button>
+                    <button class="btn btn-secondary btn-sm me-3 boxcircle modal-linkPC" data-toggle="modal" data-target=".modalCreatePatient" type="button"><i class="fa fa-plus"></i></button>
+                }
+            </div>
         </div>
+
         <div class="row p-0 m-0 d-flex w-100 flex-unwrap justify-content-between">
 
             <div class="pageDetailout">
@@ -1904,11 +2041,11 @@
                 }
                 @if (User.IsInRole("Doctor") || User.IsInRole("Receptionist"))
                 {
-                    <div class="pageDetailValue">
+                    <div class="pageDetailValue" style="position:relative">
 
 
                         <input id="TodayPatients" type="button" class="form-control pageDetailhead" value="Today's" readonly style="text-align: center;height:40px" />
-                        <input type="text" id="hidden-datepicker" style="position: absolute; visibility: hidden;">
+                        <input type="text" id="hidden-datepicker" style="position: absolute; visibility: hidden; left:0px;width:100%;">
                         <input class="form-control" id="hdSelectedDate" type="hidden" />
                         <input id="TotalTodayAppointments" class="form-control smallinput" value="@ViewBag.TotalTodayAppointmentsReceptionist" readonly style="text-align: center;" />
 
@@ -1924,6 +2061,7 @@
                 </div>
                 <input class="form-control" id="hdSelectedDate" type="hidden" />*@
         </div>
+
         @if (User.IsInRole("Doctor") || User.IsInRole("Receptionist"))
         {
             <div class="row w-100 p-0 m-0">
@@ -1957,16 +2095,16 @@
     </div>
 </div>
 
-@*@using (Html.BeginForm("CreateFutureAppointment", "Patient", FormMethod.Post))
-    {*@
+
 <div class="form-horizontal">
     <div class="modal fade bootstrapmodal" id="appointmentModal">
         <div class="modal-dialog">
 
             <div class="modal-content">
                 <div class="modal-header">
+                    <h4 class="modal-title">Please Select Appointment Date</h4>
                     <button data-dismiss="modal" class="close"><span>&times;</span></button>
-                    Please Select Appointment Date
+                    
                 </div>
                 <div class="modal-body">
 
@@ -2024,8 +2162,9 @@
 
             <div class="modal-content">
                 <div class="modal-header">
+                    <h4 class="modal-title">Create Patient</h4>
                     <button data-dismiss="modal" class="close"><span>&times;</span></button>
-                    Create Patient
+                    
                 </div>
                 <div class="modal-body">
                     <div class="container-fluid">
@@ -2410,6 +2549,7 @@
 
             <div class="modal-content">
                 <input type="hidden" name="patient_id" id="patient_id">
+                <input type="hidden" name="appointment_doc_id" id="appointment_doc_id">
                 <div class="modal-body">
                     @*<div>
                 <canvas id="drawingCanvas1"></canvas>
@@ -2419,26 +2559,26 @@
                         <div id="imageSlider" class="carousel slide h-300 w-100" data-interval="false">
                             <ul class="carousel-indicators">
                                 @*<li data-target="#imageSlider" data-slide-to="0" class="active"></li>
-                                <li data-target="#imageSlider" data-slide-to="1"></li>
-                                <li data-target="#imageSlider" data-slide-to="2"></li>
-                                <li data-target="#imageSlider" data-slide-to="3"></li>*@ 
+                        <li data-target="#imageSlider" data-slide-to="1"></li>
+                        <li data-target="#imageSlider" data-slide-to="2"></li>
+                        <li data-target="#imageSlider" data-slide-to="3"></li>*@
                             </ul>
 
 
                             <div class="carousel-inner">
                                 @*<div class="carousel-item active">
-                                    <img src="~/Images/logo copy.png" class="d-block w-100" alt="Image 1">
-                                </div>
-                                <div class="carousel-item">
-                                    <img src="~/Images/logo copy.png" class="d-block w-100" alt="Image 2">
-                                </div>
-                                <div class="carousel-item">
-                                    <img src="~/Images/Downloading.gif" class="d-block w-100" alt="Image 3">
-                                </div>
-                                <div class="carousel-item">
-                                    <canvas id="drawingCanvas2" class="d-block w-100 h-300"
-                                            style="background: #f5f5f5;"></canvas>
-                                </div>*@
+                            <img src="~/Images/logo copy.png" class="d-block w-100" alt="Image 1">
+                        </div>
+                        <div class="carousel-item">
+                            <img src="~/Images/logo copy.png" class="d-block w-100" alt="Image 2">
+                        </div>
+                        <div class="carousel-item">
+                            <img src="~/Images/Downloading.gif" class="d-block w-100" alt="Image 3">
+                        </div>
+                        <div class="carousel-item">
+                            <canvas id="drawingCanvas2" class="d-block w-100 h-300"
+                                    style="background: #f5f5f5;"></canvas>
+                        </div>*@
                             </div>
 
 
@@ -2454,9 +2594,9 @@
                 </div>
                 <div class="modal-footer">
                     <div class="form-group row">
-                        <div class="col-md-1">
+                        <div class="col-md-12 text-right">
                             <button id="clearCanvas2" onclick="clearCanvas2()" class="btn btn-danger">Clear</button>
-                            <button id="savePrescription" onclick="saveCanvasImage()" class="btn btn-primary">Save</button>
+                            <button id="savePrescription" onclick="saveCanvasImage()" data-dismiss="modal" class="btn btn-primary">Save</button>
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                         </div>
 
@@ -2467,10 +2607,9 @@
     </div>
 </div>
 
-@*}*@
+
 
 <h2 style="display:none;">Appointments</h2>
-
 
 <table class="table" border="0" style="display:none;">
     <tr>
@@ -2531,8 +2670,9 @@
 
     </tr>
 </table>
+
 @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-<!--<table class="table" style="display:none;">-->
+
 <table class="table" style="display:none;">
     <tr>
         <th>
@@ -2592,7 +2732,7 @@
 
 </table>
 
-@*<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>*@
+
 
 
 

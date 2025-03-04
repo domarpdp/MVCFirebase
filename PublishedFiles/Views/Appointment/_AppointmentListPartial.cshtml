@@ -13,7 +13,7 @@
                 <div class="myboxleft">
                     <span class="boxCount">@Html.DisplayFor(modelItem => appointment.token)</span>
                 </div>
-                <div class="d-flex w-100 flex-column boxitemView modal-link" data-toggle="modal" data-target=".bootstrapmodal" data-patient-id="@appointment.patient">
+                <div class="d-flex w-100 flex-column boxitemView modal-link" data-toggle="modal" data-target=".bootstrapmodal" data-patient-id="@appointment.patient" >
                     <div class="myboxmid">
                         <span class="card-body-item myboxrightName">
                             <strong>@Html.DisplayFor(modelItem => appointment.patient_name)</strong>
@@ -37,6 +37,9 @@
                         <span class="card-body-item">
                             @appointment.raisedDate.ToString("hh:mm tt")
                         </span>
+                        <span class="card-body-item">
+                            @Html.DisplayFor(modelItem => appointment.id)
+                        </span>
                     </div>
                 </div>
                 <div class="myboxright">
@@ -53,7 +56,7 @@
                     <!-- Popover Menu -->
                     <div id="@popoverId" class="popover-menu" style="display: none;">
                         <ul>
-                            <li class="openModal" data-toggle="modal" data-target=".canvasModal" data-patient-id="@appointment.patient_id">Option 1</li>
+                            <li class="openModal" data-toggle="modal" data-target=".canvasModal" data-appointment-id="@appointment.id" data-patient-id="@appointment.patient_id">Option 1</li>
                             <li>Option 2</li>
                             <li>Option 3</li>
                             @*<li class="openDoctorView">Option 3</li>*@

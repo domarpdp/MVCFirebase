@@ -7604,6 +7604,24 @@ namespace MVCFirebase.Controllers
                         await colPrescriptions.Document().SetAsync(dataAppointment);
                     }
 
+                    DocumentReference docRef = _db.Collection("clinics").Document(ClinicFirebaseDocumentId).Collection("appointments").Document(model.AppointmentDocId);
+                    DocumentSnapshot docSnap = await docRef.GetSnapshotAsync();
+
+                    if (docSnap.Exists)
+                    {
+                        Dictionary<string, object> data1 = new Dictionary<string, object>
+                        {
+                            {"completionDate" ,DateTime.UtcNow},
+                            {"status" ,"Completed"},
+                            {"UpdatedAt",DateTime.UtcNow},
+                            {"days" ,"7"},
+                            {"fee" ,"100"},
+                        };
+
+
+                        await docRef.UpdateAsync(data1);
+
+                    }
 
                     return Json(new { success = true, message = "Image saved successfully" }, JsonRequestBehavior.AllowGet);
                 }

@@ -9,5 +9,7 @@ namespace MVCFirebase.Models
     {
         public string Base64Image { get; set; }
         public string PatientId { get; set; }
+
+        public string AppointmentDocId { get; set; }
     }
 }
