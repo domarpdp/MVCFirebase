@@ -24,6 +24,11 @@
                 });
         }
     </script>
+    <script>
+        setInterval(function () {
+            fetch('/Home/KeepAlive'); // A dummy API to keep session alive
+        }, 5 * 60 * 1000); // Every 5 minutes
+    </script>
 </head>
 <body>
     <div class="container body-content p-0 m-0" style="max-width:100%; margin: 0 auto!important;">

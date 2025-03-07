@@ -237,6 +237,7 @@
         padding: 10px 20px;
         border: none;
         cursor: pointer;
+        box-shadow: 2px 5px 10px #333;
     }
 
     .active-btn {
@@ -614,6 +615,338 @@
         }
     }
 
+    function disableSwipeAndDrag() {
+        // Disable touch swipe
+        $("#imageSlider").on("touchstart", function (e) {
+            e.stopPropagation(); // Prevent Bootstrap from detecting swipe
+        });
+
+        // Disable touch swipe
+        $("#imageSlider").on("touchend", function (e) {
+            e.stopPropagation(); // Prevent Bootstrap from detecting swipe
+        });
+
+        // Disable touch swipe
+        $("#imageSlider").on("touchmove", function (e) {
+            e.stopPropagation(); // Prevent Bootstrap from detecting swipe
+        });
+
+        // Disable mouse drag
+        $("#imageSlider").on("mousedown", function (e) {
+            e.stopPropagation(); // Prevent Bootstrap from detecting drag
+        });
+        // Disable mouse drag
+        $("#imageSlider").on("mouseup", function (e) {
+            e.stopPropagation(); // Prevent Bootstrap from detecting drag
+        });
+        // Disable mouse drag
+        $("#imageSlider").on("mousemove", function (e) {
+            e.stopPropagation(); // Prevent Bootstrap from detecting drag
+        });
+    }
+
+    function enableSwipeAndDrag() {
+        // Re-enable swipe and drag when leaving last slide
+        $("#imageSlider").off("touchstart mousedown");
+    }
+
+    function initializeCanvas() {
+        //alert('initializeCanvas');
+        var canvas = document.getElementById("drawingCanvas2");
+
+        canvas.addEventListener("touchstart", function (e) {
+            e.stopPropagation();
+            e.preventDefault();
+        }, { passive: false });
+
+        canvas.addEventListener("touchmove", function (e) {
+            e.stopPropagation();
+            e.preventDefault();
+        }, { passive: false });
+
+        canvas.addEventListener("mousedown", function (e) {
+            e.stopPropagation();
+            e.preventDefault();
+        });
+
+        canvas.addEventListener("mousemove", function (e) {
+            e.stopPropagation();
+            e.preventDefault();
+        });
+        canvas.addEventListener("mouseenter", function () {
+            $("#imageSlider").carousel('pause');
+        });
+        canvas.addEventListener("mouseleave", function () {
+            $("#imageSlider").carousel('cycle');
+        });
+
+        var ctx = canvas.getContext("2d");
+
+        // Set canvas size
+        canvas.width = canvas.parentElement.clientWidth;
+        canvas.height = 800;
+
+        let painting = false;
+
+        function startPosition(e) {
+            painting = true;
+            draw(e);
+        }
+
+        function endPosition() {
+            painting = false;
+            ctx.beginPath();
+            saveCanvas();
+        }
+
+        function draw(e) {
+            if (!painting) return;
+
+            ctx.lineWidth = 5;
+            ctx.lineCap = "round";
+            ctx.strokeStyle = "black";
+
+            let x, y;
+
+            if (e.type.includes("touch")) {
+                let touch = e.touches[0];
+                let rect = canvas.getBoundingClientRect();
+                x = touch.clientX - rect.left;
+                y = touch.clientY - rect.top;
+            } else {
+                x = e.offsetX;
+                y = e.offsetY;
+            }
+
+            ctx.lineTo(x, y);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+        }
+
+        // Mouse Events
+        canvas.addEventListener("mousedown", startPosition);
+        canvas.addEventListener("mouseup", endPosition);
+        canvas.addEventListener("mousemove", draw);
+
+        // Touch Events (for mobile)
+        canvas.addEventListener("touchstart", (e) => {
+            e.preventDefault();
+            startPosition(e);
+        });
+        canvas.addEventListener("touchend", endPosition);
+        canvas.addEventListener("touchmove", (e) => {
+            e.preventDefault();
+            draw(e);
+        });
+
+        restoreCanvas();
+    }
+
+
+    function saveCanvas() {
+        var canvas = document.getElementById("drawingCanvas2");
+        savedCanvasData = canvas.toDataURL(); // Save canvas state as image
+    }
+
+    function restoreCanvas() {
+        if (savedCanvasData) {
+            var canvas = document.getElementById("drawingCanvas2");
+            var ctx = canvas.getContext("2d");
+            var img = new Image();
+            img.src = savedCanvasData;
+            img.onload = function () {
+                ctx.drawImage(img, 0, 0);
+            };
+        }
+    }
+
+    //earlier it was used in saveCanvasImage but as it is commented in saveCanvasImage so commented this too
+
+
+    function saveCanvasImage() {
+        var canvas = document.getElementById('drawingCanvas2');
+        var imageData = canvas.toDataURL('image/png');
+        $.ajax({
+            url: '/Appointment/SaveCanvasImage',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                base64Image: imageData,
+                patientId: document.getElementById('patient_id').value,
+                appointmentDocId: document.getElementById('appointment_doc_id').value,
+            }),
+            beforeSend: function () {
+                $("#loader").show(); // Show loader before request starts
+            },
+            success: function (response) {
+                $("#loader").hide();
+
+                console.log("after save canvas", savedCanvasData);
+                savedCanvasData = null;
+                //window.location.reload();
+                if (response.success) {
+                    console.log('Image saved:', response.message);
+                    refreshImageSlider();
+
+                } else {
+                    console.error('Save failed:', response.message);
+                }
+                //$('#canvasModal').removeClass('show').hide();
+                //$('.modal-backdrop').remove();
+                //$('body').removeClass('modal-open');
+
+
+
+            },
+            error: function (error) {
+                console.error('Error:', error);
+            }
+        });
+    }
+
+
+    function refreshImageSlider() {
+        $.ajax({
+            url: '/Appointment/GetPatientImages', // Your endpoint to fetch images
+            type: 'GET',
+            data: { patientId: document.getElementById('patient_id').value },
+            success: function (response) {
+                // Assuming your response contains an array of images:
+                if (response && response.ImageList && response.ImageList.length > 0) {
+                    populateImageSlider(response.ImageList);
+                    initializeCanvas();
+                } else {
+                    console.warn("No images found.");
+                    populateImageSlider([]);
+                    initializeCanvas();
+                }
+            },
+            error: function (error) {
+                console.error('Error refreshing slider:', error);
+            }
+        });
+    }
+
+    function clearCanvas2() {
+
+        var canvas = document.getElementById('drawingCanvas2');
+        var ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+
+
+    function populateImageSlider(images) {
+        // Convert to array if needed
+        if (!Array.isArray(images)) {
+            images = Object.values(images);
+        }
+
+        var indicators = $('.carousel-indicators');
+        var inner = $('.carousel-inner');
+        indicators.empty();
+        inner.empty();
+
+        if (images.length === 0) {
+            // Show only the canvas if no images are available
+            indicators.append(`
+            <li data-target="#imageSlider" data-slide-to="0" class="active"></li>
+        `);
+            inner.append(`
+            <div class="carousel-item active">
+                <canvas id="drawingCanvas2" class="d-block w-100 h-300" style="background: #f5f5f5;"></canvas>
+            </div>
+        `);
+            return;
+        }
+
+        // Reverse the images array
+        images.reverse();
+
+
+
+        images.forEach((image, index) => {
+            indicators.append(`
+            <li data-target="#imageSlider" data-slide-to="${index}" ${index === images.length - 1 ? 'class="active"' : ''}></li>
+        `);
+            inner.append(`
+            <div class="carousel-item ${index === images.length - 1 ? 'active' : ''}">
+                <img src="${image.ImageUrl}" class="d-block w-100" alt="Image ${image.Id}">
+            </div>
+        `);
+        });
+
+        // Add the canvas slide at the end (not active)
+        var canvasSlideIndex = images.length;
+        indicators.append(`
+        <li data-target="#imageSlider" data-slide-to="${canvasSlideIndex}"></li>
+    `);
+        inner.append(`
+        <div class="carousel-item">
+            <canvas id="drawingCanvas2" class="d-block w-100 h-300" style="background: #f5f5f5;"></canvas>
+        </div>
+    `);
+    }
+
+
+    // Function to populate carousel with images 
+    function populateImageSlider1(images) {
+        // Convert to array if needed
+        if (!Array.isArray(images)) {
+            images = Object.values(images);
+        }
+
+
+        var indicators = $('.carousel-indicators');
+        var inner = $('.carousel-inner');
+        indicators.empty();
+        inner.empty();
+
+        if (images.length === 0) {
+            // Show only the canvas if no images are available
+            indicators.append(`
+            <li data-target="#imageSlider" data-slide-to="0" class="active"></li>
+        `);
+            inner.append(`
+            <div class="carousel-item active">
+                <canvas id="drawingCanvas2" class="d-block w-100 h-300" style="background: #f5f5f5;"></canvas>
+            </div>
+        `);
+            return;
+        }
+
+
+        images.forEach((image, index) => {
+            indicators.append(`
+                <li data-target="#imageSlider" data-slide-to="${index}"></li>
+            `);
+            inner.append(`
+                <div class="carousel-item">
+                    <img src="${image.ImageUrl}" class="d-block w-100" alt="Image ${image.Id}">
+                </div>
+            `);
+        });
+
+        // Add the canvas slide at the end and make it active
+        var canvasSlideIndex = images.length;
+        indicators.append(`
+        <li data-target="#imageSlider" data-slide-to="${canvasSlideIndex}" class="active"></li>
+    `);
+        inner.append(`
+        <div class="carousel-item active">
+            <canvas id="drawingCanvas2" class="d-block w-100 h-300" style="background: #f5f5f5;"></canvas>
+        </div>
+    `);
+
+    }
+
+    function logout() {
+        // For example, clear session storage or cookies if you're using them for authentication
+        sessionStorage.clear();
+        document.location.href = '/Home/Logout'; // Redirect to logout route
+    }
+
 </script>
 <script>
     let savedCanvasData = null;
@@ -632,169 +965,33 @@
         });
 
         $('#imageSlider').on('slid.bs.carousel', function () {
+            
             var totalItems = $('.carousel-item').length;
             var currentIndex = $('.carousel-item.active').index() + 1;
 
-            if (currentIndex === totalItems) {
+            if (currentIndex === totalItems)
+            {
+
+                
                 // Disable swipe & mouse drag when on the last slide (canvas)
                 disableSwipeAndDrag();
+                initializeCanvas();
 
-                if (!canvasInitialized) {
-                    initializeCanvas();
-                    canvasInitialized = true;
-                } else {
-                    restoreCanvas();
-                }
-            } else {
+                //if (!canvasInitialized)
+                //{
+                //    initializeCanvas();
+                //    canvasInitialized = true;
+                //} else
+                //{
+                //    restoreCanvas();
+
+                //}
+            }
+            else
+            {
                 enableSwipeAndDrag();
             }
         });
-
-        function disableSwipeAndDrag() {
-            // Disable touch swipe
-            $("#imageSlider").on("touchstart", function (e) {
-                e.stopPropagation(); // Prevent Bootstrap from detecting swipe
-            });
-
-            // Disable touch swipe
-            $("#imageSlider").on("touchend", function (e) {
-                e.stopPropagation(); // Prevent Bootstrap from detecting swipe
-            });
-
-            // Disable touch swipe
-            $("#imageSlider").on("touchmove", function (e) {
-                e.stopPropagation(); // Prevent Bootstrap from detecting swipe
-            });
-
-            // Disable mouse drag
-            $("#imageSlider").on("mousedown", function (e) {
-                e.stopPropagation(); // Prevent Bootstrap from detecting drag
-            });
-            // Disable mouse drag
-            $("#imageSlider").on("mouseup", function (e) {
-                e.stopPropagation(); // Prevent Bootstrap from detecting drag
-            });
-            // Disable mouse drag
-            $("#imageSlider").on("mousemove", function (e) {
-                e.stopPropagation(); // Prevent Bootstrap from detecting drag
-            });
-        }
-
-        function enableSwipeAndDrag() {
-            // Re-enable swipe and drag when leaving last slide
-            $("#imageSlider").off("touchstart mousedown");
-        }
-
-        function initializeCanvas() {
-            var canvas = document.getElementById("drawingCanvas2");
-
-            canvas.addEventListener("touchstart", function (e) {
-                e.stopPropagation();
-                e.preventDefault();
-            }, { passive: false });
-
-            canvas.addEventListener("touchmove", function (e) {
-                e.stopPropagation();
-                e.preventDefault();
-            }, { passive: false });
-
-            canvas.addEventListener("mousedown", function (e) {
-                e.stopPropagation();
-                e.preventDefault();
-            });
-
-            canvas.addEventListener("mousemove", function (e) {
-                e.stopPropagation();
-                e.preventDefault();
-            });
-            canvas.addEventListener("mouseenter", function () {
-                $("#imageSlider").carousel('pause');
-            });
-            canvas.addEventListener("mouseleave", function () {
-                $("#imageSlider").carousel('cycle');
-            });
-
-            var ctx = canvas.getContext("2d");
-
-            // Set canvas size
-            canvas.width = canvas.parentElement.clientWidth;
-            canvas.height = 800;
-
-            let painting = false;
-
-            function startPosition(e) {
-                painting = true;
-                draw(e);
-            }
-
-            function endPosition() {
-                painting = false;
-                ctx.beginPath();
-                saveCanvas();
-            }
-
-            function draw(e) {
-                if (!painting) return;
-
-                ctx.lineWidth = 5;
-                ctx.lineCap = "round";
-                ctx.strokeStyle = "black";
-
-                let x, y;
-
-                if (e.type.includes("touch")) {
-                    let touch = e.touches[0];
-                    let rect = canvas.getBoundingClientRect();
-                    x = touch.clientX - rect.left;
-                    y = touch.clientY - rect.top;
-                } else {
-                    x = e.offsetX;
-                    y = e.offsetY;
-                }
-
-                ctx.lineTo(x, y);
-                ctx.stroke();
-                ctx.beginPath();
-                ctx.moveTo(x, y);
-            }
-
-            // Mouse Events
-            canvas.addEventListener("mousedown", startPosition);
-            canvas.addEventListener("mouseup", endPosition);
-            canvas.addEventListener("mousemove", draw);
-
-            // Touch Events (for mobile)
-            canvas.addEventListener("touchstart", (e) => {
-                e.preventDefault();
-                startPosition(e);
-            });
-            canvas.addEventListener("touchend", endPosition);
-            canvas.addEventListener("touchmove", (e) => {
-                e.preventDefault();
-                draw(e);
-            });
-
-            restoreCanvas();
-        }
-
-
-        function saveCanvas() {
-            var canvas = document.getElementById("drawingCanvas2");
-            savedCanvasData = canvas.toDataURL(); // Save canvas state as image
-        }
-
-        function restoreCanvas() {
-            if (savedCanvasData) {
-                var canvas = document.getElementById("drawingCanvas2");
-                var ctx = canvas.getContext("2d");
-                var img = new Image();
-                img.src = savedCanvasData;
-                img.onload = function () {
-                    ctx.drawImage(img, 0, 0);
-                };
-            }
-        }
-
         
 
         console.log('amang', typeof jQuery);
@@ -1596,11 +1793,17 @@
 
         $(document).on("click", ".openModal", function (event) {
             event.stopPropagation();
+            
             console.log("Open Modal clicked!"); // Debugging Log
             var patientId = $(this).data('patient-id');
             var appointmentDocumentId = $(this).data('appointment-id');
             console.log('Patient ID:', patientId);
+            console.log('Previous clicked Patient ID', $('.canvasModal').find('input[name="patient_id"]').val());
 
+            //this code is to clear canvas if clicked patient is different than previous clicked patient
+            if ($(this).data('patient-id') != $('.canvasModal').find('input[name="patient_id"]').val()) {
+                savedCanvasData = null;
+            }
 
             // Example: Set the patient ID to a hidden input in the modal
             $('.canvasModal').find('input[name="patient_id"]').val(patientId);
@@ -1627,14 +1830,15 @@
                     if (images.length > 0) {
                         
                         populateImageSlider(images);
-
-                        console.log("before initize canvas", savedCanvasData);
-                        initializeCanvas();
-                        console.log("after initize canvas", savedCanvasData);
+                        //alert('openModal populateImageSlider(images)');
+                        setTimeout(() => {
+                            initializeCanvas(); // Ensure canvas initializes after DOM updates
+                        }, 300);
                         
                     } else {
                         console.warn("No images found.");
                         populateImageSlider([]);
+                        initializeCanvas();
                     }
                 },
                 error: function () {
@@ -1666,130 +1870,11 @@
             ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
         });
 
-
-
-        //earlier it was used in saveCanvasImage but as it is commented in saveCanvasImage so commented this too
-
     });
 
 
 
-    function saveCanvasImage() {
-        var canvas = document.getElementById('drawingCanvas2');
-        var imageData = canvas.toDataURL('image/png');
-        $.ajax({
-            url: '/Appointment/SaveCanvasImage',
-            type: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify({
-                base64Image: imageData,
-                patientId: document.getElementById('patient_id').value,
-                appointmentDocId: document.getElementById('appointment_doc_id').value,
-            }),
-            beforeSend: function () {
-                $("#loader").show(); // Show loader before request starts
-            },
-            success: function (response) {
-                $("#loader").hide();
 
-                console.log("after save canvas", savedCanvasData);
-                savedCanvasData = null;
-                //window.location.reload();
-                if (response.success) {
-                    console.log('Image saved:', response.message);
-                    refreshImageSlider();
-
-                } else {
-                    console.error('Save failed:', response.message);
-                }
-                //$('#canvasModal').removeClass('show').hide();
-                //$('.modal-backdrop').remove();
-                //$('body').removeClass('modal-open');
-
-
-
-            },
-            error: function (error) {
-                console.error('Error:', error);
-            }
-        });
-    }
-
-
-    function refreshImageSlider() {
-        $.ajax({
-            url: '/Appointment/GetPatientImages', // Your endpoint to fetch images
-            type: 'GET',
-            data: { patientId: document.getElementById('patient_id').value },
-            success: function (response) {
-                // Assuming your response contains an array of images:
-                if (response && response.ImageList && response.ImageList.length > 0) {
-                    populateImageSlider(response.ImageList);
-
-                } else {
-                    console.warn("No images found.");
-                    populateImageSlider([]);
-                }
-            },
-            error: function (error) {
-                console.error('Error refreshing slider:', error);
-            }
-        });
-    }
-
-    function clearCanvas2() {
-
-        var canvas = document.getElementById('drawingCanvas2');
-        var ctx = canvas.getContext('2d');
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-    }
-
-    function logout() {
-        // For example, clear session storage or cookies if you're using them for authentication
-        sessionStorage.clear();
-        document.location.href = '/Home/Logout'; // Redirect to logout route
-    }
-
-    // Function to populate carousel with images
-    function populateImageSlider(images) {
-        // Convert to array if needed
-        if (!Array.isArray(images)) {
-            images = Object.values(images);
-        }
-
-        var indicators = $('.carousel-indicators');
-        var inner = $('.carousel-inner');
-        indicators.empty();
-        inner.empty();
-
-        if (images.length === 0) {
-            inner.append('<div class="carousel-item active"><p class="text-center">No Images Available</p></div>');
-            return;
-        }
-
-        images.forEach((image, index) => {
-            indicators.append(`
-            <li data-target="#imageSlider" data-slide-to="${index}"></li>
-        `);
-            inner.append(`
-            <div class="carousel-item">
-                <img src="${image.ImageUrl}" class="d-block w-100" alt="Image ${image.Id}">
-            </div>
-        `);
-        });
-
-        // Add the canvas slide at the end and make it active
-        var canvasSlideIndex = images.length;
-        indicators.append(`
-        <li data-target="#imageSlider" data-slide-to="${canvasSlideIndex}" class="active"></li>
-    `);
-        inner.append(`
-        <div class="carousel-item active">
-            <canvas id="drawingCanvas2" class="d-block w-100 h-300" style="background: #f5f5f5;"></canvas>
-        </div>
-    `);
-
-    }
 
 
     
@@ -2039,7 +2124,7 @@
 
 
                 }
-                @if (User.IsInRole("Doctor") || User.IsInRole("Receptionist"))
+                @if (User.IsInRole("Doctor") || User.IsInRole("Receptionist") || User.IsInRole("Chemist") || User.IsInRole("Cashier"))
                 {
                     <div class="pageDetailValue" style="position:relative">
 
@@ -2083,7 +2168,7 @@
     <div id="loader" style="display: none;">
         <img src="~/Images/loader.gif" alt="Loading..." />
     </div>
-    <div class="card-body">
+    <div class="card-body p-1 mt-1">
 
 
         <div class="row  p-0 m-0" id="appointmentList" style="margin-top:10px;">

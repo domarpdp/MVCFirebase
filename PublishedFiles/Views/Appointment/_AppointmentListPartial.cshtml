@@ -37,16 +37,42 @@
                         <span class="card-body-item">
                             @appointment.raisedDate.ToString("hh:mm tt")
                         </span>
-                        <span class="card-body-item">
+                        @*<span class="card-body-item">
                             @Html.DisplayFor(modelItem => appointment.id)
-                        </span>
+                        </span>*@
                     </div>
                 </div>
                 <div class="myboxright">
                     <div class="status-container">
-                        <span class="status">@appointment.status</span>
+                        @*<span class="status">@appointment.status</span>
                         <span class="status">@appointment.statusChemist</span>
-                        <span class="status">@appointment.statusCashier</span>
+                        <span class="status">@appointment.statusCashier</span>*@
+                        @if (appointment.status == "Completed")
+                        {
+                            <span class="status"><img src="~/Images/doctor.png" class="img-rounded statusContainerimg ms-2 me-2" /> </span>
+                        }
+                        else
+                        {
+                            <span class="statusnone"></span>
+                        }
+                        @if (appointment.statusChemist == "Completed")
+                        {
+                            <span class="status"><img src="~/Images/chemist.png" class="img-rounded statusContainerimg ms-2 me-2" /></span>
+                        }
+                        else
+                        {
+                            <span class="statusnone"></span>
+                        }
+                        @if (appointment.statusCashier == "Completed")
+                        {
+                            <span class="status"><img src="~/Images/cashier.png" class="img-rounded statusContainerimg ms-2 me-2" /></span>
+                        }
+                        else
+                        {
+                            <span class="statusnone"></span>
+                        }
+
+                        
                     </div>
                     <!-- Popover Toggle Button -->
                     <span id="@popoverToggleId" class="popover-toggle" data-popover-id="@popoverId">

@@ -18,6 +18,7 @@ using System.Security.Claims;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNetCore.Http.Authentication;
 using Microsoft.Owin.Security;
+using Microsoft.AspNetCore.Mvc;
 
 namespace MVCFirebase.Controllers
 {
@@ -34,7 +35,11 @@ namespace MVCFirebase.Controllers
             return View();
         }
 
-        
+        public JsonResult KeepAlive()
+        {
+            return Json(new { success = true, message = "User is not authenticated" });
+        }
+
         [AllowAnonymous]
         public ActionResult term()
         {

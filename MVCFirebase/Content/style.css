@@ -255,14 +255,19 @@ img {
 }
 
 .card-body.my.card-detail {
-    padding: 5px;
+    padding: 0;
+    box-shadow: 2px 5px 11px #333;
 }
 
 .boxitemView .myboxmid .card-body-item {
     width: auto;
     padding: 0px 10px;
 }
-
+.myboxright span.statusnone {
+    height: 20px !important;
+    width: 20px !important;
+    line-height: 20px !important;
+}
 .myboxmid {
     display: flex;
     width: 100%;
@@ -500,6 +505,25 @@ html {
     font-weight: 600;
     max-width:unset!important;
 }
+
+.status-container .status {
+    background-color: #052371;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 2px;
+}
+
+.status-container .status .statusContainerimg {
+    width: 100% !important;
+    display: flex !important;
+    object-fit: contain !important;
+    padding: 3px !important;
+    margin: 0px !important;
+}
+
 /* Media query for extra small devices (<576px) */
 @media (max-width: 575.98px) {
     .card-detail .card-body-item {
