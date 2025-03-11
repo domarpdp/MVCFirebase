@@ -82,9 +82,18 @@
                     <!-- Popover Menu -->
                     <div id="@popoverId" class="popover-menu" style="display: none;">
                         <ul>
-                            <li class="openModal" data-toggle="modal" data-target=".canvasModal" data-appointment-id="@appointment.id" data-patient-id="@appointment.patient_id">Option 1</li>
-                            <li>Option 2</li>
-                            <li>Option 3</li>
+                            @if (ViewBag.RolesString != null && ViewBag.RolesString.ToString().Contains("Doctor"))
+                            {
+                                <li class="openModal" data-toggle="modal" data-target=".canvasModal"
+                                    data-appointment-id="@appointment.id" data-patient-id="@appointment.patient_id">
+                                    Set Appointment
+                                </li>
+                            }
+                            <li>View Patient</li>
+                            <li>Call Patient</li>
+                            <li>Refer To</li>
+                            <li>Upload Prescription</li>
+                            <li>View Prescriptions</li>
                             @*<li class="openDoctorView">Option 3</li>*@
                         </ul>
                     </div>

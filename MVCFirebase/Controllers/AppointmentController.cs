@@ -53,6 +53,8 @@ namespace MVCFirebase.Controllers
             string totalWaitingAppointments = "0";
             string totalCompletedAppointments = "0";
 
+            string RolesString = "";
+
             List<SelectListItem> diseases = new List<SelectListItem>() {
                         new SelectListItem {
                             Text = "General -(fever/general acute complaints)", Value = "General"
@@ -168,6 +170,7 @@ namespace MVCFirebase.Controllers
                     ClinicMobileNumber = savedString.Split('|')[3];
                     ClinicFirebaseDocumentId = savedString.Split('|')[4];
                     Roles = savedString.Split('|')[2].Split('_');
+                    RolesString = savedString.Split('|')[2];
                     UserMobileNumber = savedString.Split('|')[0];
                     UserDetail = savedString.Split('|')[1] + "(" + string.Join(",", Roles.Select(r => r.Substring(0, 3))) + ")";
                     msg = savedString;
@@ -491,6 +494,7 @@ namespace MVCFirebase.Controllers
                 //ViewBag.TotalWaitingAppointments = totalWaitingAppointments;
                 //ViewBag.TotalCompletedAppointments = totalCompletedAppointments;
                 ViewBag.UserDetail = UserDetail;
+                ViewBag.RolesString = RolesString;
                 //Thread.Sleep(1000);
                 //ModelState.AddModelError("", "-- " + Session["sessionid"].ToString() + " -- " + "Succesfully Found Post records.");
                 var model = new AppointmentPatientViewModel
@@ -516,6 +520,7 @@ namespace MVCFirebase.Controllers
                 ViewBag.TotalWaitingAppointments = totalWaitingAppointments;
                 ViewBag.TotalCompletedAppointments = totalCompletedAppointments;
                 ViewBag.UserDetail = UserDetail;
+                ViewBag.RolesString = RolesString;
                 ModelState.AddModelError("", ex.Message);
                 var model = new AppointmentPatientViewModel
                 {
@@ -523,6 +528,8 @@ namespace MVCFirebase.Controllers
                     Appointments = AppointmentList
                 };
                 AppointmentPatientList.Add(model);
+
+
                 return View(AppointmentPatientList);
 
                 

@@ -336,6 +336,10 @@ img {
     .mysearchheader input {
         max-width: unset;
         margin-right: 10px;
+        height: 40px;
+        margin-top: -8px;
+        margin-bottom: 0px;
+        box-shadow: 1px 1px 5px 0px #333;
     }
 
 .justify-content-end {
